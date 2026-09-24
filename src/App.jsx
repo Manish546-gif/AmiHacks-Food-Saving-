@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import { Toast } from './components/Navigation';
@@ -74,6 +74,110 @@ import AdminQueue from './pages/admin/AdminQueue';
 import AdminSettings from './pages/admin/AdminSettings';
 import ImpactDashboard from './pages/shared/ImpactDashboard';
 import NotificationsPage from './pages/shared/NotificationsPage';
+
+// PWA Install Banner — shows when browser fires beforeinstallprompt
+function PWAInstallBanner() {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [show, setShow] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      // Only show if not already installed
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+        || window.navigator.standalone;
+      if (!isStandalone && !sessionStorage.getItem('pwa_banner_dismissed')) {
+        setTimeout(() => setShow(true), 3000); // Show after 3s
+      }
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+
+    // Online/offline tracking
+    const goOnline = () => setIsOnline(true);
+    const goOffline = () => setIsOnline(false);
+    window.addEventListener('online', goOnline);
+    window.addEventListener('offline', goOffline);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('online', goOnline);
+      window.removeEventListener('offline', goOffline);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') setShow(false);
+    setDeferredPrompt(null);
+  };
+
+  const handleDismiss = () => {
+    setShow(false);
+    sessionStorage.setItem('pwa_banner_dismissed', '1');
+  };
+
+  return (
+    <>
+      {/* Offline strip */}
+      {!isOnline && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+          background: '#1a1a2e', color: '#f5a623', padding: '8px 16px',
+          display: 'flex', alignItems: 'center', gap: 8,
+          fontSize: 13, fontWeight: 600, textAlign: 'center', justifyContent: 'center',
+          borderBottom: '1px solid rgba(245,166,35,0.2)',
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>wifi_off</span>
+          Offline — showing cached data
+        </div>
+      )}
+
+      {/* Install banner */}
+      {show && (
+        <div style={{
+          position: 'fixed', bottom: 96, left: 12, right: 12, zIndex: 200,
+          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+          borderRadius: 20, padding: '16px 18px',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
+          border: '1px solid rgba(252,128,25,0.25)',
+          display: 'flex', alignItems: 'center', gap: 14,
+          animation: 'slide-up 350ms cubic-bezier(0.23,1,0.32,1)',
+        }}>
+          <img src="/icon-192.png" alt="" style={{ width: 48, height: 48, borderRadius: 12, flexShrink: 0 }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: 'white', fontWeight: 700, fontSize: 14, marginBottom: 2 }}>Add JanSeva to Home Screen</div>
+            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, lineHeight: 1.4 }}>Works offline • Instant access • No app store needed</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
+            <button
+              onClick={handleInstall}
+              style={{
+                background: 'var(--primary)', color: 'white', border: 'none',
+                borderRadius: 10, padding: '8px 14px', fontSize: 13, fontWeight: 700,
+                cursor: 'pointer', whiteSpace: 'nowrap',
+              }}
+            >
+              Install
+            </button>
+            <button
+              onClick={handleDismiss}
+              style={{
+                background: 'transparent', color: 'rgba(255,255,255,0.5)', border: 'none',
+                fontSize: 11, cursor: 'pointer', padding: '2px 4px',
+              }}
+            >
+              Not now
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 // Quick Role Switcher Floating Bar (visible on all screens except onboarding)
 function QuickRoleSwitcher() {
@@ -211,6 +315,9 @@ function AppInner() {
 
       {/* Quick Role Switcher Bar */}
       <QuickRoleSwitcher />
+
+      {/* PWA Install Banner + Offline indicator */}
+      <PWAInstallBanner />
 
       {/* Global toast */}
       <Toast toast={toast} />
