@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-background": "#161b2d", "primary-fixed-dim": "#ffb689", "outline": "#8b7264", "surface-container-low": "#f3f2ff", "tertiary-fixed": "#98f98e", "secondary-fixed": "#ffdad8", "tertiary-container": "#58b654", "on-tertiary-container": "#004309", "on-secondary-fixed-variant": "#92001c", "tertiary-fixed-dim": "#7cdc75", "primary-container": "#fc8019", "on-tertiary-fixed": "#002203", "background": "#fbf8ff", "inverse-primary": "#ffb689", "surface-container-lowest": "#ffffff", "secondary-container": "#db313f", "on-surface": "#161b2d", "on-primary-fixed": "#311300", "on-primary": "#ffffff", "on-secondary-fixed": "#410007", "inverse-surface": "#2b2f43", "on-surface-variant": "#574236", "surface-container-highest": "#dee1fa", "primary-fixed": "#ffdbc8", "surface-container-high": "#e4e7ff", "on-error-container": "#93000a", "error-container": "#ffdad6", "surface-tint": "#984800", "surface-bright": "#fbf8ff", "error": "#ba1a1a", "secondary-fixed-dim": "#ffb3b1", "surface-dim": "#d6d8f2", "surface": "#fbf8ff", "on-primary-fixed-variant": "#733500", "on-secondary-container": "#fffbff", "on-error": "#ffffff", "tertiary": "#006e16", "inverse-on-surface": "#efefff", "on-primary-container": "#5e2a00", "surface-variant": "#dee1fa", "on-secondary": "#ffffff", "surface-container": "#ececff", "on-tertiary-fixed-variant": "#00530e", "on-tertiary": "#ffffff", "outline-variant": "#dec1b0", "primary": "#984800", "secondary": "#b7122a" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xs": "0.5rem", "space-md": "1rem", "space-2xs": "0.25rem", "gutter": "1rem", "space-2xl": "3rem", "space-sm": "0.75rem", "margin-md": "1.5rem", "space-lg": "1.5rem", "gutter-sm": "0.75rem", "margin-lg": "2rem", "margin": "1rem", "space-xl": "2rem" }, fontFamily: { "label-sm": ["Plus Jakarta Sans"], "display-lg": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "display-lg-mobile": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"] }, fontSize: { "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }], "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0", "fontWeight": "500" }], "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "display-lg-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;font-family:"Plus Jakarta Sans",sans-serif;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-surface text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-16 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-xs"><img alt="Brand logo. - Primary color: #fc8019
+- Font: plusJakartaSans
+- Mode: light
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WmVpIBw716oxvtXDZEyzFeSffGquoFbrd9gO9L-ACbhZlsZIPPj_a9d4d58o4Jqz0p_jU8SnTVyzTkhQkZsJMDrcl46XV_Ls6WsMNyOGafD7BXFdvjrYk4VOs_OMzbutakYEr1GQDUmDgpckBiWpqloSTecV6XlvN-6wY88_y7QpprSsVLXX7KgqOz-0MLd8R2GJ88W8Uh04Rs5sxDbKMgy9tP10Wkbed9TrH5hQYuxoYvdlM-lCZ4_io"/><div class="flex flex-col"><span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">Surplus-to-Shelter</span><span class="font-headline-sm text-headline-sm text-on-surface leading-tight truncate max-w-[190px]">Surplus Feed</span></div></div><div class="flex items-center gap-space-xs"><a aria-label="Quick donate" class="w-11 h-11 flex items-center justify-center rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" data-path="post-surplus-donation" href="#"><span class="material-symbols-outlined text-[22px]">notifications</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface"><div class="flex flex-col w-full px-margin space-y-space-md pb-space-lg">
+<!-- 1. User Identity & Verified Business Card -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-space-md shadow-md">
+<!-- Subtle warm saffron ambient tint on top corner -->
+<div class="absolute -top-12 -right-12 w-36 h-36 rounded-full bg-primary-fixed/40 blur-2xl pointer-events-none"></div>
+<div class="flex items-start gap-space-md relative">
+<!-- Avatar with verified badge overlay -->
+<div class="relative shrink-0">
+<div class="w-20 h-20 rounded-xl overflow-hidden shadow-sm bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of Chef Vikram Malhotra in clean white culinary uniform and apron, smiling warmly in a bright commercial kitchen setting with stainless steel prep tables in soft focus, warm saffron daylight illumination." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFoLOKhZgBHJcIo4_IDh4SLC4QZqDduo15aVBDvyo-_bZSRwPzblOXszNUn_rKS6-KTk0NyWmsUNpX3r9foL05v0Lq8SCU7nBU2chzrVwFFagR-PCsM7Jq7bZkTf867b_6xvM1qH6tlmxw0s-EnUt2Pz4LCOadmUFgNeuWQn25f2tM20hk5ptuaTG9V4JMk998M0BkDzVfLQKLo7GmT0FGqSPncozMkTpIs-1xhvjxDzzJnkVk9odN"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-sm" title="Gold Verified Partner">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<!-- Identity Details -->
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-space-2xs flex-wrap">
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate">Chef Vikram Malhotra</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">Royal Spice Kitchens • Flagship Store</p>
+<!-- Role & Compliance Tag -->
+<div class="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full bg-surface-container-high text-primary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">diamond</span>
+<span class="font-label-sm text-label-sm font-semibold tracking-normal text-on-surface">Verified Tier 1 Commercial Donor</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant/80 mt-1">FSSAI Lic. #112233440098</p>
+</div>
+</div>
+<!-- Quick Stats Bento Banner -->
+<div class="grid grid-cols-3 gap-space-xs mt-space-md pt-space-sm border-0 bg-surface-container-low rounded-lg p-space-xs text-center">
+<div class="flex flex-col items-center justify-center p-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Meals Given</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold mt-0.5">14,820</span>
+</div>
+<div class="flex flex-col items-center justify-center p-1 bg-surface-container-lowest rounded-md shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Waste Diverted</span>
+<span class="font-headline-sm text-headline-sm text-tertiary font-bold mt-0.5">7.4 t</span>
+</div>
+<div class="flex flex-col items-center justify-center p-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Partner Score</span>
+<div class="flex items-center gap-0.5 mt-0.5">
+<span class="material-symbols-outlined text-primary-container text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">4.9</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 2. Saved Pickup Addresses -->
+<div class="flex flex-col space-y-space-xs">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-primary text-[20px]">warehouse</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Kitchen Docks &amp; Locations</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">2 Active</span>
+</div>
+<!-- Address Card 1 -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm flex flex-col space-y-space-xs relative overflow-hidden">
+<div class="flex items-start justify-between gap-space-xs">
+<div class="flex items-start gap-space-xs min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center shrink-0 text-primary mt-0.5">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface font-bold truncate">Flagship Indiranagar</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold">Default</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5 truncate">Floor 2, 100ft Road, Indiranagar, Bengaluru</p>
+<div class="flex items-center gap-1.5 mt-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">local_shipping</span>
+<span class="font-body-sm text-body-sm">Primary Kitchen • Loading Dock B (Gate 3)</span>
+</div>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container text-primary font-label-md text-label-md font-semibold hover:bg-surface-container-high transition-colors shrink-0">
+          Edit
+        </button>
+</div>
+</div>
+<!-- Address Card 2 -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm flex flex-col space-y-space-xs">
+<div class="flex items-start justify-between gap-space-xs">
+<div class="flex items-start gap-space-xs min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center shrink-0 text-on-surface-variant mt-0.5">
+<span class="material-symbols-outlined text-[18px]">storefront</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-bold truncate">Koramangala Cloud Kitchen</span>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5 truncate">5th Block, 80ft Road, Koramangala</p>
+<div class="flex items-center gap-1.5 mt-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">ac_unit</span>
+<span class="font-body-sm text-body-sm">Secondary Hub • Cold Store Bay 1</span>
+</div>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container text-primary font-label-md text-label-md font-semibold hover:bg-surface-container-high transition-colors shrink-0">
+          Edit
+        </button>
+</div>
+</div>
+<!-- Add Location Button -->
+<button class="w-full py-3 px-space-md rounded-xl bg-surface-container-lowest text-primary hover:bg-surface-container-low transition-all font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Add New Pickup Address</span>
+</button>
+</div>
+<!-- 3. Notification & Alert Preferences -->
+<div class="flex flex-col space-y-space-xs">
+<div class="px-1">
+<div class="flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-primary text-[20px]">notifications_active</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Dispatch &amp; Safe-Window Alerts</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Choose channels for real-time surplus matching and courier alerts.</p>
+</div>
+<div class="rounded-xl bg-surface-container-lowest shadow-sm divide-y-0 p-space-xs space-y-space-xs">
+<!-- Row 1: SMS Alerts -->
+<div class="p-space-sm rounded-lg bg-surface flex items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center shrink-0 text-primary mt-0.5">
+<span class="material-symbols-outlined text-[20px]">sms</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">SMS Alerts (Transactional &amp; OTPs)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-snug">Instant driver arrival and digital handover verification codes</span>
+</div>
+</div>
+<!-- Saffron Active Switch -->
+<button aria-label="Toggle SMS Alerts" class="relative shrink-0 inline-flex h-7 w-12 items-center rounded-full bg-primary-container p-0.5 transition-colors focus:outline-none cursor-pointer" data-state="on" onclick="toggleSwitch(this)" type="button">
+<span class="translate-x-5 inline-block h-6 w-6 rounded-full bg-surface-container-lowest shadow-sm transform transition ease-in-out duration-200"></span>
+</button>
+</div>
+<!-- Row 2: Push Notifications -->
+<div class="p-space-sm rounded-lg bg-surface flex items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center shrink-0 text-primary mt-0.5">
+<span class="material-symbols-outlined text-[20px]">mark_chat_unread</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">Push Notifications</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-snug">Live route tracking, instant matches, and safe-window warnings</span>
+</div>
+</div>
+<!-- Saffron Active Switch -->
+<button aria-label="Toggle Push Notifications" class="relative shrink-0 inline-flex h-7 w-12 items-center rounded-full bg-primary-container p-0.5 transition-colors focus:outline-none cursor-pointer" data-state="on" onclick="toggleSwitch(this)" type="button">
+<span class="translate-x-5 inline-block h-6 w-6 rounded-full bg-surface-container-lowest shadow-sm transform transition ease-in-out duration-200"></span>
+</button>
+</div>
+<!-- Row 3: Email Summaries & 80G -->
+<div class="p-space-sm rounded-lg bg-surface flex items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center shrink-0 text-primary mt-0.5">
+<span class="material-symbols-outlined text-[20px]">receipt</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">Email Summaries &amp; 80G Receipts</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-snug">Weekly ESG reports, tax audit certificates, and monthly digest</span>
+</div>
+</div>
+<!-- Saffron Active Switch -->
+<button aria-label="Toggle Email Summaries" class="relative shrink-0 inline-flex h-7 w-12 items-center rounded-full bg-primary-container p-0.5 transition-colors focus:outline-none cursor-pointer" data-state="on" onclick="toggleSwitch(this)" type="button">
+<span class="translate-x-5 inline-block h-6 w-6 rounded-full bg-surface-container-lowest shadow-sm transform transition ease-in-out duration-200"></span>
+</button>
+</div>
+</div>
+</div>
+<!-- 4. Preferences & Accessibility -->
+<div class="flex flex-col space-y-space-xs">
+<div class="px-1">
+<div class="flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-primary text-[20px]">tune</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Preferences &amp; Kitchen Modes</h3>
+</div>
+</div>
+<div class="rounded-xl bg-surface-container-lowest shadow-sm p-space-md space-y-space-md">
+<!-- Language Selector -->
+<div class="flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined text-[18px]">language</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">App Language</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">ಕನ್ನಡ, தமிழ் &amp; हिंदी available</span>
+</div>
+</div>
+<div class="relative shrink-0">
+<select class="appearance-none bg-surface-container text-on-surface font-label-md text-label-md font-semibold py-2 pl-3 pr-8 rounded-lg focus:outline-none cursor-pointer">
+<option selected="">English (India)</option>
+<option>ಕನ್ನಡ (Kannada)</option>
+<option>हिंदी (Hindi)</option>
+<option>தமிழ் (Tamil)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2.5 text-[16px] text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Temperature Metric -->
+<div class="flex items-center justify-between gap-space-md pt-space-xs">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined text-[18px]">device_thermostat</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">Temperature Unit</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cold chain logging standard</span>
+</div>
+</div>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-semibold">
+          Celsius (°C)
+        </span>
+</div>
+<!-- Dark Kitchen Mode Toggle -->
+<div class="flex items-center justify-between gap-space-md pt-space-xs">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">dark_mode</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">Dark Mode Theme</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">High-contrast palette for evening kitchen shifts</span>
+</div>
+</div>
+<button aria-label="Toggle Dark Mode Theme" class="relative shrink-0 inline-flex h-7 w-12 items-center rounded-full bg-surface-container-high p-0.5 transition-colors focus:outline-none cursor-pointer" data-state="off" onclick="toggleSwitch(this)" type="button">
+<span class="translate-x-0 inline-block h-6 w-6 rounded-full bg-surface-container-lowest shadow-sm transform transition ease-in-out duration-200 flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[12px]">light_mode</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 5. Support & Legal Compliance Hub -->
+<div class="flex flex-col space-y-space-xs">
+<div class="px-1">
+<div class="flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-primary text-[20px]">shield_with_heart</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Compliance &amp; Dispatch Desk</h3>
+</div>
+</div>
+<div class="rounded-xl bg-surface-container-lowest shadow-sm divide-y-0 p-space-xs space-y-1">
+<!-- FSSAI Guidelines -->
+<a class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-container transition-colors" href="#">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-tertiary-fixed-dim/40 text-on-tertiary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">health_and_safety</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold truncate">FSSAI Food Safety &amp; Indemnity</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Good Samaritan protection &amp; cold handling policy</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] shrink-0">chevron_right</span>
+</a>
+<!-- 80G Tax Exemption -->
+<a class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-container transition-colors" href="#">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-primary-fixed text-on-primary-fixed-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold truncate">Section 80G Tax Exemption FAQs</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Valuation guidelines &amp; auditor pack</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] shrink-0">chevron_right</span>
+</a>
+<!-- Emergency Desk -->
+<div class="p-space-sm rounded-lg bg-secondary-fixed/30 flex items-center justify-between">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-secondary text-on-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">emergency</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-bold truncate">Dispatch Helpline (Station D-08)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Indiranagar Station • Priority Hotline</span>
+</div>
+</div>
+<a class="px-3 py-1.5 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md font-semibold shrink-0 shadow-sm flex items-center gap-1" href="tel:+918005559090">
+<span class="material-symbols-outlined text-[14px]">call</span>
+<span>Call</span>
+</a>
+</div>
+</div>
+</div>
+<!-- 6. Account Exit & Version Signature -->
+<div class="pt-space-xs flex flex-col items-center space-y-space-md">
+<!-- Log Out Button -->
+<button class="w-full py-3.5 px-space-md rounded-xl bg-error-container text-on-error-container hover:bg-secondary-fixed transition-all font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span>Log Out of Restaurant Console</span>
+</button>
+<!-- App Version & Footnote -->
+<div class="flex flex-col items-center text-center space-y-1">
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-tertiary">eco</span>
+<span class="font-label-sm text-label-sm font-semibold tracking-wide uppercase">Bengaluru Safe Food Rescue Initiative</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant/70">
+        Surplus-to-Shelter v2.4.1 (Build 418) • Licensed Commercial Donor View
+      </p>
+</div>
+</div>
+</div>
+<script>
+  function toggleSwitch(btn) {
+    const isCurrentlyOn = btn.getAttribute('data-state') === 'on';
+    const thumb = btn.querySelector('span');
+
+    if (isCurrentlyOn) {
+      btn.setAttribute('data-state', 'off');
+      btn.classList.remove('bg-primary-container');
+      btn.classList.add('bg-surface-container-high');
+      thumb.classList.remove('translate-x-5');
+      thumb.classList.add('translate-x-0');
+      
+      // If there's an icon inside thumb (like dark mode)
+      const icon = thumb.querySelector('.material-symbols-outlined');
+      if (icon) {
+        icon.textContent = 'light_mode';
+      }
+    } else {
+      btn.setAttribute('data-state', 'on');
+      btn.classList.remove('bg-surface-container-high');
+      btn.classList.add('bg-primary-container');
+      thumb.classList.remove('translate-x-0');
+      thumb.classList.add('translate-x-5');
+      
+      const icon = thumb.querySelector('.material-symbols-outlined');
+      if (icon) {
+        icon.textContent = 'dark_mode';
+      }
+    }
+  }
+</script></main><div class="fixed bottom-20 right-gutter z-50 pointer-events-auto"><a aria-label="Post Surplus Food" class="w-14 h-14 rounded-full bg-gradient-to-br from-primary-container to-primary text-on-primary flex items-center justify-center shadow-[0_8px_24px_rgba(252,128,25,0.4)] hover:scale-105 active:scale-95 transition-all" data-path="post-surplus-donation" href="#"><span class="material-symbols-outlined text-[28px]">add</span></a></div><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/85 backdrop-blur-xl shadow-[0_-4px_24px_rgba(40,44,63,0.06)]" data-active-classes="text-primary font-bold"><div class="flex justify-around items-center h-16 px-space-2xs"><a class="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] text-on-surface-variant transition-colors" data-path="surplus-feed" href="#"><span class="material-symbols-outlined text-[22px]">home</span><span class="font-label-sm text-label-sm mt-0.5">Home</span></a><a class="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] text-on-surface-variant transition-colors" data-path="donations-hub" href="#"><span class="material-symbols-outlined text-[22px]">shopping_bag</span><span class="font-label-sm text-label-sm mt-0.5">Donations</span></a><a class="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] text-on-surface-variant transition-colors" data-path="rescue-impact" href="#"><span class="material-symbols-outlined text-[22px]">trending_up</span><span class="font-label-sm text-label-sm mt-0.5">Impact</span></a><a class="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] text-on-surface-variant transition-colors" data-path="tax-receipts" href="#"><span class="material-symbols-outlined text-[22px]">receipt_long</span><span class="font-label-sm text-label-sm mt-0.5">Receipts</span></a><a class="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] text-on-surface-variant transition-colors" data-path="donor-profile" href="#"><span class="material-symbols-outlined text-[22px]">account_circle</span><span class="font-label-sm text-label-sm mt-0.5">Profile</span></a></div></nav></body></html>

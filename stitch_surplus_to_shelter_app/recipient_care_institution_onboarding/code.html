@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#fbf8ff;color:#161b2d;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-secondary-fixed": "#410007", "on-error-container": "#93000a", "secondary-fixed-dim": "#ffb3b1", "surface-container-highest": "#dee1fa", "on-tertiary-fixed-variant": "#00530e", "surface": "#fbf8ff", "surface-bright": "#fbf8ff", "primary-fixed-dim": "#ffb689", "primary-container": "#fc8019", "on-primary": "#ffffff", "on-surface": "#161b2d", "secondary-fixed": "#ffdad8", "surface-tint": "#984800", "on-primary-container": "#5e2a00", "tertiary-container": "#58b654", "error-container": "#ffdad6", "tertiary-fixed": "#98f98e", "surface-container-high": "#e4e7ff", "on-background": "#161b2d", "on-tertiary-fixed": "#002203", "on-surface-variant": "#574236", "surface-dim": "#d6d8f2", "tertiary": "#006e16", "on-error": "#ffffff", "on-secondary-fixed-variant": "#92001c", "background": "#fbf8ff", "surface-variant": "#dee1fa", "on-primary-fixed": "#311300", "inverse-surface": "#2b2f43", "inverse-on-surface": "#efefff", "surface-container": "#ececff", "outline-variant": "#dec1b0", "inverse-primary": "#ffb689", "outline": "#8b7264", "secondary": "#b7122a", "error": "#ba1a1a", "primary-fixed": "#ffdbc8", "primary": "#984800", "tertiary-fixed-dim": "#7cdc75", "surface-container-low": "#f3f2ff", "on-secondary": "#ffffff", "on-secondary-container": "#fffbff", "on-tertiary": "#ffffff", "on-tertiary-container": "#004309", "on-primary-fixed-variant": "#733500", "secondary-container": "#db313f", "surface-container-lowest": "#ffffff" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-md": "1rem", "gutter": "1rem", "space-xl": "2rem", "gutter-sm": "0.75rem", "space-xs": "0.5rem", "margin-lg": "2rem", "margin": "1rem", "margin-md": "1.5rem", "space-sm": "0.75rem", "space-lg": "1.5rem", "space-2xs": "0.25rem", "space-2xl": "3rem" }, fontFamily: { "headline-lg": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "display-lg-mobile": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "display-lg": ["Plus Jakarta Sans"] }, fontSize: { "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "display-lg-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0", "fontWeight": "500" }], "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }] } } } };</script></head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 px-margin flex flex-col justify-center"><div class="flex items-center justify-between gap-space-xs"><div class="flex items-center gap-space-xs"><button aria-label="Go back" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container-highest transition-colors active:scale-95" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm text-on-surface tracking-tight truncate">Institution Setup</h1></div><div class="flex items-center gap-space-sm"><div class="flex items-center bg-surface-container-low p-space-2xs rounded-full shadow-[0_1px_4px_rgba(40,44,63,0.06)]"><button class="px-space-xs py-1 rounded-full text-on-primary bg-primary-container font-label-sm text-label-sm shadow-sm" type="button">EN</button><button class="px-space-xs py-1 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-colors" type="button">हिंदी</button></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="flex items-center justify-center gap-1.5 pt-1.5 pb-1"><span class="w-6 h-1.5 rounded-full bg-primary-container transition-all"></span><span class="w-2 h-1.5 rounded-full bg-outline-variant/50"></span><span class="w-2 h-1.5 rounded-full bg-outline-variant/50"></span><span class="w-2 h-1.5 rounded-full bg-outline-variant/50"></span></div></div></header><main class="flex flex-col relative w-full pt-20 pb-safe bg-surface min-h-screen"><div class="flex flex-col w-full">
+<div class="px-margin pt-space-xs pb-space-sm flex items-center justify-between">
+<div>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+        STEP 1 OF 2
+      </span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface mt-1">Profile &amp; Verification</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">संस्था प्रोफाइल एवं कानूनी सत्यापन</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container shadow-sm">
+<span class="material-symbols-outlined text-[22px]">verified_user</span>
+</div>
+</div>
+<div class="mx-margin mb-space-md p-space-sm rounded-xl bg-surface-container-low shadow-sm">
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px] shrink-0 mt-0.5">hourglass_top</span>
+<div class="space-y-1">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-on-surface">Verification Desk SLA</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">Under 4h</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          District Food Inspector reviews credentials within 4 hours. Priority 1 institutions receive provisional immediate dispatch match.
+        </p>
+<div class="inline-flex items-center gap-1 text-tertiary font-label-sm text-label-sm pt-0.5">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+          FSSAI Good Samaritan Protocol Covered
+        </div>
+</div>
+</div>
+</div>
+<div class="px-margin space-y-space-lg pb-space-2xl">
+<section class="space-y-space-xs">
+<div class="flex items-baseline justify-between">
+<h3 class="font-label-lg text-label-lg text-on-surface">1. Institution Classification</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Select Primary Role</span>
+</div>
+<div class="grid grid-cols-1 gap-2.5" id="institution-type-list">
+<button class="inst-card text-left p-space-sm rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between transition-all active:scale-[0.99] selected-type" data-type="child-care" type="button">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-lg bg-secondary-fixed text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">child_care</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface">Child Care Home</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary font-label-sm text-label-sm">Priority 1 🔴</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">बाल गृह / शिशु केंद्र</p>
+</div>
+</div>
+<span class="inst-check material-symbols-outlined text-primary-container text-[22px]">check_circle</span>
+</button>
+<button class="inst-card text-left p-space-sm rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between transition-all active:scale-[0.99]" data-type="old-age" type="button">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-lg bg-primary-fixed text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">elderly</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface">Old Age Home</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm">Priority 1 🔴</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">वृद्धाश्रम एवं वरिष्ठ सेवा</p>
+</div>
+</div>
+<span class="inst-check hidden material-symbols-outlined text-primary-container text-[22px]">check_circle</span>
+</button>
+<button class="inst-card text-left p-space-sm rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between transition-all active:scale-[0.99]" data-type="anganwadi" type="button">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-lg bg-surface-container-high text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">local_florist</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface">Anganwadi Center</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary font-label-sm text-label-sm">Priority 1 🔴</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">आंगनवाड़ी पोषण केंद्र</p>
+</div>
+</div>
+<span class="inst-check hidden material-symbols-outlined text-primary-container text-[22px]">check_circle</span>
+</button>
+<button class="inst-card text-left p-space-sm rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between transition-all active:scale-[0.99]" data-type="community-kitchen" type="button">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-lg bg-tertiary-fixed text-tertiary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">soup_kitchen</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface">Govt Community Kitchen</span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary text-on-tertiary font-label-sm text-label-sm">Priority 2 🟠</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">सामुदायिक रसोई (अन्नपूर्णा/इंदिरा)</p>
+</div>
+</div>
+<span class="inst-check hidden material-symbols-outlined text-primary-container text-[22px]">check_circle</span>
+</button>
+<button class="inst-card text-left p-space-sm rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between transition-all active:scale-[0.99]" data-type="school-meal" type="button">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-lg bg-surface-container-highest text-on-surface flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">school</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface">School Meal Program</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface font-label-sm text-label-sm">Priority 2 🟠</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">मध्याह्न भोजन एवं छात्रावास</p>
+</div>
+</div>
+<span class="inst-check hidden material-symbols-outlined text-primary-container text-[22px]">check_circle</span>
+</button>
+<button class="inst-card text-left p-space-sm rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between transition-all active:scale-[0.99]" data-type="night-shelter" type="button">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-lg bg-surface-container text-on-surface flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">night_shelter</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface">NGO / Night Shelter</span>
+<span class="px-2 py-0.5 rounded-full bg-outline-variant text-on-surface-variant font-label-sm text-label-sm">Priority 3 🟡</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">रैन बसेरा / आश्रय स्थल</p>
+</div>
+</div>
+<span class="inst-check hidden material-symbols-outlined text-primary-container text-[22px]">check_circle</span>
+</button>
+<button class="inst-card text-left p-space-sm rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between transition-all active:scale-[0.99]" data-type="food-bank" type="button">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-lg bg-surface-container text-on-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">inventory_2</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface">Community Food Bank</span>
+<span class="px-2 py-0.5 rounded-full bg-outline-variant text-on-surface-variant font-label-sm text-label-sm">Priority 3 🟡</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">खाद्य बैंक एवं वितरण केंद्र</p>
+</div>
+</div>
+<span class="inst-check hidden material-symbols-outlined text-primary-container text-[22px]">check_circle</span>
+</button>
+</div>
+</section>
+<section class="space-y-space-sm">
+<h3 class="font-label-lg text-label-lg text-on-surface">2. Legal Identity &amp; Capacity</h3>
+<div class="bg-surface-container-lowest p-space-sm rounded-xl shadow-sm space-y-space-sm">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1" for="reg-id">
+            Govt / Darpan / 12A / Society ID
+          </label>
+<div class="relative">
+<input class="w-full h-12 px-3 rounded-lg bg-surface-container-low font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#fc8019]" id="reg-id" placeholder="Enter Registration ID" type="text" value="DARPAN-KA-2021-9821"/>
+<span class="absolute right-3 top-3 material-symbols-outlined text-tertiary text-[20px]">check_circle</span>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">
+            Registration Document (80G / 12A / Darpan Certificate)
+          </label>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-primary-container text-[28px] mb-1">cloud_upload</span>
+<p class="font-label-md text-label-md text-on-surface">Tap to replace or upload additional license</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">PDF, JPG up to 10MB</p>
+<div class="mt-2.5 w-full bg-surface-container-lowest p-2 rounded-lg flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-2 truncate">
+<span class="material-symbols-outlined text-secondary text-[20px]">picture_as_pdf</span>
+<span class="font-label-sm text-label-sm text-on-surface truncate">Darpan_Reg_Certificate.pdf</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">1.2 MB</span>
+</div>
+<span class="material-symbols-outlined text-tertiary text-[18px]">verified</span>
+</div>
+</div>
+</div>
+<div class="pt-1">
+<div class="flex items-center justify-between mb-1">
+<label class="font-label-md text-label-md text-on-surface">Registered Beneficiary Count</label>
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+              Confidential &amp; Anonymized
+            </span>
+</div>
+<div class="p-space-xs rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="pl-2">
+<span class="font-headline-sm text-headline-sm text-on-surface" id="capacity-display">65</span>
+<span class="font-body-md text-body-md text-on-surface-variant"> residents / meal slots</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="w-10 h-10 rounded-lg bg-surface-container-lowest shadow-sm flex items-center justify-center text-on-surface active:scale-95" id="btn-dec" type="button">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<button class="w-10 h-10 rounded-lg bg-primary-container text-on-primary shadow-sm flex items-center justify-center active:scale-95" id="btn-inc" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+            Per child protection policies, names and personal identity records are strictly prohibited on food receipts.
+          </p>
+</div>
+</div>
+</section>
+<section class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<h3 class="font-label-lg text-label-lg text-on-surface">3. Meal Windows (Dispatch Matching)</h3>
+<span class="font-label-sm text-label-sm text-primary-container">IST (UTC+5:30)</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<div class="p-space-sm rounded-xl bg-surface-container-lowest shadow-sm">
+<div class="flex items-center gap-1.5 text-on-surface-variant mb-1">
+<span class="material-symbols-outlined text-[18px] text-primary-container">sunny</span>
+<span class="font-label-md text-label-md">Lunch Window</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-on-surface">12:30 PM</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">until 02:00 PM</p>
+<div class="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm">
+            Ready for Hot Trays
+          </div>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-lowest shadow-sm">
+<div class="flex items-center gap-1.5 text-on-surface-variant mb-1">
+<span class="material-symbols-outlined text-[18px] text-primary">bedtime</span>
+<span class="font-label-md text-label-md">Dinner Window</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-on-surface">07:30 PM</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">until 09:30 PM</p>
+<div class="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+            Optimal Fleet Slot
+          </div>
+</div>
+</div>
+</section>
+<section class="space-y-space-sm">
+<h3 class="font-label-lg text-label-lg text-on-surface">4. Dietary Strictness &amp; Preparation Rules</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Match only verified commercial donor kitchens respecting these tags</p>
+<div class="flex flex-wrap gap-2" id="dietary-tags">
+<button class="diet-chip px-3 py-2 rounded-full font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-all active:scale-95 bg-tertiary-fixed text-on-tertiary-fixed" data-active="true" type="button">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+          Pure Veg Only
+        </button>
+<button class="diet-chip px-3 py-2 rounded-full font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-all active:scale-95 bg-surface-container-lowest text-on-surface" data-active="false" type="button">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+          Jain (No Onion / Garlic)
+        </button>
+<button class="diet-chip px-3 py-2 rounded-full font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-all active:scale-95 bg-surface-container-high text-primary font-bold" data-active="true" type="button">
+<span class="material-symbols-outlined text-[16px]">cookie</span>
+          Soft Food (Senior / Toddler)
+        </button>
+<button class="diet-chip px-3 py-2 rounded-full font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-all active:scale-95 bg-surface-container-high text-on-surface" data-active="true" type="button">
+<span class="material-symbols-outlined text-[16px]">spa</span>
+          Mild / Low Spice
+        </button>
+</div>
+</section>
+<section class="space-y-space-sm">
+<h3 class="font-label-lg text-label-lg text-on-surface">5. Kitchen &amp; Infrastructure Readiness</h3>
+<div class="bg-surface-container-lowest rounded-xl p-space-sm shadow-sm space-y-3">
+<div class="flex items-center justify-between gap-3">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary-container text-[24px]">microwave</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">On-site Warming &amp; Reheating</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Steamers, microwave units or induction burners</p>
+</div>
+</div>
+<button class="toggle-btn w-12 h-7 rounded-full bg-primary-container p-0.5 flex items-center transition-colors justify-end" data-checked="true" type="button">
+<span class="w-6 h-6 rounded-full bg-on-primary shadow-sm"></span>
+</button>
+</div>
+<div class="h-px bg-surface-container-high"></div>
+<div class="flex items-center justify-between gap-3">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary text-[24px]">kitchen</span>
+<div>
+<div class="flex items-center gap-1.5">
+<p class="font-label-md text-label-md text-on-surface">Commercial Cold Storage</p>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high font-label-sm text-label-sm text-on-surface">240L Capacity</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Permits safe overnight chill buffer for perishables</p>
+</div>
+</div>
+<button class="toggle-btn w-12 h-7 rounded-full bg-primary-container p-0.5 flex items-center transition-colors justify-end" data-checked="true" type="button">
+<span class="w-6 h-6 rounded-full bg-on-primary shadow-sm"></span>
+</button>
+</div>
+</div>
+</section>
+<section class="space-y-space-sm">
+<h3 class="font-label-lg text-label-lg text-on-surface">6. Verification Desk &amp; Dispatch In-Charge</h3>
+<div class="bg-surface-container-lowest rounded-xl p-space-sm shadow-sm space-y-space-sm">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Nodal Contact / Warden Desk</label>
+<div class="relative">
+<input class="w-full h-12 pl-10 pr-3 rounded-lg bg-surface-container-low font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#fc8019]" type="text" value="Sister Mary Joseph (Chief Warden)"/>
+<span class="absolute left-3 top-3 material-symbols-outlined text-on-surface-variant text-[20px]">badge</span>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Direct Operational Mobile (OTP verified)</label>
+<div class="relative">
+<input class="w-full h-12 pl-10 pr-3 rounded-lg bg-surface-container-low font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest focus:shadow-[0_0_0_2px_#fc8019]" type="tel" value="+91 98450 12345"/>
+<span class="absolute left-3 top-3 material-symbols-outlined text-on-surface-variant text-[20px]">call</span>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Dispatch Alert Language</label>
+<div class="grid grid-cols-2 p-1 rounded-lg bg-surface-container-low gap-1" id="language-selector">
+<button class="py-2 rounded-md font-label-md text-label-md bg-surface-container-lowest text-on-surface shadow-sm font-semibold lang-btn" data-lang="en" type="button">
+              English
+            </button>
+<button class="py-2 rounded-md font-label-md text-label-md text-on-surface-variant hover:text-on-surface lang-btn" data-lang="hi" type="button">
+              हिंदी (Hindi)
+            </button>
+</div>
+</div>
+</div>
+</section>
+<section class="p-space-sm rounded-xl bg-tertiary-fixed text-on-tertiary-fixed shadow-sm">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary text-[26px] shrink-0 mt-0.5">security</span>
+<div>
+<p class="font-label-lg text-label-lg font-bold">Admin Good Samaritan Shield</p>
+<p class="font-body-sm text-body-sm mt-0.5">
+            Institutions are indemnified under Central Food Safety Guidelines. Delivery temperature logs will be recorded on handoff.
+          </p>
+</div>
+</div>
+</section>
+<div class="pt-2 space-y-2">
+<button class="w-full h-14 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg shadow-md flex items-center justify-center gap-2 active:scale-[0.98] transition-all" id="submit-btn" type="button">
+<span>Submit for Admin Verification</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<p class="text-center font-body-sm text-body-sm text-on-surface-variant">
+        Zero platform fees. Subsidized EV logistics sponsored by CSR partners.
+      </p>
+</div>
+</div>
+</div>
+<script>
+  (function initInstitutionOnboarding() {
+    let beneficiaryCount = 65;
+    const countDisplay = document.getElementById('capacity-display');
+    const btnDec = document.getElementById('btn-dec');
+    const btnInc = document.getElementById('btn-inc');
+
+    if (btnDec && btnInc && countDisplay) {
+      btnDec.addEventListener('click', () => {
+        if (beneficiaryCount > 5) {
+          beneficiaryCount -= 5;
+          countDisplay.textContent = beneficiaryCount;
+        }
+      });
+      btnInc.addEventListener('click', () => {
+        beneficiaryCount += 5;
+        countDisplay.textContent = beneficiaryCount;
+      });
+    }
+
+    const cards = document.querySelectorAll('.inst-card');
+    cards.forEach((card) => {
+      card.addEventListener('click', () => {
+        cards.forEach((c) => {
+          c.classList.remove('selected-type', 'shadow-md');
+          const check = c.querySelector('.inst-check');
+          if (check) check.classList.add('hidden');
+        });
+        card.classList.add('selected-type', 'shadow-md');
+        const activeCheck = card.querySelector('.inst-check');
+        if (activeCheck) activeCheck.classList.remove('hidden');
+      });
+    });
+
+    const dietChips = document.querySelectorAll('.diet-chip');
+    dietChips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const isActive = chip.getAttribute('data-active') === 'true';
+        if (isActive) {
+          chip.setAttribute('data-active', 'false');
+          chip.classList.remove('bg-tertiary-fixed', 'text-on-tertiary-fixed', 'bg-surface-container-high', 'text-primary');
+          chip.classList.add('bg-surface-container-lowest', 'text-on-surface-variant');
+        } else {
+          chip.setAttribute('data-active', 'true');
+          chip.classList.remove('bg-surface-container-lowest', 'text-on-surface-variant');
+          chip.classList.add('bg-tertiary-fixed', 'text-on-tertiary-fixed');
+        }
+      });
+    });
+
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
+    toggleBtns.forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const isChecked = toggle.getAttribute('data-checked') === 'true';
+        if (isChecked) {
+          toggle.setAttribute('data-checked', 'false');
+          toggle.classList.remove('bg-primary-container', 'justify-end');
+          toggle.classList.add('bg-surface-container-high', 'justify-start');
+        } else {
+          toggle.setAttribute('data-checked', 'true');
+          toggle.classList.remove('bg-surface-container-high', 'justify-start');
+          toggle.classList.add('bg-primary-container', 'justify-end');
+        }
+      });
+    });
+
+    const langBtns = document.querySelectorAll('.lang-btn');
+    langBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        langBtns.forEach((b) => {
+          b.classList.remove('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm', 'font-semibold');
+          b.classList.add('text-on-surface-variant');
+        });
+        btn.classList.add('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm', 'font-semibold');
+        btn.classList.remove('text-on-surface-variant');
+      });
+    });
+
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', () => {
+        submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px]">autorenew</span><span>Verifying &amp; Registering...</span>';
+        setTimeout(() => {
+          submitBtn.classList.remove('bg-primary-container');
+          submitBtn.classList.add('bg-tertiary');
+          submitBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">task_alt</span><span>Application Submitted (Ref #BLR-4092)</span>';
+        }, 900);
+      });
+    }
+  })();
+</script></main></body></html>

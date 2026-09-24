@@ -1,0 +1,640 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-secondary-fixed":"#410007","on-error-container":"#93000a","secondary-fixed-dim":"#ffb3b1","surface-container-highest":"#dee1fa","on-tertiary-fixed-variant":"#00530e","surface":"#fbf8ff","surface-bright":"#fbf8ff","primary-fixed-dim":"#ffb689","primary-container":"#fc8019","on-primary":"#ffffff","on-surface":"#161b2d","secondary-fixed":"#ffdad8","surface-tint":"#984800","on-primary-container":"#5e2a00","tertiary-container":"#58b654","error-container":"#ffdad6","tertiary-fixed":"#98f98e","surface-container-high":"#e4e7ff","on-background":"#161b2d","on-tertiary-fixed":"#002203","on-surface-variant":"#574236","surface-dim":"#d6d8f2","tertiary":"#006e16","on-error":"#ffffff","on-secondary-fixed-variant":"#92001c","background":"#fbf8ff","surface-variant":"#dee1fa","on-primary-fixed":"#311300","inverse-surface":"#2b2f43","inverse-on-surface":"#efefff","surface-container":"#ececff","outline-variant":"#dec1b0","inverse-primary":"#ffb689","outline":"#8b7264","secondary":"#b7122a","error":"#ba1a1a","primary-fixed":"#ffdbc8","primary":"#984800","tertiary-fixed-dim":"#7cdc75","surface-container-low":"#f3f2ff","on-secondary":"#ffffff","on-secondary-container":"#fffbff","on-tertiary":"#ffffff","on-tertiary-container":"#004309","on-primary-fixed-variant":"#733500","secondary-container":"#db313f","surface-container-lowest":"#ffffff"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"space-md":"1rem","gutter":"1rem","space-xl":"2rem","gutter-sm":"0.75rem","space-xs":"0.5rem","margin-lg":"2rem","margin":"1rem","margin-md":"1.5rem","space-sm":"0.75rem","space-lg":"1.5rem","space-2xs":"0.25rem","space-2xl":"3rem"},fontFamily:{"headline-lg":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"display-lg-mobile":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"display-lg":["Plus Jakarta Sans"]},fontSize:{"headline-lg":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-sm":["10px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"700"}],"headline-sm":["18px",{"lineHeight":"24px","letterSpacing":"-0.005em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"400"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"display-lg-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"700"}],"body-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-md":["22px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"500"}],"display-lg":["40px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between py-space-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-lg"><div class="px-space-lg flex items-center gap-space-sm"><div class="w-10 h-10 rounded-xl bg-surface-container-lowest flex items-center justify-center text-primary shadow-[0_4px_20px_rgba(40,44,63,0.08)]"><span class="material-symbols-outlined text-[24px]">account_balance</span></div><div class="flex flex-col"><span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">National Mission</span><span class="font-headline-sm text-headline-sm text-on-surface leading-tight">NFRO Portal</span></div></div><div class="px-space-md"><div class="bg-surface-container-lowest p-space-sm rounded-xl flex items-center justify-between shadow-[0_4px_20px_rgba(40,44,63,0.08)]"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-tertiary text-[20px]">verified</span><span class="font-label-sm text-label-sm uppercase text-on-surface">Oversight Node</span></div><span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded-full bg-surface-container-high text-on-surface-variant">v4.2-Gov</span></div></div><nav class="flex flex-col gap-space-2xs px-space-md" data-active-classes="bg-primary-container text-on-primary font-label-lg rounded-xl shadow-[0_4px_20px_rgba(40,44,63,0.08)]"><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm transition-all bg-primary-container text-on-primary font-label-lg rounded-xl shadow-[0_4px_20px_rgba(40,44,63,0.08)]" data-path="overview" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span class="font-label-lg text-label-lg">Overview</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="institutions-directory" href="#"><span class="material-symbols-outlined text-[20px]">apartment</span><span class="font-label-lg text-label-lg">Institutions Directory</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="verification-desk" href="#"><span class="material-symbols-outlined text-[20px]">rule</span><span class="font-label-lg text-label-lg">Verification Desk</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="quota-and-tiers" href="#"><span class="material-symbols-outlined text-[20px]">tune</span><span class="font-label-lg text-label-lg">Quota &amp; Tiers</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="policy-audit" href="#"><span class="material-symbols-outlined text-[20px]">policy</span><span class="font-label-lg text-label-lg">Policy Audit</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-label-lg text-label-lg">Settings</span></a></nav></div><div class="px-space-md flex flex-col gap-space-sm"><div class="bg-surface-container-lowest p-space-sm rounded-xl shadow-[0_4px_20px_rgba(40,44,63,0.08)] flex flex-col gap-space-2xs"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline uppercase">Nodal Dispatch</span><span class="h-2 w-2 rounded-full bg-tertiary"></span></div><span class="font-body-sm text-body-sm text-on-surface-variant">Central Grid Synced: 2m ago</span></div><div class="px-space-xs text-center"><span class="font-label-sm text-label-sm text-outline">National Food Rescue Mission • Govt of India</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-20 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-xl"><div class="flex items-center gap-space-md"><div class="w-11 h-11 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary-container shadow-[0_4px_20px_rgba(40,44,63,0.08)]"><span class="material-symbols-outlined text-[28px]">shield_with_heart</span></div><div class="flex flex-col"><span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">National Food Safety Authority</span><h1 class="font-headline-sm text-headline-sm text-on-surface">State Food Safety &amp; Surplus Distribution Directorate</h1></div></div><div class="flex items-center gap-space-md"><div class="flex items-center bg-surface-container-lowest px-space-md py-space-xs rounded-xl shadow-[0_4px_20px_rgba(40,44,63,0.08)] gap-space-xs"><span class="material-symbols-outlined text-outline text-[18px]">location_city</span><select class="bg-transparent font-label-md text-label-md text-on-surface focus:outline-none cursor-pointer pr-space-xs"><option>Central Capital District</option><option>Northern Metro Cluster</option><option>Eastern Coastal Nodal</option><option>Southern Industrial Belt</option><option>Western Agrarian Basin</option></select></div><button class="h-12 px-space-md rounded-xl bg-surface-container-lowest text-primary font-label-lg text-label-lg shadow-[0_4px_20px_rgba(40,44,63,0.08)] hover:bg-surface-container-high hover:text-on-surface transition-all flex items-center gap-space-xs" type="button"><span class="material-symbols-outlined text-[18px]">workspace_premium</span><span class="">CSR Report</span></button><button class="h-12 px-space-md rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg shadow-[0_4px_20px_rgba(40,44,63,0.08)] hover:bg-primary hover:text-on-primary transition-all flex items-center gap-space-xs" type="button"><span class="material-symbols-outlined text-[18px]">file_download</span><span class="">Export Report</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-space-xs"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="relative pt-20 w-full min-h-screen bg-surface"><div class="flex flex-col w-full">
+<!-- Sub-Header / Directorate Identity & State Badges Banner -->
+<div class="px-space-xl py-space-md bg-surface-container-low flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs px-space-sm py-space-2xs bg-surface-container-lowest rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-primary text-[22px]" style="font-variation-settings: 'FILL' 1;">assured_workload</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm tracking-wider uppercase text-on-surface-variant leading-none">Government of Karnataka</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Food Civil Supplies &amp; Consumer Affairs</span>
+</div>
+</div>
+<div class="h-6 w-px bg-surface-container-highest"></div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">family_restroom</span>
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">In Alliance with Ministry of Women &amp; Child Development</span>
+</div>
+</div>
+<!-- Quick Filters & Export Toolbar -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center bg-surface-container-lowest px-space-sm py-space-xs rounded-xl shadow-sm gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">map</span>
+<select class="bg-transparent font-label-md text-label-md text-on-surface focus:outline-none cursor-pointer pr-space-xs">
+<option selected="">Bengaluru Urban (All 5 Zones)</option>
+<option>Bengaluru Rural</option>
+<option>Mysuru Municipal Cluster</option>
+<option>Hubballi-Dharwad Node</option>
+</select>
+</div>
+<div class="flex items-center bg-surface-container-lowest px-space-sm py-space-xs rounded-xl shadow-sm gap-space-xs">
+<span class="material-symbols-outlined text-outline text-[18px]">date_range</span>
+<select class="bg-transparent font-label-md text-label-md text-on-surface focus:outline-none cursor-pointer pr-space-xs">
+<option selected="">Fiscal Year 2024-25 (Q3)</option>
+<option>Fiscal Year 2024-25 (Q2)</option>
+<option>Fiscal Year 2024-25 (Q1)</option>
+<option>Fiscal Year 2023-24 (Consolidated)</option>
+</select>
+</div>
+<button class="h-10 px-space-md rounded-xl bg-surface-container-lowest text-primary font-label-md text-label-md shadow-sm hover:bg-surface-container-high transition-all flex items-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[18px]">currency_rupee</span>
+<span class="">CSR Audit Report</span>
+</button>
+<button class="h-10 px-space-md rounded-xl bg-primary-container text-on-primary font-label-md text-label-md shadow-sm hover:bg-primary transition-all flex items-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[18px]">description</span>
+<span class="">Export Official Report</span>
+</button>
+</div>
+</div>
+<div class="px-space-xl py-space-lg flex flex-col gap-space-lg">
+<!-- Top Mission Command Title -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="h-2 w-2 rounded-full bg-tertiary-container animate-pulse"></span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary font-bold">Surplus-to-Shelter Mission Monitoring Command</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-on-surface tracking-tight mt-space-2xs">State Care &amp; Rescue Oversight Node</h2>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto bg-surface-container-lowest px-space-md py-space-xs rounded-xl shadow-sm">
+<span class="material-symbols-outlined text-tertiary text-[20px]">verified_user</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase leading-none">Statutory Compliance</span>
+<span class="font-label-md text-label-md text-on-surface">JJ &amp; Senior Care Act Aligned</span>
+</div>
+</div>
+</div>
+<!-- KPI Tier Ribbon (6 Cards) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-space-md">
+<!-- Total Meals Diverted -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Total Meals Diverted</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">dinner_dining</span>
+</div>
+</div>
+<div class="mt-space-md">
+<span class="font-display-lg text-display-lg text-on-surface font-bold leading-none">1,48,920</span>
+<div class="flex items-center gap-space-2xs mt-space-xs">
+<span class="material-symbols-outlined text-tertiary text-[14px]">trending_up</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">+18.4%</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">vs Q2 target</span>
+</div>
+</div>
+</div>
+<!-- Priority 1 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase text-secondary font-bold">Priority 1 (Children &amp; Elders)</span>
+<span class="px-space-xs py-space-2xs rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">P1</span>
+</div>
+<div class="mt-space-md">
+<span class="font-headline-lg text-headline-lg text-on-surface font-bold leading-none">90,600</span>
+<div class="flex items-center justify-between mt-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Anganwadi &amp; Homes</span>
+<span class="font-label-sm text-label-sm text-secondary font-bold">60.8% quota</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full mt-space-2xs overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 60.8%;"></div>
+</div>
+</div>
+</div>
+<!-- Priority 2 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase text-primary font-bold">Priority 2 (Govt Kitchens)</span>
+<span class="px-space-xs py-space-2xs rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold">P2</span>
+</div>
+<div class="mt-space-md">
+<span class="font-headline-lg text-headline-lg text-on-surface font-bold leading-none">42,120</span>
+<div class="flex items-center justify-between mt-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Schools &amp; Canteens</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">28.3% quota</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full mt-space-2xs overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 28.3%;"></div>
+</div>
+</div>
+</div>
+<!-- Priority 3 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline font-bold">Priority 3 (Night Shelters)</span>
+<span class="px-space-xs py-space-2xs rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-bold">P3</span>
+</div>
+<div class="mt-space-md">
+<span class="font-headline-lg text-headline-lg text-on-surface font-bold leading-none">16,200</span>
+<div class="flex items-center justify-between mt-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant">NGO Run Shelters</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-bold">10.9% quota</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full mt-space-2xs overflow-hidden">
+<div class="h-full bg-outline rounded-full" style="width: 10.9%;"></div>
+</div>
+</div>
+</div>
+<!-- Verified Institutions -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Active Institutions</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[18px]">domain_verification</span>
+</div>
+</div>
+<div class="mt-space-md">
+<span class="font-display-lg text-display-lg text-on-surface font-bold leading-none">68</span>
+<div class="flex items-center gap-space-2xs mt-space-xs">
+<span class="material-symbols-outlined text-tertiary text-[14px]">check_circle</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">100% Geo-tagged &amp; Validated</span>
+</div>
+</div>
+</div>
+<!-- CSR Subsidized Value -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">CSR Value Realized</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[18px]">currency_rupee</span>
+</div>
+</div>
+<div class="mt-space-md">
+<span class="font-headline-lg text-headline-lg text-primary font-bold leading-none">₹74.46 L</span>
+<div class="flex items-center gap-space-2xs mt-space-xs">
+<span class="font-label-sm text-label-sm text-outline">₹50/standard hot meal benchmark</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Layout (7 / 5 Split) -->
+<div class="flex flex-col gap-space-lg">
+<!-- Row 1: Primary Visuals Side-by-Side (Trend Chart & GIS Map) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+<!-- Visual Analytics Chart: Meals Redirection by Priority Tier Over Time -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md">
+<div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-sm">
+<div>
+<span class="font-label-sm text-label-sm uppercase text-outline font-bold">Trend Analysis &amp; Demand Absorption</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Meals Redirection by Priority Tier (Jul - Nov)</h3>
+</div>
+<!-- Legend -->
+<div class="flex items-center gap-space-sm text-body-sm">
+<div class="flex items-center gap-space-2xs">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-on-surface">P1 Child/Elderly</span>
+</div>
+<div class="flex items-center gap-space-2xs">
+<span class="w-3 h-3 rounded-full bg-primary-container"></span>
+<span class="font-label-sm text-label-sm text-on-surface">P2 Govt Kitchens</span>
+</div>
+<div class="flex items-center gap-space-2xs">
+<span class="w-3 h-3 rounded-full bg-surface-dim"></span>
+<span class="font-label-sm text-label-sm text-on-surface">P3 Shelters</span>
+</div>
+</div>
+</div>
+<!-- Stacked Bar Data Visualization (Inline SVG) -->
+<div class="w-full bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-sm">
+<svg class="w-full h-56" fill="none" viewBox="0 0 540 200" xmlns="http://www.w3.org/2000/svg">
+<line stroke="#dee1fa" stroke-dasharray="3 3" stroke-width="1" x1="40" x2="520" y1="160" y2="160"></line>
+<line stroke="#dee1fa" stroke-dasharray="3 3" stroke-width="1" x1="40" x2="520" y1="120" y2="120"></line>
+<line stroke="#dee1fa" stroke-dasharray="3 3" stroke-width="1" x1="40" x2="520" y1="80" y2="80"></line>
+<line stroke="#dee1fa" stroke-dasharray="3 3" stroke-width="1" x1="40" x2="520" y1="40" y2="40"></line>
+<text fill="#8b7264" font-family="Plus Jakarta Sans" font-size="10" text-anchor="end" x="32" y="163">0k</text>
+<text fill="#8b7264" font-family="Plus Jakarta Sans" font-size="10" text-anchor="end" x="32" y="123">10k</text>
+<text fill="#8b7264" font-family="Plus Jakarta Sans" font-size="10" text-anchor="end" x="32" y="83">20k</text>
+<text fill="#8b7264" font-family="Plus Jakarta Sans" font-size="10" text-anchor="end" x="32" y="43">35k</text>
+<rect fill="#b7122a" height="22" rx="4" width="44" x="75" y="138"></rect>
+<rect fill="#fc8019" height="15" rx="4" width="44" x="75" y="122"></rect>
+<rect fill="#d6d8f2" height="9" rx="4" width="44" x="75" y="112"></rect>
+<rect fill="#b7122a" height="30" rx="4" width="44" x="165" y="130"></rect>
+<rect fill="#fc8019" height="19" rx="4" width="44" x="165" y="110"></rect>
+<rect fill="#d6d8f2" height="9" rx="4" width="44" x="165" y="100"></rect>
+<rect fill="#b7122a" height="40" rx="4" width="44" x="255" y="120"></rect>
+<rect fill="#fc8019" height="21" rx="4" width="44" x="255" y="98"></rect>
+<rect fill="#d6d8f2" height="9" rx="4" width="44" x="255" y="88"></rect>
+<rect fill="#b7122a" height="48" rx="4" width="44" x="345" y="112"></rect>
+<rect fill="#fc8019" height="23" rx="4" width="44" x="345" y="88"></rect>
+<rect fill="#d6d8f2" height="9" rx="4" width="44" x="345" y="78"></rect>
+<rect fill="#b7122a" height="60" rx="4" width="44" x="435" y="100"></rect>
+<rect fill="#fc8019" height="27" rx="4" width="44" x="435" y="72"></rect>
+<rect fill="#d6d8f2" height="11" rx="4" width="44" x="435" y="60"></rect>
+<text fill="#161b2d" font-family="Plus Jakarta Sans" font-size="12" font-weight="600" text-anchor="middle" x="97" y="180">Jul</text>
+<text fill="#161b2d" font-family="Plus Jakarta Sans" font-size="12" font-weight="600" text-anchor="middle" x="187" y="180">Aug</text>
+<text fill="#161b2d" font-family="Plus Jakarta Sans" font-size="12" font-weight="600" text-anchor="middle" x="277" y="180">Sep</text>
+<text fill="#161b2d" font-family="Plus Jakarta Sans" font-size="12" font-weight="600" text-anchor="middle" x="367" y="180">Oct</text>
+<text fill="#161b2d" font-family="Plus Jakarta Sans" font-size="12" font-weight="600" text-anchor="middle" x="457" y="180">Nov (Active)</text>
+</svg>
+<div class="flex items-center justify-between pt-space-xs px-space-xs text-body-sm text-on-surface-variant">
+<span class="">Statutory Requirement: ≥50% surplus reserved for Priority 1 tiers.</span>
+<span class="font-label-md text-label-md text-tertiary flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[16px]">verified</span> Compliant (60.8%)
+</span>
+</div>
+</div>
+</div>
+<!-- Strict Compliance Notice -->
+<div class="p-space-sm bg-surface-container rounded-xl flex items-start gap-space-sm mt-space-sm">
+<span class="material-symbols-outlined text-secondary text-[22px] shrink-0 mt-0.5">privacy_tip</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Strict Statutory Beneficiary Protection</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+Beneficiary privacy protected. Zero personal identifiers, biometrics, or inmate photos stored under the Juvenile Justice (Care and Protection of Children) Act and Senior Care Protocols. Location data is aggregated for nodal logistics integrity only.
+</p>
+</div>
+</div>
+</div>
+<!-- Interactive Geo-Map Card -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase text-outline font-bold">GIS Command &amp; Cold Chain Monitoring</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">District Care Institutions &amp; Surplus Density</h3>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="h-2.5 w-2.5 rounded-full bg-primary-container animate-ping"></span>
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase">7 Active GPS Dispatches</span>
+</div>
+</div>
+<div class="relative w-full h-80 rounded-xl overflow-hidden shadow-inner bg-surface-container" data-location="Bengaluru, Karnataka, India">
+<div class="absolute inset-0 bg-cover bg-center opacity-85" data-alt="A clean, minimalist high-contrast GIS aerial map cartography view of Bengaluru city streets in pale slate and off-white tones with illuminated transit arteries, soft vector routes, and nodal dispatch hubs tailored for civil government logistics command." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDj0D19UCfUd7NtNBoQDcxZMLjxS3ajXKB9dBEgdsEUOkNfjOGjG66BQs0MUf-VA2lPurjbzfARu98-XmhPEyQD7w4ViSXkBnWeSrUeJgBpcR2vMYOkHBwQY9PSx6S1j09oMrazvUohW7BwvA_DNTEoOi2mZngLmIwbrGPUz8fsdrqHqhsnHIM8uQIFt5fFsbaUxXm0fArJsmMjoEZQKWy_le0fc_kFlqufxZLSYsLb1ZptkG_Q6Pi3')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-transparent to-transparent"></div>
+<div class="absolute top-1/4 left-1/3 group cursor-pointer">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-lg transform -translate-x-1/2 -translate-y-1/2 transition-transform group-hover:scale-125">
+<span class="material-symbols-outlined text-[16px]">child_care</span>
+</div>
+<div class="hidden group-hover:flex absolute left-6 top-0 -translate-y-1/2 bg-inverse-surface text-inverse-on-surface px-space-xs py-space-2xs rounded-lg text-body-sm shadow-xl whitespace-nowrap z-30">
+Asha Nilayam (Child Home) • P1
+</div>
+</div>
+<div class="absolute top-1/2 left-2/3 group cursor-pointer">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-lg transform -translate-x-1/2 -translate-y-1/2 transition-transform group-hover:scale-125">
+<span class="material-symbols-outlined text-[16px]">elderly</span>
+</div>
+<div class="hidden group-hover:flex absolute left-6 top-0 -translate-y-1/2 bg-inverse-surface text-inverse-on-surface px-space-xs py-space-2xs rounded-lg text-body-sm shadow-xl whitespace-nowrap z-30">
+Karuna Vriddhashrama • P1
+</div>
+</div>
+<div class="absolute top-1/3 left-3/5 group cursor-pointer">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-lg transform -translate-x-1/2 -translate-y-1/2 transition-transform group-hover:scale-125">
+<span class="material-symbols-outlined text-[16px]">soup_kitchen</span>
+</div>
+<div class="hidden group-hover:flex absolute left-6 top-0 -translate-y-1/2 bg-inverse-surface text-inverse-on-surface px-space-xs py-space-2xs rounded-lg text-body-sm shadow-xl whitespace-nowrap z-30">
+Indira Canteen Central Hub • P2
+</div>
+</div>
+<div class="absolute bottom-1/4 left-1/2 group cursor-pointer">
+<div class="w-8 h-8 rounded-full bg-surface-dim text-on-surface flex items-center justify-center shadow-lg transform -translate-x-1/2 -translate-y-1/2 transition-transform group-hover:scale-125">
+<span class="material-symbols-outlined text-[16px]">night_shelter</span>
+</div>
+<div class="hidden group-hover:flex absolute left-6 top-0 -translate-y-1/2 bg-inverse-surface text-inverse-on-surface px-space-xs py-space-2xs rounded-lg text-body-sm shadow-xl whitespace-nowrap z-30">
+Majestic Night Shelter • P3
+</div>
+</div>
+<div class="absolute bottom-1/3 left-1/4 group cursor-pointer">
+<div class="relative flex items-center justify-center">
+<div class="absolute w-10 h-10 rounded-full bg-surface-container-highest animate-ping opacity-75"></div>
+<div class="relative w-8 h-8 rounded-full bg-inverse-surface text-inverse-on-surface flex items-center justify-center shadow-xl">
+<span class="material-symbols-outlined text-[16px] text-tertiary-container">local_shipping</span>
+</div>
+</div>
+<div class="absolute left-8 top-1/2 -translate-y-1/2 bg-surface-container-lowest/95 backdrop-blur-md px-space-xs py-space-2xs rounded-lg shadow-md flex items-center gap-space-2xs whitespace-nowrap">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Van #KA-04-E-1182</span>
+<span class="font-label-sm text-label-sm text-primary">63°C (Thermal Safe)</span>
+</div>
+</div>
+<div class="absolute bottom-space-sm left-space-sm right-space-sm flex items-center justify-between pointer-events-none">
+<div class="flex items-center gap-space-xs pointer-events-auto bg-surface-container-lowest/90 backdrop-blur-md px-space-sm py-space-xs rounded-xl shadow-md">
+<div class="flex items-center gap-space-2xs">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Priority 1 (Red)</span>
+</div>
+<div class="flex items-center gap-space-2xs ml-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Priority 2 (Orange)</span>
+</div>
+<div class="flex items-center gap-space-2xs ml-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-surface-dim"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Priority 3 (Neutral)</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest/90 backdrop-blur-md px-space-sm py-space-2xs rounded-lg shadow-md pointer-events-auto">
+<span class="font-label-sm text-label-sm text-on-surface font-mono">12.9716° N, 77.5946° E</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Row 2: Verified Institutions Registry Full-Width Responsive Multi-Column Panel -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase text-outline font-bold">Allocation &amp; Audit Registry</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Verified Care Institutions (68 Nodes)</h3>
+</div>
+<!-- Search Input & Priority Filter Chips -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="relative w-72">
+<span class="material-symbols-outlined absolute left-space-sm top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full h-10 pl-10 pr-space-md rounded-xl bg-surface-container-low text-on-surface placeholder:text-outline text-body-md focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container transition-all" placeholder="Search by home, ward, ID..." type="text">
+</div>
+<div class="flex items-center gap-space-xs overflow-x-auto" id="filterChips">
+<button class="h-8 px-space-sm rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm whitespace-nowrap font-bold shadow-sm">All (68)</button>
+<button class="h-8 px-space-sm rounded-full bg-surface-container-low hover:bg-surface-container-high text-secondary font-label-sm text-label-sm whitespace-nowrap font-bold">Priority 1 (38)</button>
+<button class="h-8 px-space-sm rounded-full bg-surface-container-low hover:bg-surface-container-high text-primary font-label-sm text-label-sm whitespace-nowrap font-bold">Priority 2 (18)</button>
+<button class="h-8 px-space-sm rounded-full bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm whitespace-nowrap font-bold">Priority 3 (12)</button>
+<button class="h-8 px-space-sm rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm whitespace-nowrap font-bold flex items-center gap-1">
+<span class="">Pending Audit</span>
+<span class="w-2 h-2 rounded-full bg-error"></span>
+</button>
+</div>
+</div>
+</div>
+<!-- Institution Cards Grid: 2 columns on desktop for side-by-side card viewing -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Institution Row 1: P1 Child Care Home -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">child_care</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg text-on-surface font-bold leading-snug">Asha Nilayam Children's Home</h4>
+<span class="font-body-sm text-body-sm text-outline">Halasuru, East Zone • JJ Act #BLR-441</span>
+</div>
+</div>
+<span class="px-space-xs py-space-2xs rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold shrink-0">Priority 1</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs pt-space-xs">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Resident Capacity</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">42 Children</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Dietary Rule</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Pure Veg, Mild Spice</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Last Dispatched</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Today, 8:45 PM (80 kg)</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Audit Stamp</span>
+<div class="flex items-center gap-1 text-tertiary">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="font-label-sm text-label-sm font-bold">12-Oct-2024</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs mt-space-2xs">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded bg-surface-container-highest text-on-surface-variant font-medium">Logistics Code: BLR-E-09</span>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-xs py-1 rounded-lg text-primary font-label-sm text-label-sm hover:bg-surface-container-high transition-all">View 80G Docket</button>
+<button class="px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm shadow-sm hover:bg-primary-container hover:text-on-primary transition-all">Inspect Log</button>
+</div>
+</div>
+</div>
+<!-- Institution Row 2: P1 Old Age Home -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">elderly</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg text-on-surface font-bold leading-snug">Karuna Vrudhashrama</h4>
+<span class="font-body-sm text-body-sm text-outline">Malleswaram, West Zone • Reg #SNC-109</span>
+</div>
+</div>
+<span class="px-space-xs py-space-2xs rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold shrink-0">Priority 1</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs pt-space-xs">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Resident Capacity</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">68 Elders</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Dietary Rule</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Low Sodium / Diab-Safe</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Last Dispatched</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Today, 7:15 PM (110 kg)</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Audit Stamp</span>
+<div class="flex items-center gap-1 text-tertiary">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="font-label-sm text-label-sm font-bold">28-Sep-2024</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs mt-space-2xs">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded bg-surface-container-highest text-on-surface-variant font-medium">Logistics Code: BLR-W-14</span>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-xs py-1 rounded-lg text-primary font-label-sm text-label-sm hover:bg-surface-container-high transition-all">View 80G Docket</button>
+<button class="px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm shadow-sm hover:bg-primary-container hover:text-on-primary transition-all">Inspect Log</button>
+</div>
+</div>
+</div>
+<!-- Institution Row 3: P2 Govt Kitchen Hub -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-primary-fixed text-on-primary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">soup_kitchen</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg text-on-surface font-bold leading-snug">Indira Canteen Central Hub</h4>
+<span class="font-body-sm text-body-sm text-outline">Rajajinagar Cluster • BBMP-GK-04</span>
+</div>
+</div>
+<span class="px-space-xs py-space-2xs rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold shrink-0">Priority 2</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs pt-space-xs">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Daily Outflow</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">450 Community Meals</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Dietary Rule</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Standard Wholesome</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Last Dispatched</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Today, 2:30 PM (210 kg)</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Audit Stamp</span>
+<div class="flex items-center gap-1 text-tertiary">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="font-label-sm text-label-sm font-bold">04-Nov-2024</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs mt-space-2xs">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded bg-surface-container-highest text-on-surface-variant font-medium">Logistics Code: BLR-GK-02</span>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-xs py-1 rounded-lg text-primary font-label-sm text-label-sm hover:bg-surface-container-high transition-all">View 80G Docket</button>
+<button class="px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm shadow-sm hover:bg-primary-container hover:text-on-primary transition-all">Inspect Log</button>
+</div>
+</div>
+</div>
+<!-- Institution Row 4: P3 NGO Night Shelter -->
+<div class="p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high text-on-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">night_shelter</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg text-on-surface font-bold leading-snug">Samarpan Night Transit Shelter</h4>
+<span class="font-body-sm text-body-sm text-outline">K.R. Market Zone • NGO-NIGHT-08</span>
+</div>
+</div>
+<span class="px-space-xs py-space-2xs rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold shrink-0 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span> Audit Pending
+</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs pt-space-xs">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Transit Beds</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">95 Transient</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Dietary Rule</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">General Nutrition</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Last Dispatched</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Yesterday, 9:30 PM (65 kg)</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Audit Status</span>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[16px]">pending</span>
+<span class="font-label-sm text-label-sm font-bold">Bi-annual Pending</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs mt-space-2xs">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded bg-surface-container-highest text-on-surface-variant font-medium">Logistics Code: BLR-NS-11</span>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-xs py-1 rounded-lg text-primary font-label-sm text-label-sm hover:bg-surface-container-high transition-all">Upload Audit</button>
+<button class="px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm shadow-sm hover:bg-primary-container hover:text-on-primary transition-all">Inspect Log</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination Bar -->
+<div class="flex items-center justify-between pt-space-xs border-none">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Showing 1-4 of 68 registered centers</span>
+<div class="flex items-center gap-space-2xs">
+<button class="w-8 h-8 rounded-lg bg-surface-container-low text-on-surface-variant flex items-center justify-center hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-bold flex items-center justify-center">1</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container-high flex items-center justify-center">2</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container-high flex items-center justify-center">3</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container-low text-on-surface-variant flex items-center justify-center hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Row 3: Underwriting & Sentinel Side-by-Side (7 / 5 Ratio) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Corporate CSR Sponsor Underwriting Card (7 cols) -->
+<div class="lg:col-span-7 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase text-outline font-bold">Public-Private Coalition</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Top CSR Logistics &amp; Cold-Chain Sponsors</h3>
+</div>
+<span class="font-label-md text-label-md text-primary font-semibold">₹74.46 L Underwritten</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Sponsor 1 -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm font-headline-sm font-bold">
+IF
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Infosys Foundation CSR</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cold Vans &amp; Hot Insulated Trays</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-lg text-label-lg text-primary font-bold">₹42,50,000</span>
+<span class="block font-label-sm text-label-sm text-tertiary">Verified 80G Docket</span>
+</div>
+</div>
+<!-- Sponsor 2 -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container-lowest flex items-center justify-center text-secondary shadow-sm font-headline-sm font-bold">
+WC
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Wipro Cares Node</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Anganwadi Direct Redistribution</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-lg text-label-lg text-primary font-bold">₹31,96,000</span>
+<span class="block font-label-sm text-label-sm text-tertiary">Verified 80G Docket</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Rapid Actions & Cold Chain Safety Checklist (5 cols) -->
+<div class="lg:col-span-5 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">thermostat</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Surplus Safety Protocol Sentinel</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+All diverted cooked meals must be transferred above 60°C or blast-chilled below 4°C within 120 minutes of collection.
+</p>
+</div>
+<div class="grid grid-cols-2 gap-space-sm pt-space-2xs">
+<div class="bg-surface-container-low p-space-sm rounded-xl flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-[24px]">verified</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Thermal Violations</span>
+<span class="font-headline-sm text-headline-sm text-tertiary font-bold">0.00%</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-xl flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[24px]">schedule</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Avg Nodal Transit</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold">34 Mins</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple interactive filter chip toggle behavior
+  document.querySelectorAll('#filterChips button').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('#filterChips button').forEach(b => {
+        b.classList.remove('bg-primary-container', 'text-on-primary');
+        b.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+      });
+      button.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+      button.classList.add('bg-primary-container', 'text-on-primary');
+    });
+  });
+</script></main></div>
+
+</body></html>
