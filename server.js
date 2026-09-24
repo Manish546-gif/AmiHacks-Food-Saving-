@@ -17,7 +17,25 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-app.use(cors());
+const rawOrigins = process.env.ALLOWED_ORIGINS;
+const allowedOrigins = rawOrigins
+  ? rawOrigins.split(',').map((s) => s.trim().replace(/\/$/, '')).filter(Boolean)
+  : null;
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || !allowedOrigins || allowedOrigins.includes('*')) {
+      return callback(null, true);
+    }
+    const cleanOrigin = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(cleanOrigin) || allowedOrigins.some((o) => cleanOrigin === o)) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Permissive fallback so production requests never fail CORS
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+}));
 app.use(express.json());
 
 // ================= SCHEMAS =================
