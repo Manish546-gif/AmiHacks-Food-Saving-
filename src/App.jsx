@@ -58,6 +58,7 @@ import DonorProfile from './pages/donor/DonorProfile';
 // Recipient Pages
 import RecipientHome from './pages/recipient/RecipientHome';
 import RecipientOffers from './pages/recipient/RecipientOffers';
+import RecipientTracking from './pages/recipient/RecipientTracking';
 import RecipientHistory from './pages/recipient/RecipientHistory';
 import RecipientProfile from './pages/recipient/RecipientProfile';
 
@@ -216,6 +217,7 @@ function AppInner() {
         <Route element={<Protected allowedRoles={['recipient']} />}>
           <Route path="/recipient" element={<RecipientHome />} />
           <Route path="/recipient/offers" element={<RecipientOffers />} />
+          <Route path="/recipient/track/:id" element={<RecipientTracking />} />
           <Route path="/recipient/history" element={<RecipientHistory />} />
           <Route path="/recipient/profile" element={<RecipientProfile />} />
         </Route>

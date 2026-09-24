@@ -215,7 +215,8 @@ export default function RecipientOffers() {
   const handleAccept = (offerId) => {
     const success = acceptOffer(offerId, 1);
     if (success) {
-      setTab('past');
+      showToast('Offer accepted! Opening live tracking...', 'two_wheeler');
+      navigate(`/recipient/track/${offerId}`);
     }
   };
 
@@ -372,14 +373,19 @@ export default function RecipientOffers() {
                   </div>
                 </div>
                 <button
-                  onClick={() => navigate(`/donor/track/${donation.id}`)}
+                  onClick={() => navigate(`/recipient/track/${donation.id}`)}
                   style={{
-                    padding: '6px 12px', borderRadius: 10, border: 'none',
-                    background: 'var(--surface-container)', color: 'var(--primary-dark)',
-                    fontWeight: 700, fontSize: 12, cursor: 'pointer'
+                    padding: '8px 14px', borderRadius: 12, border: 'none',
+                    background: donation.status === 'delivered' ? 'var(--surface-container)' : 'var(--primary)',
+                    color: donation.status === 'delivered' ? 'var(--on-surface-variant)' : 'white',
+                    fontWeight: 800, fontSize: 12, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 4
                   }}
                 >
-                  Track Route
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+                    {donation.status === 'delivered' ? 'receipt_long' : 'two_wheeler'}
+                  </span>
+                  <span>{donation.status === 'delivered' ? 'Intake Log' : 'Track Delivery'}</span>
                 </button>
               </div>
             ))

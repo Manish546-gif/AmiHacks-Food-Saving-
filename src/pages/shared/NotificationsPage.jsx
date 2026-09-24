@@ -31,13 +31,17 @@ export default function NotificationsPage() {
     markNotificationRead(n.id);
     if (n.donation_id) {
       if (n.role === 'donor') {
-        if (n.title.includes('Accepted')) {
-          navigate(`/donor/match/${n.donation_id}`);
+        if (n.title.includes('Accepted') || n.title.includes('Picked Up') || n.title.includes('Delivery')) {
+          navigate(`/donor/track/${n.donation_id}`);
         } else {
           navigate(`/donor/match/${n.donation_id}`);
         }
       } else if (n.role === 'recipient') {
-        navigate('/recipient/offers');
+        if (n.title.includes('Picked Up') || n.title.includes('Accepted') || n.title.includes('Assigned') || n.title.includes('Arriving') || n.title.includes('Mission')) {
+          navigate(`/recipient/track/${n.donation_id}`);
+        } else {
+          navigate('/recipient/offers');
+        }
       }
     }
   };

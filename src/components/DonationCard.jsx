@@ -22,8 +22,11 @@ export function VegDot({ tags = [] }) {
   );
 }
 
+import { useApp } from '../context/AppContext';
+
 export function DonationCard({ donation, recipients, drivers, onClick }) {
   const navigate = useNavigate();
+  const { user } = useApp();
   const status = STATUS_CONFIG[donation.status] ?? STATUS_CONFIG.posted;
   const recipient = donation.matched_recipient_id
     ? recipients?.find(r => r.id === donation.matched_recipient_id)
@@ -32,12 +35,20 @@ export function DonationCard({ donation, recipients, drivers, onClick }) {
     ? drivers?.find(d => d.id === donation.driver_id)
     : null;
 
+  const trackPath = user?.role === 'recipient'
+    ? `/recipient/track/${donation.id}`
+    : `/donor/track/${donation.id}`;
+
   const handleClick = () => {
     if (onClick) { onClick(donation); return; }
-    if (donation.status === 'matched' || donation.status === 'picked_up') {
-      navigate(`/donor/track/${donation.id}`);
+    if (donation.status === 'matched' || donation.status === 'picked_up' || donation.status === 'delivered') {
+      navigate(trackPath);
     } else if (donation.status === 'offered' || donation.status === 'escalated') {
-      navigate(`/donor/match/${donation.id}`);
+      if (user?.role === 'recipient') {
+        navigate('/recipient/offers');
+      } else {
+        navigate(`/donor/match/${donation.id}`);
+      }
     }
   };
 
@@ -133,7 +144,7 @@ export function DonationCard({ donation, recipients, drivers, onClick }) {
             <button
               className="btn-primary"
               style={{ height: 32, fontSize: 12, padding: '0 12px' }}
-              onClick={e => { e.stopPropagation(); navigate(`/donor/track/${donation.id}`); }}
+              onClick={e => { e.stopPropagation(); navigate(trackPath); }}
             >
               Track Live →
             </button>

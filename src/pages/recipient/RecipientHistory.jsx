@@ -127,9 +127,17 @@ export default function RecipientHistory() {
 
               {/* Action row */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 4 }}>
-                <span className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>
-                  Distributed to 65 residents tonight
-                </span>
+                <button
+                  onClick={() => navigate(`/recipient/track/${item.id}`)}
+                  style={{
+                    padding: '6px 12px', borderRadius: 10, border: 'none',
+                    background: 'var(--surface-container)', color: 'var(--on-surface)',
+                    fontWeight: 700, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer'
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 14 }}>location_on</span>
+                  <span>Intake Route</span>
+                </button>
 
                 <button
                   onClick={() => handleSendThanks(item.id)}

@@ -55,12 +55,18 @@ export default function RecipientHome() {
     }
   }, [liveDonationOffer]);
 
+  const activeIntake = donations.find(d =>
+    ['matched', 'picked_up'].includes(d.status) &&
+    (d.matched_recipient_id === myRecipient?.id || !d.matched_recipient_id)
+  );
+
   const handleAccept = () => {
-    const targetId = offer?.donation_id || 2;
+    const targetId = offer?.donation_id || liveDonationOffer?.id || 1;
     acceptOffer(targetId, myRecipient.id);
     setOfferResponse('accepted');
     setOffer(null);
-    showToast('Accepted! Driver assigned for pickup.', 'check_circle');
+    showToast('Accepted! Opening live intake tracking...', 'two_wheeler');
+    navigate(`/recipient/track/${targetId}`);
   };
 
   const handleDecline = () => {
@@ -175,6 +181,79 @@ export default function RecipientHome() {
             {hi ? 'वर्तमान ज़रूरत: 25 kg (65 लोगों के लिए रात का खाना)' : 'Current need: 25 kg (dinner for 65 residents)'}
           </p>
         </div>
+
+        {/* Active Incoming Rescue in Transit Card */}
+        {activeIntake && (
+          <div style={{
+            margin: '0 16px 16px', borderRadius: 20, overflow: 'hidden',
+            background: 'var(--surface-container-lowest)',
+            border: '2px solid rgba(0,110,22,0.3)',
+            boxShadow: 'var(--shadow-elevated)', padding: 16
+          }} className="animate-fade-in-up">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--tertiary)' }}>
+                  two_wheeler
+                </span>
+                <span className="text-label-md" style={{ fontWeight: 800, color: 'var(--tertiary)' }}>
+                  {hi ? 'भोजन रास्ते में है' : 'Incoming Food in Transit'}
+                </span>
+              </div>
+              <span style={{
+                fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 999,
+                background: 'rgba(0,110,22,0.1)', color: 'var(--tertiary)', textTransform: 'uppercase'
+              }}>
+                {activeIntake.status === 'picked_up' ? 'Picked Up' : 'Rider Assigned'}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: 14, background: 'var(--primary-fixed)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--on-primary-fixed)', flexShrink: 0
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 28 }}>soup_kitchen</span>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="text-headline-sm" style={{ margin: 0, fontSize: 16 }}>{activeIntake.description}</h4>
+                <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '2px 0 0' }}>
+                  {activeIntake.qty_kg} kg • Feeds {activeIntake.est_meals || (activeIntake.qty_kg * 2)} people
+                </p>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: 'var(--surface-container-low)', borderRadius: 12, padding: '8px 12px', marginBottom: 12
+            }}>
+              <div>
+                <span style={{ fontSize: 10, color: 'var(--on-surface-variant)', display: 'block', fontWeight: 600 }}>
+                  Gate Intake OTP
+                </span>
+                <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--primary-dark)', letterSpacing: '0.15em' }}>
+                  {activeIntake.delivery_otp || '8492'}
+                </span>
+              </div>
+              <span style={{ fontSize: 11, color: 'var(--on-surface-variant)', fontWeight: 600 }}>
+                Give to rider at gate
+              </span>
+            </div>
+
+            <button
+              onClick={() => navigate(`/recipient/track/${activeIntake.id}`)}
+              style={{
+                width: '100%', height: 48, borderRadius: 14, border: 'none',
+                background: 'linear-gradient(135deg, var(--tertiary), #28a745)',
+                color: 'white', fontWeight: 800, fontSize: 14, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                boxShadow: '0 4px 12px rgba(0,110,22,0.25)'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>location_on</span>
+              <span>{hi ? 'लाइव डिलीवरी ट्रैक करें' : 'Track Live Delivery 🛵'}</span>
+            </button>
+          </div>
+        )}
 
         {/* Incoming offer */}
         {offer && accepting && offerResponse === null && (
