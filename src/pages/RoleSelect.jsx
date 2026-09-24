@@ -260,8 +260,22 @@ export default function RoleSelect() {
           </div>
         </div>
 
-        {/* Guest link */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, paddingBottom: 24 }}>
+        {/* Guest and Verification links */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, paddingBottom: 24 }}>
+          <button
+            onClick={() => navigate('/verification')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--outline-variant)',
+              background: 'var(--surface-container-lowest)', padding: '8px 16px', borderRadius: 999,
+              cursor: 'pointer', color: 'var(--on-surface)', fontSize: 13, fontWeight: 700,
+              boxShadow: 'var(--shadow-card)'
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--tertiary)' }}>verified</span>
+            <span>Institution & Donor Verification Desk</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>chevron_right</span>
+          </button>
+
           <button
             onClick={() => navigate('/impact')}
             style={{ display: 'flex', alignItems: 'center', gap: 4, border: 'none', background: 'none', cursor: 'pointer', color: 'var(--primary-dark)', fontSize: 14, fontWeight: 700 }}

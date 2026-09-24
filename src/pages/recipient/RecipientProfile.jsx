@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { TopBar, BottomNav, VerifiedBadge, TierBadge, CapacityGauge } from '../../components/Navigation';
+import MapView from '../../components/MapView';
 
 export default function RecipientProfile() {
   const navigate = useNavigate();
   const { recipients, updateShelter, logout, showToast, resetDemoData } = useApp();
   const shelter = recipients[0]; // Asha Nilayam
 
-  const [name, setName] = useState(shelter.name);
+  const [name] = useState(shelter.name);
   const [headcount, setHeadcount] = useState(shelter.headcount);
   const [capacityKg, setCapacityKg] = useState(shelter.capacity_kg);
   const [capacityUsedKg, setCapacityUsedKg] = useState(shelter.capacity_used_kg);
@@ -97,6 +98,64 @@ export default function RecipientProfile() {
               style={{ width: 24, height: 24, accentColor: 'var(--tertiary)', cursor: 'pointer' }}
             />
           </div>
+        </div>
+
+        {/* Legal & FSSAI Verification Card */}
+        <div style={{
+          background: 'linear-gradient(135deg, #0f172a, #1e293b)',
+          borderRadius: 20, padding: 18, color: 'white', marginBottom: 16,
+          boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', gap: 12
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="material-symbols-outlined" style={{ color: '#38bdf8' }}>verified</span>
+              <span style={{ fontWeight: 800, fontSize: 13, color: '#38bdf8', textTransform: 'uppercase' }}>
+                Legal & Food Safety Desk
+              </span>
+            </div>
+            <span style={{ background: 'rgba(34,197,94,0.2)', color: '#4ade80', fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 999 }}>
+              Level 2 Verified
+            </span>
+          </div>
+
+          <div style={{ fontSize: 13, lineHeight: 1.4, color: 'rgba(255,255,255,0.85)' }}>
+            FSSAI Reg: <strong>12023019000452</strong> • District Food Inspector approved. Good Samaritan legal protection active.
+          </div>
+
+          <button
+            onClick={() => navigate('/verification')}
+            style={{
+              padding: '10px 16px', borderRadius: 12, border: 'none',
+              background: 'var(--primary)', color: 'white', fontWeight: 800, fontSize: 13,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>badge</span>
+            <span>View / Update Verification Dossier</span>
+          </button>
+        </div>
+
+        <div style={{ padding: 14, borderRadius: 20, background: 'var(--surface-container-lowest)', boxShadow: 'var(--shadow-card)', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div>
+              <div className="text-label-lg" style={{ fontWeight: 800 }}>Shelter intake location</div>
+              <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>Where matched deliveries arrive</div>
+            </div>
+            <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--tertiary)' }}>location_on</span>
+          </div>
+          <MapView
+            mode="radar"
+            height="170px"
+            pins={[{
+              id: `shelter-${shelter.id}`,
+              lat: shelter.lat,
+              lng: shelter.lng,
+              type: 'shelter',
+              label: shelter.name,
+              address: shelter.address,
+            }]}
+            ariaLabel="Shelter intake location map"
+          />
         </div>
 
         {/* Live Capacity Gauge */}

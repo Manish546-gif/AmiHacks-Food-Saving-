@@ -1,19 +1,20 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { TopBar, BottomNav } from '../../components/Navigation';
+import MapView from '../../components/MapView';
+import { DONORS, RECIPIENTS, DRIVERS } from '../../data/seed';
 
 export default function DriverTasks() {
-  const navigate = useNavigate();
-  const { donations, driverPickup, driverDeliver, showToast } = useApp();
-  const [tab, setTab] = useState('active'); // active | available
+  const { donations, donors, recipients, drivers, driverPickup, driverDeliver, showToast } = useApp();
+  const [tab, setTab] = useState('active');
   const [otpInput, setOtpInput] = useState('');
   const [showOtpModal, setShowOtpModal] = useState(null);
 
-  // Active tasks for this driver: matched or picked_up
   const activeTasks = donations.filter(d => ['matched', 'picked_up'].includes(d.status) && (d.driver_id === 1 || !d.driver_id));
-  // Available jobs (e.g. status === 'posted' or unassigned)
   const availableTasks = donations.filter(d => d.status === 'posted');
+  const donorDirectory = donors?.length ? donors : DONORS;
+  const recipientDirectory = recipients?.length ? recipients : RECIPIENTS;
+  const driverDirectory = drivers?.length ? drivers : DRIVERS;
 
   const handleDeliverWithOtp = (donationId) => {
     if (otpInput.trim().length < 4) {
@@ -78,6 +79,10 @@ export default function DriverTasks() {
             ) : (
               activeTasks.map(task => {
                 const isPickedUp = task.status === 'picked_up';
+                const donorEntity = donorDirectory.find(d => d.id === task.donor_id) || donorDirectory[0];
+                const recipientEntity = recipientDirectory.find(r => r.id === task.matched_recipient_id) || recipientDirectory[0];
+                const riderEntity = driverDirectory.find(r => r.id === task.driver_id) || driverDirectory[0];
+
                 return (
                   <div
                     key={task.id}
@@ -98,7 +103,6 @@ export default function DriverTasks() {
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: isPickedUp ? 'var(--tertiary)' : 'var(--primary)' }} />
                         {isPickedUp ? 'In Transit to Shelter' : 'Assigned: Go to Pickup'}
                       </span>
-
                       <span className="text-label-sm" style={{ color: 'var(--secondary)', fontWeight: 800 }}>
                         ⏱ 2h 45m safe window
                       </span>
@@ -112,29 +116,47 @@ export default function DriverTasks() {
                       </div>
                     </div>
 
-                    {/* Route Timeline */}
+                    {/* Real Leaflet mini route map */}
+                    <div style={{ borderRadius: 12, overflow: 'hidden', height: 160 }}>
+                      <MapView
+                        mode={isPickedUp ? 'route' : 'pickup'}
+                        routePhase={isPickedUp ? 'delivery' : 'pickup'}
+                        height="160px"
+                        pickupLat={donorEntity?.lat}
+                        pickupLng={donorEntity?.lng}
+                        dropLat={recipientEntity?.lat}
+                        dropLng={recipientEntity?.lng}
+                        originLat={isPickedUp ? donorEntity?.lat : riderEntity?.lat}
+                        originLng={isPickedUp ? donorEntity?.lng : riderEntity?.lng}
+                        destinationLat={isPickedUp ? recipientEntity?.lat : donorEntity?.lat}
+                        destinationLng={isPickedUp ? recipientEntity?.lng : donorEntity?.lng}
+                        riderLat={isPickedUp ? undefined : riderEntity?.lat}
+                        riderLng={isPickedUp ? undefined : riderEntity?.lng}
+                        progress={isPickedUp ? 0.65 : 0}
+                        showRoute
+                        ariaLabel={isPickedUp ? 'Rider delivery route' : 'Rider route to pickup'}
+                      />
+                    </div>
+
+                    {/* Route step labels */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, background: 'var(--surface-container-low)', padding: 12, borderRadius: 14 }}>
-                      {/* Step 1: Pickup */}
                       <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                         <div style={{ width: 24, height: 24, borderRadius: '50%', background: isPickedUp ? 'var(--tertiary)' : 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>
                           {isPickedUp ? '✓' : '1'}
                         </div>
                         <div style={{ flex: 1 }}>
                           <div className="text-label-md" style={{ fontWeight: 800 }}>PICKUP: {task.donor_name}</div>
-                          <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>Talwandi, Kota • Contact: +91 98760 11111</div>
+                          <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>{donorEntity?.address || 'Talwandi, Kota'}</div>
                         </div>
                       </div>
 
                       <div style={{ width: 2, height: 16, background: 'var(--outline-variant)', marginLeft: 11 }} />
 
-                      {/* Step 2: Dropoff */}
                       <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                        <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--tertiary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>
-                          2
-                        </div>
+                        <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--tertiary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>2</div>
                         <div style={{ flex: 1 }}>
-                          <div className="text-label-md" style={{ fontWeight: 800 }}>DROPOFF: Asha Nilayam Old Age Home</div>
-                          <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>Behind Bus Stand, Kota • Contact: Sister Mary</div>
+                          <div className="text-label-md" style={{ fontWeight: 800 }}>DROPOFF: {recipientEntity?.name || 'Asha Nilayam'}</div>
+                          <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>{recipientEntity?.address || 'Behind Bus Stand, Kota'}</div>
                         </div>
                       </div>
                     </div>
@@ -143,7 +165,7 @@ export default function DriverTasks() {
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button
                         onClick={() => {
-                          const url = `https://www.google.com/maps/dir/?api=1&origin=25.2138,75.8648&destination=25.2065,75.8580`;
+                          const url = `https://www.google.com/maps/dir/?api=1&origin=${donorEntity?.lat ?? 25.2138},${donorEntity?.lng ?? 75.8648}&destination=${recipientEntity?.lat ?? 25.2065},${recipientEntity?.lng ?? 75.8580}`;
                           window.open(url, '_blank');
                         }}
                         style={{
@@ -188,7 +210,6 @@ export default function DriverTasks() {
               })
             )
           ) : (
-            // Nearby pool
             availableTasks.map(task => (
               <div
                 key={task.id}

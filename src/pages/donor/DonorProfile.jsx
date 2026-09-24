@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { TopBar, BottomNav, VerifiedBadge } from '../../components/Navigation';
+import MapView from '../../components/MapView';
 
 export default function DonorProfile() {
   const navigate = useNavigate();
-  const { user, donors, updateDonor, logout, showToast, resetDemoData } = useApp();
+  const { donors, updateDonor, logout, showToast, resetDemoData } = useApp();
   const donor = donors.find(d => d.id === 1) || donors[0];
 
   const [name, setName] = useState(donor.name || 'Royal Spice Kitchen');
@@ -57,6 +58,64 @@ export default function DonorProfile() {
               <span className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>• 99.2% on-time dispatch rate</span>
             </div>
           </div>
+        </div>
+
+        {/* Legal & FSSAI Verification Card */}
+        <div style={{
+          background: 'linear-gradient(135deg, #0f172a, #1e293b)',
+          borderRadius: 20, padding: 18, color: 'white', marginBottom: 16,
+          boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', gap: 12
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="material-symbols-outlined" style={{ color: '#38bdf8' }}>verified</span>
+              <span style={{ fontWeight: 800, fontSize: 13, color: '#38bdf8', textTransform: 'uppercase' }}>
+                FSSAI & Kitchen Compliance
+              </span>
+            </div>
+            <span style={{ background: 'rgba(34,197,94,0.2)', color: '#4ade80', fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 999 }}>
+              Level 1 Verified
+            </span>
+          </div>
+
+          <div style={{ fontSize: 13, lineHeight: 1.4, color: 'rgba(255,255,255,0.85)' }}>
+            FSSAI No: <strong>{fssai}</strong> • Fast-track surplus dispatch active under Good Samaritan standards.
+          </div>
+
+          <button
+            onClick={() => navigate('/verification')}
+            style={{
+              padding: '10px 16px', borderRadius: 12, border: 'none',
+              background: 'var(--primary)', color: 'white', fontWeight: 800, fontSize: 13,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>badge</span>
+            <span>View / Update Verification Dossier</span>
+          </button>
+        </div>
+
+        <div style={{ padding: 14, borderRadius: 20, background: 'var(--surface-container-lowest)', boxShadow: 'var(--shadow-card)', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div>
+              <div className="text-label-lg" style={{ fontWeight: 800 }}>Pickup location</div>
+              <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>Where riders collect surplus</div>
+            </div>
+            <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--primary)' }}>location_on</span>
+          </div>
+          <MapView
+            mode="radar"
+            height="170px"
+            pins={[{
+              id: `donor-${donor.id}`,
+              lat: donor.lat,
+              lng: donor.lng,
+              type: donor.type || 'restaurant',
+              label: donor.name,
+              address: donor.address,
+            }]}
+            ariaLabel="Restaurant or individual pickup location"
+          />
         </div>
 
         {/* FSSAI & Compliance Card */}

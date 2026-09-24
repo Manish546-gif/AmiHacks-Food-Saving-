@@ -75,6 +75,7 @@ import AdminQueue from './pages/admin/AdminQueue';
 import AdminSettings from './pages/admin/AdminSettings';
 import ImpactDashboard from './pages/shared/ImpactDashboard';
 import NotificationsPage from './pages/shared/NotificationsPage';
+import VerificationPage from './pages/shared/VerificationPage';
 
 // PWA Install Banner — shows when browser fires beforeinstallprompt
 function PWAInstallBanner() {
@@ -201,6 +202,10 @@ function AppInner() {
         {/* Shared */}
         <Route path="/impact" element={<ImpactDashboard />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/verification" element={<VerificationPage />} />
+        <Route path="/recipient/verification" element={<VerificationPage />} />
+        <Route path="/donor/verification" element={<VerificationPage />} />
+        <Route path="/admin/verification" element={<AdminQueue />} />
 
         {/* Donor */}
         <Route element={<Protected allowedRoles={['donor']} />}>

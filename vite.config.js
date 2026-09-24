@@ -95,6 +95,25 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          {
+            urlPattern: /^https:\/\/[abc]\.tile\.openstreetmap\.org\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'openstreetmap-tiles',
+              expiration: { maxEntries: 250, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/router\.project-osrm\.org\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'route-cache',
+              networkTimeoutSeconds: 4,
+              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 10 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
         // Precache all app shell assets
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],

@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { TopBar } from '../../components/Navigation';
 import { CountdownBadge } from '../../components/CountdownRing';
-import { RECIPIENTS, DRIVERS } from '../../data/seed';
+import { RECIPIENTS, DRIVERS, DONORS } from '../../data/seed';
+import MapView from '../../components/MapView';
 
 const TIMELINE_STEPS = [
   { id: 'posted', label: 'Posted', icon: 'upload', sub: 'Donation submitted' },
@@ -18,10 +19,14 @@ const STATUS_ORDER = ['posted', 'offered', 'matched', 'picked_up', 'delivered'];
 export default function LiveTracking() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { donations } = useApp();
+  const { donations, donors, recipients, drivers } = useApp();
   const donation = donations.find(d => d.id === parseInt(id)) ?? donations[0];
-  const recipient = RECIPIENTS.find(r => r.id === donation?.matched_recipient_id) ?? RECIPIENTS[0];
-  const driver = DRIVERS.find(d => d.id === donation?.driver_id) ?? DRIVERS[0];
+  const donorDirectory = donors?.length ? donors : DONORS;
+  const recipientDirectory = recipients?.length ? recipients : RECIPIENTS;
+  const driverDirectory = drivers?.length ? drivers : DRIVERS;
+  const recipient = recipientDirectory.find(r => r.id === donation?.matched_recipient_id) ?? recipientDirectory[0];
+  const driver = driverDirectory.find(d => d.id === donation?.driver_id) ?? driverDirectory[0];
+  const donorEntity = donorDirectory.find(d => d.id === donation?.donor_id) ?? donorDirectory[0];
 
   const currentStatus = donation?.status || 'posted';
   const [showReceipt, setShowReceipt] = useState(currentStatus === 'delivered');
@@ -37,44 +42,47 @@ export default function LiveTracking() {
     currentStatus === 'picked_up' ? 0.65 :
     currentStatus === 'matched' ? 0.25 : 0.05;
 
-  const driverPos = { progress: driverProgress };
   const activeIdx = STATUS_ORDER.indexOf(currentStatus);
+
+  // Real coordinates from seed data
+  const pickupLat = donorEntity?.lat ?? 25.2138;
+  const pickupLng = donorEntity?.lng ?? 75.8648;
+  const dropLat = recipient?.lat ?? 25.2065;
+  const dropLng = recipient?.lng ?? 75.8580;
 
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--surface)', display: 'flex', flexDirection: 'column' }}>
       <TopBar title="Live Tracking" showBack />
 
       <main style={{ flex: 1, paddingTop: 64, paddingBottom: 40, overflowY: 'auto' }}>
-        {/* Map placeholder */}
-        <div style={{ position: 'relative', height: 260, background: 'var(--surface-container)' }} className="map-placeholder">
-          {/* Simulated map with pins */}
-          <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-            {/* Route line */}
-            <line x1="30%" y1="60%" x2="70%" y2="40%" stroke="var(--primary-container)" strokeWidth={3} strokeDasharray="8 5" opacity={0.8} />
-            {/* Driver dot (moving) */}
-            <circle cx={`${30 + driverPos.progress * 40}%`} cy={`${60 - driverPos.progress * 20}%`} r={10} fill="var(--primary-container)" opacity={0.2}>
-              <animate attributeName="r" values="8;14;8" dur="2s" repeatCount="indefinite" />
-            </circle>
-            <circle cx={`${30 + driverPos.progress * 40}%`} cy={`${60 - driverPos.progress * 20}%`} r={7} fill="#2F80ED" />
-            {/* Donor pin */}
-            <circle cx="30%" cy="60%" r={8} fill="var(--primary-container)" />
-            <text x="30%" y="75%" textAnchor="middle" fontSize="10" fill="var(--on-surface)" style={{ userSelect: 'none' }}>Donor</text>
-            {/* Recipient pin */}
-            <circle cx="70%" cy="40%" r={8} fill="var(--tertiary)" />
-            <text x="70%" y="55%" textAnchor="middle" fontSize="10" fill="var(--on-surface)" style={{ userSelect: 'none' }}>Shelter</text>
-          </svg>
+        {/* Real Leaflet Map */}
+        <div style={{ position: 'relative', height: 280, borderRadius: 0, overflow: 'hidden' }}>
+          <MapView
+            mode="route"
+            height="280px"
+            pickupLat={pickupLat}
+            pickupLng={pickupLng}
+            dropLat={dropLat}
+            dropLng={dropLng}
+            riderLat={donation?.rider_lat}
+            riderLng={donation?.rider_lng}
+            waypoints={donation?.route_waypoints || []}
+            progress={driverProgress}
+            showRoute
+          />
 
           {/* Glass overlay pill */}
           <div style={{
-            position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 10,
-            background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)',
+            position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 1000,
+            background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)',
             borderRadius: 999, padding: '8px 16px',
             display: 'flex', alignItems: 'center', gap: 8,
-            boxShadow: 'var(--shadow-elevated)',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+            whiteSpace: 'nowrap',
           }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#2F80ED', fontVariationSettings: "'FILL' 1" }}>two_wheeler</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#2563eb', fontVariationSettings: "'FILL' 1" }}>two_wheeler</span>
             <span className="text-label-md" style={{ color: 'var(--on-surface)' }}>
-              {driver?.name} • {currentStatus === 'delivered' ? 'Delivered!' : `ETA: ~${Math.round((1 - driverPos.progress) * 15)} min`}
+              {driver?.name} • {currentStatus === 'delivered' ? 'Delivered! 🎉' : `ETA: ~${Math.round((1 - driverProgress) * 15)} min`}
             </span>
             <CountdownBadge expiresAt={donation?.expires_at ?? new Date(Date.now() + 7200000).toISOString()} />
           </div>

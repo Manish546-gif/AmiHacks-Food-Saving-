@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { TopBar, TierBadge, VerifiedBadge } from '../../components/Navigation';
+import { TopBar } from '../../components/Navigation';
 import { CountdownBadge } from '../../components/CountdownRing';
 import { RECIPIENTS, DRIVERS, DONORS } from '../../data/seed';
+import MapView from '../../components/MapView';
 
 const INTAKE_STEPS = [
   { id: 'matched', label: 'Offer Accepted', icon: 'volunteer_activism', desc: 'Shelter confirmed intake capacity' },
@@ -16,13 +17,16 @@ const INTAKE_STEPS = [
 export default function RecipientTracking() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { donations, recipients, drivers, driverPickup, driverDeliver, showToast } = useApp();
+  const { donations, donors, recipients, drivers, driverPickup, driverDeliver, showToast } = useApp();
 
   const targetId = parseInt(id, 10);
   const donation = donations.find(d => d.id === targetId) || donations[0];
-  const recipient = (recipients || RECIPIENTS).find(r => r.id === donation?.matched_recipient_id) || (recipients || RECIPIENTS)[0];
-  const driver = (drivers || DRIVERS).find(d => d.id === donation?.driver_id) || (drivers || DRIVERS)[0];
-  const donor = DONORS.find(d => d.id === donation?.donor_id) || { name: donation?.donor_name || 'Verified Donor Kitchen', address: 'Talwandi, Kota' };
+  const donorDirectory = donors?.length ? donors : DONORS;
+  const recipientDirectory = recipients?.length ? recipients : RECIPIENTS;
+  const driverDirectory = drivers?.length ? drivers : DRIVERS;
+  const recipient = recipientDirectory.find(r => r.id === donation?.matched_recipient_id) || recipientDirectory[0];
+  const driver = driverDirectory.find(d => d.id === donation?.driver_id) || driverDirectory[0];
+  const donor = donorDirectory.find(d => d.id === donation?.donor_id) || { name: donation?.donor_name || 'Verified Donor Kitchen', address: 'Talwandi, Kota' };
 
   const currentStatus = donation?.status || 'matched';
   const isDelivered = currentStatus === 'delivered';
@@ -107,92 +111,55 @@ export default function RecipientTracking() {
       />
 
       <main style={{ flex: 1, paddingTop: 64, paddingBottom: 80, overflowY: 'auto' }}>
-        {/* Animated Map & Delivery Route Banner */}
-        <div style={{
-          position: 'relative', height: 230,
-          background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
-          overflow: 'hidden'
-        }}>
-          {/* Subtle grid pattern */}
-          <div style={{
-            position: 'absolute', inset: 0, opacity: 0.15,
-            backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
-            backgroundSize: '20px 20px'
-          }} />
-
-          {/* SVG Map Path */}
-          <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-            <defs>
-              <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#fc8019" />
-                <stop offset="100%" stopColor="#006e16" />
-              </linearGradient>
-            </defs>
-
-            {/* Connecting Route */}
-            <path
-              d="M 60 140 Q 180 60, 320 120 T 440 100"
-              fill="none"
-              stroke="rgba(255,255,255,0.2)"
-              strokeWidth="4"
-              strokeDasharray="6 6"
-            />
-            <path
-              d="M 60 140 Q 180 60, 320 120 T 440 100"
-              fill="none"
-              stroke="url(#routeGradient)"
-              strokeWidth="4"
-              strokeDasharray="400"
-              strokeDashoffset={400 - (progressPercent / 100) * 400}
-              style={{ transition: 'stroke-dashoffset 1s ease' }}
-            />
-
-            {/* Donor Node */}
-            <circle cx="60" cy="140" r="10" fill="#fc8019" />
-            <circle cx="60" cy="140" r="16" fill="#fc8019" opacity="0.3" />
-            <text x="60" y="170" textAnchor="middle" fill="#f8fafc" fontSize="11" fontWeight="700">Kitchen</text>
-
-            {/* Shelter Gate Node */}
-            <circle cx="440" cy="100" r="10" fill="#006e16" />
-            <circle cx="440" cy="100" r="16" fill="#006e16" opacity="0.3" />
-            <text x="440" y="130" textAnchor="middle" fill="#f8fafc" fontSize="11" fontWeight="700">Shelter Gate</text>
-          </svg>
+        {/* Real Leaflet Map + Delivery Route Banner */}
+        <div style={{ position: 'relative', height: 240, overflow: 'hidden' }}>
+          <MapView
+            mode="route"
+            height="240px"
+            pickupLat={donor.lat ?? 25.2138}
+            pickupLng={donor.lng ?? 75.8648}
+            dropLat={recipient?.lat ?? 25.2065}
+            dropLng={recipient?.lng ?? 75.8580}
+            riderLat={donation?.rider_lat}
+            riderLng={donation?.rider_lng}
+            waypoints={donation?.route_waypoints || []}
+            progress={progressPercent / 100}
+            showRoute
+          />
 
           {/* Live Floating Rider Badge */}
           <div style={{
             position: 'absolute',
-            top: '50%',
-            left: `${Math.min(85, Math.max(15, progressPercent))}%`,
-            transform: 'translate(-50%, -60%)',
-            zIndex: 10,
-            transition: 'left 1s cubic-bezier(0.34, 1.56, 0.64, 1)'
+            bottom: 52,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
           }}>
             <div style={{
               background: 'white', borderRadius: 999, padding: '6px 12px',
               boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-              display: 'flex', alignItems: 'center', gap: 6
+              display: 'flex', alignItems: 'center', gap: 6,
+              whiteSpace: 'nowrap',
             }}>
               <span className="material-symbols-outlined" style={{ fontSize: 20, color: '#fc8019', animation: isDelivered ? 'none' : 'bounce 1s infinite' }}>
                 two_wheeler
               </span>
               <span style={{ fontSize: 12, fontWeight: 800, color: '#0f172a' }}>
-                {isDelivered ? 'Arrived!' : `${etaMinutes}m ETA`}
+                {isDelivered ? 'Arrived! ✅' : `${etaMinutes}m ETA`}
               </span>
             </div>
           </div>
 
           {/* Bottom stats overlay */}
           <div style={{
-            position: 'absolute', bottom: 10, left: 16, right: 16, zIndex: 10,
+            position: 'absolute', bottom: 10, left: 16, right: 16, zIndex: 1000,
             background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(10px)',
             borderRadius: 14, padding: '8px 14px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             border: '1px solid rgba(255,255,255,0.1)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'white' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#ff9a3d' }}>
-                schedule
-              </span>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#ff9a3d' }}>schedule</span>
               <span style={{ fontSize: 12, fontWeight: 700 }}>
                 {isDelivered ? 'Intake Complete ✓' : `Estimated Arrival: ~${etaMinutes} mins`}
               </span>

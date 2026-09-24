@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { TopBar, BottomNav, VerifiedBadge, TierBadge, CapacityGauge, ScoreBars } from '../../components/Navigation';
-import { CountdownRing, CountdownBadge } from '../../components/CountdownRing';
+import { TopBar, BottomNav, VerifiedBadge, TierBadge, CapacityGauge } from '../../components/Navigation';
+import { CountdownRing } from '../../components/CountdownRing';
+import MapView from '../../components/MapView';
+import { DONORS } from '../../data/seed';
 
 
 // No static fake data — all offers come from MongoDB via AppContext
 export default function RecipientHome() {
   const navigate = useNavigate();
-  const { user, recipients, donations, acceptOffer, declineOffer, showToast } = useApp();
+  const { recipients, donors, donations, acceptOffer, declineOffer, showToast } = useApp();
   const [accepting, setAccepting] = useState(true);
   
   // Find live offer from AppContext (status === 'offered' and 1/4th safe window active)
@@ -37,6 +39,7 @@ export default function RecipientHome() {
   const [lang, setLang] = useState('hi');
 
   const myRecipient = recipients[0]; // Asha Nilayam (demo)
+  const donorDirectory = donors?.length ? donors : DONORS;
 
   useEffect(() => {
     if (liveDonationOffer) {
@@ -59,6 +62,7 @@ export default function RecipientHome() {
     ['matched', 'picked_up'].includes(d.status) &&
     (d.matched_recipient_id === myRecipient?.id || !d.matched_recipient_id)
   );
+  const activeIntakeDonor = donorDirectory.find(d => d.id === activeIntake?.donor_id) || donorDirectory[0];
 
   const handleAccept = () => {
     const targetId = offer?.donation_id || liveDonationOffer?.id || 1;
@@ -252,6 +256,32 @@ export default function RecipientHome() {
               <span className="material-symbols-outlined" style={{ fontSize: 20 }}>location_on</span>
               <span>{hi ? 'लाइव डिलीवरी ट्रैक करें' : 'Track Live Delivery 🛵'}</span>
             </button>
+          </div>
+        )}
+
+        {activeIntake && (
+          <div style={{ margin: '0 16px 16px', padding: 14, borderRadius: 20, background: 'var(--surface-container-lowest)', boxShadow: 'var(--shadow-card)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <div>
+                <div className="text-label-lg" style={{ fontWeight: 800 }}>Incoming delivery route</div>
+                <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>Pickup to your shelter gate</div>
+              </div>
+              <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--tertiary)' }}>route</span>
+            </div>
+            <MapView
+              mode="route"
+              height="170px"
+              pickupLat={activeIntakeDonor?.lat}
+              pickupLng={activeIntakeDonor?.lng}
+              dropLat={myRecipient?.lat}
+              dropLng={myRecipient?.lng}
+              riderLat={activeIntake?.rider_lat}
+              riderLng={activeIntake?.rider_lng}
+              waypoints={activeIntake?.route_waypoints || []}
+              progress={activeIntake.status === 'picked_up' ? 0.7 : 0.25}
+              showRoute
+              ariaLabel="Shelter incoming delivery route"
+            />
           </div>
         )}
 

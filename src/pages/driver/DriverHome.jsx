@@ -1,17 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { TopBar, BottomNav } from '../../components/Navigation';
 import { CountdownBadge } from '../../components/CountdownRing';
-import { RECIPIENTS } from '../../data/seed';
+import MapView from '../../components/MapView';
+import { RECIPIENTS, DONORS, DRIVERS } from '../../data/seed';
 
 export default function DriverHome() {
-  const navigate = useNavigate();
-  const { user, donations, driverPickup, driverDeliver, showToast } = useApp();
+  const { user, donations, donors, recipients, drivers, driverPickup, driverDeliver, showToast } = useApp();
   const [online, setOnline] = useState(true);
 
   // Live active job from AppContext — only real matched/picked_up donations
   const activeDonation = donations.find(d => ['matched', 'picked_up'].includes(d.status)) || null;
+  const donorDirectory = donors?.length ? donors : DONORS;
+  const recipientDirectory = recipients?.length ? recipients : RECIPIENTS;
+  const driverDirectory = drivers?.length ? drivers : DRIVERS;
+  const activeDonor = donorDirectory.find(d => d.id === activeDonation?.donor_id) || donorDirectory[0];
+  const activeShelter = recipientDirectory.find(r => r.id === activeDonation?.matched_recipient_id) || recipientDirectory[0];
+  const activeRider = driverDirectory.find(d => d.id === activeDonation?.driver_id) || driverDirectory[0];
   const targetId = activeDonation?.id || null;
   const currentStatus = activeDonation?.status === 'picked_up' ? 'picked_up' : activeDonation?.status === 'delivered' ? 'delivered' : 'assigned';
 
@@ -20,7 +25,7 @@ export default function DriverHome() {
     id: activeDonation.id,
     donation: activeDonation,
     pickup: (activeDonation.donor_name || 'Donor') + ', Kota',
-    dropoff: (RECIPIENTS.find(r => r.id === activeDonation.matched_recipient_id)?.name || 'Shelter') + ', Kota',
+    dropoff: (activeShelter?.name || 'Shelter') + ', Kota',
     distanceKm: 2.4,
     qty_kg: activeDonation.qty_kg || 0,
     cold_chain: activeDonation.needs_cold_chain || false,
@@ -31,7 +36,6 @@ export default function DriverHome() {
 
   const [jobStatus, setJobStatus] = useState(currentStatus);
   const [swipeProgress, setSwipeProgress] = useState(0);
-  const swipeRef = useRef(null);
   const isDragging = useRef(false);
   const startX = useRef(0);
 
@@ -141,6 +145,27 @@ export default function DriverHome() {
                 {job.donation.est_meals || Math.round((job.qty_kg || 0) * 2)} people to feed
                 {job.cold_chain && <span style={{ marginLeft: 8, color: '#2F80ED' }}>❄ Cold chain</span>}
               </p>
+            </div>
+
+            <div style={{ padding: '0 16px 14px' }}>
+              <MapView
+                mode={jobStatus === 'picked_up' ? 'route' : 'pickup'}
+                routePhase={jobStatus === 'picked_up' ? 'delivery' : 'pickup'}
+                height="160px"
+                pickupLat={activeDonor?.lat}
+                pickupLng={activeDonor?.lng}
+                dropLat={activeShelter?.lat}
+                dropLng={activeShelter?.lng}
+                originLat={jobStatus === 'picked_up' ? activeDonor?.lat : activeRider?.lat}
+                originLng={jobStatus === 'picked_up' ? activeDonor?.lng : activeRider?.lng}
+                destinationLat={jobStatus === 'picked_up' ? activeShelter?.lat : activeDonor?.lat}
+                destinationLng={jobStatus === 'picked_up' ? activeShelter?.lng : activeDonor?.lng}
+                riderLat={jobStatus === 'picked_up' ? undefined : activeRider?.lat}
+                riderLng={jobStatus === 'picked_up' ? undefined : activeRider?.lng}
+                progress={jobStatus === 'picked_up' ? 0.65 : 0}
+                showRoute
+                ariaLabel={jobStatus === 'picked_up' ? 'Rider delivery route' : 'Rider route to pickup'}
+              />
             </div>
 
             {/* Route */}

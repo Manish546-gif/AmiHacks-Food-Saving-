@@ -3,13 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { TopBar } from '../../components/Navigation';
 import { TierBadge, VerifiedBadge, ScoreBars } from '../../components/Navigation';
-import { useCountdown, formatCountdownFull, getRingColor } from '../../hooks/useCountdown';
-import { matchDonation, RECIPIENTS, DRIVERS } from '../../data/seed';
+import { useCountdown, formatCountdownFull } from '../../hooks/useCountdown';
+import { matchDonation, RECIPIENTS, DRIVERS, DONORS } from '../../data/seed';
+import MapView from '../../components/MapView';
 
 export default function MatchResult() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { donations, recipients, drivers, acceptOffer, expireOffer, fastForwardOfferTimer, showToast } = useApp();
+  const { donations, donors, recipients, drivers, acceptOffer, expireOffer, fastForwardOfferTimer, showToast } = useApp();
   const [showWhyModal, setShowWhyModal] = useState(false);
   const [matchScoreData, setMatchScoreData] = useState(null);
   const confettiFired = useRef(false);
@@ -73,7 +74,8 @@ export default function MatchResult() {
 
   const matchedRecipient = recipients.find(r => r.id === donation.matched_recipient_id) || recipients[0] || RECIPIENTS[0];
   const assignedDriver = drivers.find(d => d.id === donation.driver_id) || drivers[0] || DRIVERS[0];
-  const ringColor = getRingColor(countdown.totalSeconds, countdown.pct);
+  const donorDirectory = donors?.length ? donors : DONORS;
+  const matchedDonor = donorDirectory.find(d => d.id === donation.donor_id) || donorDirectory[0];
 
   const windowLabel = offerWindowHours >= 1 ? `${offerWindowHours}h` : `${Math.round(offerWindowHours * 60)}m`;
 
@@ -119,6 +121,22 @@ export default function MatchResult() {
               <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', maxWidth: 320, margin: '0 auto' }}>
                 Food rescue offer for <strong>{donation.description}</strong> is active in shelter offer feeds. Awaiting shelter confirmation.
               </p>
+            </div>
+
+            <div style={{ width: '100%', maxWidth: 360, height: 180, borderRadius: 18, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+              <MapView
+                mode="radar"
+                height="180px"
+                pins={recipients.map(shelter => ({
+                  id: `shelter-${shelter.id}`,
+                  lat: shelter.lat,
+                  lng: shelter.lng,
+                  type: 'shelter',
+                  label: shelter.name,
+                  address: shelter.address,
+                }))}
+                ariaLabel="Nearby verified shelters"
+              />
             </div>
 
             {/* Prominent 1/4th Safe Time Countdown Card */}
@@ -312,6 +330,23 @@ export default function MatchResult() {
                 Intake verified within safe window • Volunteer rider dispatched
               </div>
             </div>
+
+            {matchedDonor && (
+              <MapView
+                mode="route"
+                height="190px"
+                pickupLat={matchedDonor.lat}
+                pickupLng={matchedDonor.lng}
+                dropLat={matchedRecipient.lat}
+                dropLng={matchedRecipient.lng}
+                riderLat={donation.rider_lat}
+                riderLng={donation.rider_lng}
+                waypoints={donation.route_waypoints || []}
+                progress={0.25}
+                showRoute
+                ariaLabel="Matched shelter delivery route"
+              />
+            )}
 
             {/* Recipient card */}
             <div className="card animate-fade-in-up delay-1" style={{ padding: 18 }}>

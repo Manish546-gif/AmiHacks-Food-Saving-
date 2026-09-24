@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { TopBar, BottomNav } from '../../components/Navigation';
+import MapView from '../../components/MapView';
 
 export default function DriverProfile() {
   const navigate = useNavigate();
@@ -65,6 +66,29 @@ export default function DriverProfile() {
               </span>
             </div>
           </div>
+        </div>
+
+        <div style={{ padding: 14, borderRadius: 20, background: 'var(--surface-container-lowest)', boxShadow: 'var(--shadow-card)', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div>
+              <div className="text-label-lg" style={{ fontWeight: 800 }}>Rider availability location</div>
+              <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>Current dispatch position</div>
+            </div>
+            <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--tertiary)' }}>my_location</span>
+          </div>
+          <MapView
+            mode="radar"
+            height="170px"
+            pins={[{
+              id: `rider-${driver.id}`,
+              lat: driver.lat,
+              lng: driver.lng,
+              type: 'rider',
+              label: driver.name,
+              address: driver.vehicle,
+            }]}
+            ariaLabel="Rider location map"
+          />
         </div>
 
         {/* Vehicle & Capacity Form */}

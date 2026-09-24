@@ -10,6 +10,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { RECIPIENTS, DRIVERS, DONORS } from './src/data/seed.js';
+import verificationRouter from './server-verification.js';
 
 dotenv.config();
 
@@ -37,6 +38,10 @@ app.use(cors({
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
 }));
 app.use(express.json());
+
+// ================= VERIFICATION SYSTEM =================
+app.use('/api/verification', verificationRouter);
+app.use('/api/admin/verification', verificationRouter);
 
 // ================= SCHEMAS =================
 const DonorSchema = new mongoose.Schema({
@@ -128,6 +133,9 @@ const DonationSchema = new mongoose.Schema({
   delivery_otp_verified: { type: Boolean, default: false },
   delivered_at: String,
   picked_up_at: String,
+  rider_lat: Number,
+  rider_lng: Number,
+  route_waypoints: [{ lat: Number, lng: Number }],
   created_at: { type: String, default: () => new Date().toISOString() },
 }, { timestamps: true });
 

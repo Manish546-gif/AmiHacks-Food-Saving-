@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { TopBar, BottomNav } from '../../components/Navigation';
 import { DonationCard } from '../../components/DonationCard';
+import MapView from '../../components/MapView';
 
 const FILTERS = [
   { id: 'all', label: 'All' },
@@ -14,7 +15,7 @@ const FILTERS = [
 
 export default function DonorHome() {
   const navigate = useNavigate();
-  const { donations, recipients, drivers, user, impactStats } = useApp();
+  const { donations, recipients, drivers, donors, user } = useApp();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
 
@@ -29,6 +30,10 @@ export default function DonorHome() {
   });
 
   const lastDonation = myDonations[0];
+  const trackedDonation = myDonations.find(d => ['matched', 'picked_up', 'delivered'].includes(d.status));
+  const donorDirectory = donors?.length ? donors : [];
+  const trackedDonor = donorDirectory.find(d => d.id === trackedDonation?.donor_id) || donorDirectory[0];
+  const trackedShelter = recipients?.find(r => r.id === trackedDonation?.matched_recipient_id) || recipients?.[0];
 
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--surface)', display: 'flex', flexDirection: 'column' }}>
@@ -71,6 +76,32 @@ export default function DonorHome() {
             </button>
           </div>
         </div>
+
+        {trackedDonation && trackedDonor && trackedShelter && (
+          <div style={{ margin: '0 16px 16px', padding: 14, borderRadius: 20, background: 'var(--surface-container-lowest)', boxShadow: 'var(--shadow-card)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <div>
+                <div className="text-label-lg" style={{ fontWeight: 800 }}>Live rescue route</div>
+                <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>Your kitchen to {trackedShelter.name}</div>
+              </div>
+              <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--primary)' }}>route</span>
+            </div>
+            <MapView
+              mode="route"
+              height="170px"
+              pickupLat={trackedDonor.lat}
+              pickupLng={trackedDonor.lng}
+              dropLat={trackedShelter.lat}
+              dropLng={trackedShelter.lng}
+              riderLat={trackedDonation.rider_lat}
+              riderLng={trackedDonation.rider_lng}
+              waypoints={trackedDonation.route_waypoints || []}
+              progress={trackedDonation.status === 'delivered' ? 1 : trackedDonation.status === 'picked_up' ? 0.7 : 0.25}
+              showRoute
+              ariaLabel="Restaurant donation delivery route"
+            />
+          </div>
+        )}
 
         {/* Hero milestone card */}
         <div style={{ padding: '0 16px 20px' }}>
