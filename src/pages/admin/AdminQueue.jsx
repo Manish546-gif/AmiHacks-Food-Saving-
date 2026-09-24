@@ -116,7 +116,7 @@ export default function AdminQueue() {
                       </span>
                     </div>
                     <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)', marginTop: 2 }}>
-                      From <strong>{d.donor_name}</strong> • {d.qty_kg} kg (~{d.est_meals || d.qty_kg * 2} meals)
+                      From <strong>{d.donor_name}</strong> • Feeds {d.est_meals || Math.round((d.qty_kg || 0) * 2)} people
                     </div>
                   </div>
 
@@ -179,7 +179,7 @@ export default function AdminQueue() {
 
               <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 12 }}>
                 <div className="text-label-md" style={{ fontWeight: 800 }}>Donation #{selectedDonation.id}: {selectedDonation.description}</div>
-                <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>{selectedDonation.qty_kg} kg • From {selectedDonation.donor_name}</div>
+                <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>Feeds {selectedDonation.est_meals || Math.round((selectedDonation.qty_kg || 0) * 2)} people • From {selectedDonation.donor_name}</div>
               </div>
 
               <div>

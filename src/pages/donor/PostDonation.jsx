@@ -145,7 +145,7 @@ export default function PostDonation() {
 
   const handleSubmit = () => {
     if (!form.declaration) { showToast('Please accept the food safety declaration', 'warning'); return; }
-    if (!form.qty_kg || form.qty_kg <= 0) { showToast('Please enter quantity in kg', 'warning'); return; }
+    if (!form.est_meals || parseInt(form.est_meals) <= 0) { showToast('Please enter how many people this can feed', 'warning'); return; }
 
     setMatching(true);
     const donation = createDonation({
@@ -347,24 +347,32 @@ export default function PostDonation() {
                 </div>
               </FormField>
 
-              {/* Quantity & Meals */}
+              {/* People to Feed & Quantity */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <FormField label="Quantity (kg)" required>
+                <FormField label="People to Feed" required>
                   <input
-                    type="number" min="0.5" step="0.5"
-                    value={form.qty_kg}
-                    onChange={e => setForm(prev => ({ ...prev, qty_kg: e.target.value, est_meals: Math.round(parseFloat(e.target.value || 0) * 2) }))}
-                    placeholder="e.g. 12"
+                    type="number" min="1" step="1"
+                    value={form.est_meals}
+                    onChange={e => setForm(prev => ({
+                      ...prev,
+                      est_meals: e.target.value,
+                      qty_kg: (parseFloat(e.target.value || 0) / 2).toFixed(1),
+                    }))}
+                    placeholder="e.g. 50"
                     style={inputStyle}
                   />
                 </FormField>
-                <FormField label="Est. Meals">
+                <FormField label="Weight (kg) — auto">
                   <input
-                    type="number" min="1"
-                    value={form.est_meals}
-                    onChange={e => setForm(prev => ({ ...prev, est_meals: e.target.value }))}
-                    placeholder="auto-calculated"
-                    style={inputStyle}
+                    type="number" min="0.5" step="0.5"
+                    value={form.qty_kg}
+                    onChange={e => setForm(prev => ({
+                      ...prev,
+                      qty_kg: e.target.value,
+                      est_meals: Math.round(parseFloat(e.target.value || 0) * 2),
+                    }))}
+                    placeholder="auto"
+                    style={{ ...inputStyle, color: 'var(--on-surface-variant)' }}
                   />
                 </FormField>
               </div>
@@ -439,16 +447,16 @@ export default function PostDonation() {
                 className="btn-primary"
                 style={{ width: '100%', marginTop: 4 }}
                 onClick={handleSubmit}
-                disabled={!form.item || !form.qty_kg || !form.declaration}
+                disabled={!form.item || !form.est_meals || !form.declaration}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 20, fontVariationSettings: "'FILL' 1" }}>volunteer_activism</span>
                 Find a Match
               </button>
 
-              {form.qty_kg > 0 && (
+              {parseInt(form.est_meals) > 0 && (
                 <div style={{ textAlign: 'center', marginTop: 8 }}>
                   <span className="text-label-md" style={{ color: 'var(--tertiary)' }}>
-                    🍽 ~{Math.round(parseFloat(form.qty_kg) * 2)} meals · 🌱 ~{Math.round(parseFloat(form.qty_kg) * 2.5)} kg CO₂e saved
+                    👥 Feeds ~{parseInt(form.est_meals) || 0} people · 🌱 ~{Math.round((parseFloat(form.qty_kg) || 0) * 2.5)} kg CO₂e saved
                   </span>
                 </div>
               )}

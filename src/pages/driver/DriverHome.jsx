@@ -138,7 +138,7 @@ export default function DriverHome() {
               </div>
               <h3 className="text-headline-sm" style={{ margin: '4px 0 2px' }}>{job.donation.description}</h3>
               <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: 0 }}>
-                {job.qty_kg} kg • ~{job.donation.est_meals} meals
+                {job.donation.est_meals || Math.round((job.qty_kg || 0) * 2)} people to feed
                 {job.cold_chain && <span style={{ marginLeft: 8, color: '#2F80ED' }}>❄ Cold chain</span>}
               </p>
             </div>
@@ -266,7 +266,7 @@ export default function DriverHome() {
             <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--tertiary)', fontVariationSettings: "'FILL' 1", display: 'block', marginBottom: 12 }}>celebration</span>
             <h3 className="text-headline-md" style={{ color: 'var(--tertiary)', margin: '0 0 6px' }}>Rescue Complete!</h3>
             <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>
-              {job.donation.qty_kg} kg delivered → {job.donation.est_meals} meals for Asha Nilayam
+              {job.donation.est_meals || Math.round((job.donation.qty_kg || 0) * 2)} people fed at shelter ✓
             </p>
             <div style={{ marginTop: 16, padding: '8px 16px', borderRadius: 12, background: 'var(--surface-container-lowest)', display: 'inline-block' }}>
               <span className="text-label-md" style={{ color: 'var(--on-surface)' }}>Earned: <strong style={{ color: 'var(--tertiary)' }}>{job.est_earnings}</strong></span>

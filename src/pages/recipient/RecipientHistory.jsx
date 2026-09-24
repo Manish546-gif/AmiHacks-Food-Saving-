@@ -110,8 +110,8 @@ export default function RecipientHistory() {
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--on-surface)' }}>{item.qty_kg} kg</div>
-                  <div className="text-label-sm" style={{ color: 'var(--tertiary)' }}>~{item.est_meals || item.qty_kg * 2} meals</div>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--on-surface)' }}>{item.est_meals || Math.round((item.qty_kg || 0) * 2)} people</div>
+                  <div className="text-label-sm" style={{ color: 'var(--tertiary)' }}>fed</div>
                 </div>
               </div>
 

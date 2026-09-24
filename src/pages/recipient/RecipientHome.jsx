@@ -194,7 +194,7 @@ export default function RecipientHome() {
                 <div>
                   <h3 className="text-headline-sm" style={{ margin: '0 0 2px' }}>{offer.donation.description}</h3>
                   <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '0 0 6px' }}>
-                    {offer.donation.qty_kg} kg • ~{offer.donation.est_meals} meals
+                    Feeds {offer.donation.est_meals || Math.round((offer.donation.qty_kg || 0) * 2)} people
                   </p>
                   <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: 0 }}>
                     {hi ? 'दूरी:' : 'Distance:'} <strong style={{ color: 'var(--on-surface)' }}>2.1 km</strong>

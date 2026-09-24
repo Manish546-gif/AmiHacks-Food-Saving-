@@ -140,7 +140,7 @@ export default function LiveTracking() {
               </div>
               <div style={{ flex: 1 }}>
                 <h4 className="text-headline-sm" style={{ margin: '0 0 2px' }}>{donation?.description ?? 'Veg Biryani'}</h4>
-                <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '0 0 6px' }}>{donation?.qty_kg} kg • ~{donation?.est_meals} meals</p>
+                <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '0 0 6px' }}>Feeds {donation?.est_meals || Math.round((donation?.qty_kg || 0) * 2)} people</p>
                 <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: 0 }}>
                   → <strong style={{ color: 'var(--on-surface)' }}>{recipient?.name ?? 'Shelter'}</strong>
                 </p>
@@ -184,14 +184,14 @@ export default function LiveTracking() {
             </div>
             <h2 className="text-headline-md" style={{ margin: '0 0 6px', color: 'var(--tertiary)' }}>Delivered!</h2>
             <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '0 0 20px' }}>
-              {donation?.qty_kg} kg of food successfully rescued!<br />
+              {donation?.est_meals || Math.round((donation?.qty_kg || 0) * 2)} people fed from this rescue!<br />
               {donation?.est_meals} meals for {recipient?.name}
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
               {[
                 { icon: 'restaurant', label: 'Meals', value: donation?.est_meals ?? 24 },
-                { icon: 'scale', label: 'kg saved', value: donation?.qty_kg ?? 12 },
-                { icon: 'eco', label: 'kg CO₂e', value: Math.round((donation?.qty_kg ?? 12) * 2.5) },
+                { icon: 'group', label: 'people fed', value: donation?.est_meals || Math.round((donation?.qty_kg ?? 12) * 2) },
+                { icon: 'eco', label: 'kg CO₂e saved', value: Math.round((donation?.qty_kg ?? 12) * 2.5) },
               ].map(s => (
                 <div key={s.label} style={{ padding: '10px 8px', borderRadius: 14, background: 'var(--surface-container-low)', textAlign: 'center' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--primary-dark)', fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>

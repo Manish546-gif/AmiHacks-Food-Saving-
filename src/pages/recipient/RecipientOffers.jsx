@@ -132,16 +132,21 @@ export default function RecipientOffers() {
                       background: 'var(--surface-container-low)', borderRadius: 14, padding: 10,
                     }}>
                       <div style={{ textAlign: 'center' }}>
-                        <div className="text-label-sm" style={{ color: 'var(--on-surface-variant)' }}>Quantity</div>
-                        <div style={{ fontWeight: 800, fontSize: 16 }}>{offer.qty_kg} kg</div>
+                        <div className="text-label-sm" style={{ color: 'var(--on-surface-variant)' }}>People Fed</div>
+                        <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--primary)' }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 2, fontVariationSettings: "'FILL' 1" }}>group</span>
+                          {offer.est_meals || Math.round((offer.qty_kg || 0) * 2)}
+                        </div>
                       </div>
                       <div style={{ textAlign: 'center', borderLeft: '1px solid var(--outline-variant)', borderRight: '1px solid var(--outline-variant)' }}>
-                        <div className="text-label-sm" style={{ color: 'var(--on-surface-variant)' }}>Feeds</div>
-                        <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--tertiary)' }}>~{offer.est_meals || offer.qty_kg * 2} meals</div>
+                        <div className="text-label-sm" style={{ color: 'var(--on-surface-variant)' }}>Category</div>
+                        <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--tertiary)', textTransform: 'capitalize' }}>{offer.category || 'Cooked'}</div>
                       </div>
                       <div style={{ textAlign: 'center' }}>
-                        <div className="text-label-sm" style={{ color: 'var(--on-surface-variant)' }}>Safe Until</div>
-                        <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--secondary)' }}>21:45 PM</div>
+                        <div className="text-label-sm" style={{ color: 'var(--on-surface-variant)' }}>Safe For</div>
+                        <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--secondary)' }}>
+                          {offer.safe_hours || 4}h
+                        </div>
                       </div>
                     </div>
 
@@ -236,7 +241,7 @@ export default function RecipientOffers() {
                     </span>
                   </div>
                   <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)', marginTop: 2 }}>
-                    From {donation.donor_name} • {donation.qty_kg} kg (~{donation.est_meals || donation.qty_kg * 2} meals)
+                    From {donation.donor_name} • Feeds {donation.est_meals || Math.round((donation.qty_kg || 0) * 2)} people
                   </div>
                 </div>
                 <button

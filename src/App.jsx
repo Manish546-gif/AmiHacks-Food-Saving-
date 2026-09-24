@@ -179,78 +179,6 @@ function PWAInstallBanner() {
   );
 }
 
-// Quick Role Switcher Floating Bar (visible on all screens except onboarding)
-function QuickRoleSwitcher() {
-  const { user, switchRole } = useApp();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  if (location.pathname === '/') return null;
-
-  const roles = [
-    { id: 'donor', label: 'Donor', icon: 'restaurant', path: '/donor', color: 'var(--primary)' },
-    { id: 'recipient', label: 'Shelter', icon: 'volunteer_activism', path: '/recipient', color: 'var(--secondary)' },
-    { id: 'driver', label: 'Rider', icon: 'two_wheeler', path: '/driver', color: 'var(--tertiary)' },
-    { id: 'admin', label: 'Admin', icon: 'shield_with_heart', path: '/admin', color: '#6366f1' },
-  ];
-
-  const handleSwitch = (r) => {
-    switchRole(r.id);
-    navigate(r.path);
-  };
-
-  return (
-    <div style={{
-      position: 'fixed',
-      bottom: 64, // Just above the bottom nav
-      left: '50%',
-      transform: 'translateX(-50%)',
-      zIndex: 60,
-      background: 'rgba(22, 27, 45, 0.94)',
-      backdropFilter: 'blur(16px)',
-      WebkitBackdropFilter: 'blur(16px)',
-      borderRadius: 999,
-      padding: '4px 6px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 4,
-      boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-      border: '1px solid rgba(255,255,255,0.15)',
-    }}>
-      <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.6)', paddingLeft: 6, paddingRight: 2, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-        Switch:
-      </span>
-      {roles.map(r => {
-        const active = user?.role === r.id;
-        return (
-          <button
-            key={r.id}
-            onClick={() => handleSwitch(r)}
-            style={{
-              padding: '4px 10px',
-              borderRadius: 999,
-              border: 'none',
-              background: active ? r.color : 'transparent',
-              color: active ? 'white' : 'rgba(255,255,255,0.75)',
-              fontSize: 11,
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              transition: 'all 180ms ease-out',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 13, fontVariationSettings: "'FILL' 1" }}>
-              {r.icon}
-            </span>
-            <span>{r.label}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 // Protected route
 function Protected({ allowedRoles, redirectTo = '/' }) {
@@ -313,8 +241,6 @@ function AppInner() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {/* Quick Role Switcher Bar */}
-      <QuickRoleSwitcher />
 
       {/* PWA Install Banner + Offline indicator */}
       <PWAInstallBanner />

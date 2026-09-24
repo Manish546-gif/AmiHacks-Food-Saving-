@@ -113,7 +113,7 @@ export default function AdminDashboard() {
                       </div>
                       <h4 className="text-label-lg" style={{ fontWeight: 700, margin: 0 }}>{donation.description}</h4>
                       <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '1px 0 0' }}>
-                        {donation.qty_kg} kg • {donor?.name ?? 'Donor'}
+                        Feeds {donation.est_meals || Math.round((donation.qty_kg || 0) * 2)} people • {donor?.name ?? 'Donor'}
                       </p>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>

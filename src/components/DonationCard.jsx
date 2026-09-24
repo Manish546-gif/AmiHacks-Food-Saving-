@@ -85,10 +85,11 @@ export function DonationCard({ donation, recipients, drivers, onClick }) {
               <CountdownBadge expiresAt={donation.expires_at} />
             </div>
             <h4 className="text-headline-sm" style={{ margin: '6px 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {donation.description}, {donation.qty_kg} kg
+              {donation.description}
             </h4>
             <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              ~{donation.est_meals} meals
+              <span className="material-symbols-outlined" style={{ fontSize: 12, verticalAlign: 'middle', marginRight: 2, fontVariationSettings: "'FILL' 1" }}>group</span>
+              Feeds {donation.est_meals || Math.round((donation.qty_kg || 0) * 2)} people
             </p>
           </div>
           {recipient && (

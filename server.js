@@ -185,31 +185,38 @@ app.post('/api/donations', async (req, res) => {
   try {
     const maxItem = await DonationModel.findOne().sort({ id: -1 });
     const nextId = (maxItem?.id || 0) + 1;
-    const estMeals = req.body.est_meals || Math.round((req.body.qty_kg || 10) * 2);
-    const otp = String(Math.floor(1000 + Math.random() * 9000));
+    const finalId = req.body.id || nextId;
+    const peopleFed = req.body.est_meals || req.body.qty_kg || 50;
+    const otp = req.body.delivery_otp || String(Math.floor(1000 + Math.random() * 9000));
 
     // Find best matching recipient from registered shelters
     const recipient = await RecipientModel.findOne({ accepting: true }).sort({ tier: 1 });
     const driver = await DriverModel.findOne({ available: true });
 
-    const newDonation = new DonationModel({
+    // Use updateOne with upsert or new model
+    const donationData = {
       ...req.body,
-      id: nextId,
-      est_meals: estMeals,
-      status: 'offered',
-      matched_recipient_id: recipient?.id || 1,
-      driver_id: driver?.id || 1,
-      match_score: 0.94,
-      match_explanation: [
-        `Tier ${recipient?.tier || 1} Priority Shelter`,
+      id: finalId,
+      qty_kg: req.body.qty_kg || peopleFed,
+      est_meals: peopleFed,
+      status: req.body.status || 'offered',
+      matched_recipient_id: req.body.matched_recipient_id || recipient?.id || 1,
+      driver_id: req.body.driver_id || driver?.id || 1,
+      match_score: req.body.match_score || 0.94,
+      match_explanation: req.body.match_explanation || [
+        `Tier ${recipient?.tier || 1} Priority Shelter (${recipient?.name || 'Asha Nilayam'})`,
         'Dietary requirements verified ✓',
-        'Intake capacity available ✓',
+        `Capacity to feed ${peopleFed} people ✓`,
       ],
       delivery_otp: otp,
-      created_at: new Date().toISOString(),
-    });
+      created_at: req.body.created_at || new Date().toISOString(),
+    };
 
-    await newDonation.save();
+    const newDonation = await DonationModel.findOneAndUpdate(
+      { id: finalId },
+      { $set: donationData },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
     // Create notifications for shelter and donor
     await NotificationModel.create([
@@ -217,13 +224,13 @@ app.post('/api/donations', async (req, res) => {
         id: Date.now(),
         role: 'recipient',
         title: `New Food Offer (${recipient?.name || 'Shelter'})`,
-        body: `${newDonation.qty_kg} kg of ${newDonation.description} offered by ${newDonation.donor_name}. Verification OTP: ${otp}`,
+        body: `${newDonation.description} (feeds ${peopleFed} people) offered by ${newDonation.donor_name}. Verification OTP: ${otp}`,
       },
       {
         id: Date.now() + 1,
         role: 'donor',
         title: `Matched with ${recipient?.name || 'Shelter'}`,
-        body: `Your surplus food has been matched with Tier ${recipient?.tier || 1} shelter. Awaiting intake acceptance.`,
+        body: `Your surplus food can feed ${peopleFed} people at Tier ${recipient?.tier || 1} shelter. Awaiting intake acceptance.`,
       }
     ]);
 

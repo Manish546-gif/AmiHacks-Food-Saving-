@@ -108,7 +108,7 @@ export default function DriverTasks() {
                     <div>
                       <h3 className="text-headline-sm" style={{ margin: 0 }}>{task.description}</h3>
                       <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)', marginTop: 2 }}>
-                        {task.qty_kg} kg • ~{task.est_meals || task.qty_kg * 2} meals • Sealed Food-grade Containers
+                        Feeds {task.est_meals || Math.round((task.qty_kg || 0) * 2)} people • Sealed Food-grade Containers
                       </div>
                     </div>
 
@@ -201,7 +201,7 @@ export default function DriverTasks() {
                   <div>
                     <h4 className="text-headline-sm" style={{ margin: 0, fontSize: 16 }}>{task.description}</h4>
                     <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>
-                      From {task.donor_name} • {task.qty_kg} kg (~{task.est_meals || task.qty_kg * 2} meals)
+                      From {task.donor_name} • Feeds {task.est_meals || Math.round((task.qty_kg || 0) * 2)} people
                     </div>
                   </div>
                   <span style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(252,128,25,0.1)', color: 'var(--primary-dark)', fontSize: 11, fontWeight: 700 }}>
