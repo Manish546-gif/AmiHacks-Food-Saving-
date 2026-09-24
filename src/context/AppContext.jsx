@@ -4,7 +4,8 @@ import { DONATIONS, RECIPIENTS, DRIVERS, DONORS, IMPACT_STATS, matchDonation } f
 const AppContext = createContext(null);
 
 const STORAGE_KEY = 'surplus_to_shelter_state_v1';
-const API_BASE = 'http://localhost:5000/api';
+const RAW_API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://amihacks-food-saving.onrender.com' : 'http://localhost:5000');
+const API_BASE = `${RAW_API_URL.replace(/\/$/, '')}/api`;
 
 // Safe API helper
 async function apiFetch(endpoint, options = {}) {
