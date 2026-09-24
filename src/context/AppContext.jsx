@@ -4,25 +4,73 @@ import { DONATIONS, RECIPIENTS, DRIVERS, DONORS, IMPACT_STATS, matchDonation } f
 const AppContext = createContext(null);
 
 const STORAGE_KEY = 'surplus_to_shelter_state_v1';
-const RAW_API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://amihacks-food-saving.onrender.com' : 'http://localhost:5000');
-const API_BASE = `${RAW_API_URL.replace(/\/$/, '')}/api`;
+let resolvedApiBase = null;
 
-// Safe API helper
-async function apiFetch(endpoint, options = {}) {
-  try {
-    const res = await fetch(`${API_BASE}${endpoint}`, {
-      headers: { 'Content-Type': 'application/json' },
-      ...options,
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (err) {
-    return null; // Graceful fallback to local state
+function getCandidateUrls(endpoint) {
+  const cleanEp = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const list = [];
+
+  if (resolvedApiBase) {
+    list.push(`${resolvedApiBase}${cleanEp}`);
   }
+
+  if (typeof window !== 'undefined') {
+    // 1. Relative /api (Proxied seamlessly by Vite dev server across ALL LAN devices, phones, tablets)
+    list.push(`/api${cleanEp}`);
+
+    // 2. Direct connection to same host on port 5000 (e.g. http://10.248.209.2:5000/api)
+    if (window.location.hostname) {
+      list.push(`${window.location.protocol}//${window.location.hostname}:5000/api${cleanEp}`);
+    }
+
+    // 3. Environment URL if configured
+    const envUrl = import.meta.env.VITE_API_URL;
+    if (envUrl) {
+      const cleanEnv = envUrl.replace(/\/$/, '');
+      const fullUrl = `${cleanEnv}/api${cleanEp}`;
+      list.push(fullUrl);
+    }
+
+    // 4. Production cloud backend fallback
+    list.push(`https://amihacks-food-saving.onrender.com/api${cleanEp}`);
+  } else {
+    list.push(`http://localhost:5000/api${cleanEp}`);
+  }
+
+  return [...new Set(list)];
+}
+
+// Resilient API helper with automatic multi-candidate fallback
+async function apiFetch(endpoint, options = {}) {
+  const candidates = getCandidateUrls(endpoint);
+  for (const url of candidates) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(url, {
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        ...options,
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        // Cache working base so future calls are instant
+        const match = url.match(/^(https?:\/\/[^/]+(?:\/api)?|\/api)/);
+        if (match) {
+          resolvedApiBase = match[1].endsWith('/api') ? match[1] : `${match[1]}/api`;
+        }
+        return await res.json();
+      }
+    } catch (err) {
+      // Continue to next candidate
+    }
+  }
+  return null;
 }
 
 export function AppProvider({ children }) {
-  const [dbStatus, setDbStatus] = useState({ connected: false, provider: 'Local Reactive Sync' });
+  const [dbStatus, setDbStatus] = useState({ connected: false, provider: 'Connecting to Cloud...' });
 
   // Load initial state from localStorage if available
   const [user, setUser] = useState(() => {
@@ -96,12 +144,35 @@ export function AppProvider({ children }) {
     toastTimerRef.current = setTimeout(() => setToast(null), 3500);
   }, []);
 
-  // Check backend health & sync from MongoDB on mount
+  // Sync data from cloud backend (used across all devices)
+  const syncFromCloud = useCallback(async () => {
+    try {
+      const [cloudDonations, cloudNotifs, cloudRecipients] = await Promise.all([
+        apiFetch('/donations'),
+        apiFetch('/notifications'),
+        apiFetch('/recipients'),
+      ]);
+
+      if (cloudDonations && Array.isArray(cloudDonations)) {
+        setDonations(cloudDonations);
+      }
+      if (cloudNotifs && Array.isArray(cloudNotifs)) {
+        setNotifications(cloudNotifs);
+      }
+      if (cloudRecipients && Array.isArray(cloudRecipients)) {
+        setRecipients(cloudRecipients);
+      }
+    } catch (e) {
+      console.warn('Sync error:', e);
+    }
+  }, []);
+
+  // Check backend health & initial sync from MongoDB on mount
   useEffect(() => {
     async function initDbSync() {
       const health = await apiFetch('/health');
       if (health && health.connected) {
-        setDbStatus({ connected: true, provider: 'MongoDB Atlas', host: health.host });
+        setDbStatus({ connected: true, provider: 'MongoDB Atlas (Live Sync)', host: health.host });
 
         // Load initial records from MongoDB
         const [cloudDonations, cloudRecipients, cloudDrivers, cloudDonors, cloudNotifs] = await Promise.all([
@@ -117,27 +188,34 @@ export function AppProvider({ children }) {
         if (cloudDrivers?.length) setDrivers(cloudDrivers);
         if (cloudDonors?.length) setDonors(cloudDonors);
         if (cloudNotifs?.length) setNotifications(cloudNotifs);
+      } else {
+        setDbStatus({ connected: false, provider: 'Local Reactive Sync' });
       }
     }
     initDbSync();
   }, []);
 
-  // Poll MongoDB every 3.5s to keep all dashboards live-synced
+  // Poll MongoDB every 2.5s to keep all devices live-synced
   useEffect(() => {
-    const pollInterval = setInterval(async () => {
-      const [cloudDonations, cloudNotifs] = await Promise.all([
-        apiFetch('/donations'),
-        apiFetch('/notifications'),
-      ]);
-      if (cloudDonations && Array.isArray(cloudDonations)) {
-        setDonations(cloudDonations);
+    const pollInterval = setInterval(syncFromCloud, 2500);
+
+    // Instant refresh when device screen turns on or user switches tabs
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        syncFromCloud();
       }
-      if (cloudNotifs && Array.isArray(cloudNotifs)) {
-        setNotifications(cloudNotifs);
-      }
-    }, 3500);
-    return () => clearInterval(pollInterval);
-  }, []);
+    };
+    const onFocus = () => syncFromCloud();
+
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      clearInterval(pollInterval);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [syncFromCloud]);
 
   // Instant cross-tab sync via storage events
   useEffect(() => {
@@ -200,12 +278,87 @@ export function AppProvider({ children }) {
     showToast('Logged out successfully', 'logout');
   }, [showToast]);
 
+  // Expire an offer when 1/4th safe window elapses without acceptance
+  const expireOffer = useCallback((donationId, reason = 'Offer window expired (1/4th safe window elapsed)') => {
+    let affectedDonation = null;
+
+    setDonations(prev => {
+      const next = prev.map(d => {
+        if (d.id === donationId && d.status === 'offered') {
+          affectedDonation = {
+            ...d,
+            status: 'escalated',
+            escalated_reason: reason,
+            escalated_at: new Date().toISOString(),
+          };
+          return affectedDonation;
+        }
+        return d;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY + '_donations', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+
+    // Remove the notification of food from recipient offer section
+    setNotifications(prev => {
+      const filtered = prev.filter(n => !(n.role === 'recipient' && n.donation_id === donationId));
+      try {
+        localStorage.setItem(STORAGE_KEY + '_notifications', JSON.stringify(filtered));
+      } catch (e) {}
+      return filtered;
+    });
+
+    apiFetch(`/donations/${donationId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'escalated', escalated_reason: reason }),
+    });
+
+    const target = affectedDonation || donations.find(d => d.id === donationId);
+    const windowDesc = target?.offer_window_hours ? `${target.offer_window_hours}h` : '1h';
+
+    // Notify donor that no shelter accepted within 1/4th window
+    const expiryNotif = {
+      id: Date.now() + Math.random(),
+      donation_id: donationId,
+      role: 'donor',
+      title: 'No Shelter Accepted — Escalated ⚠️',
+      body: `No shelter accepted "${target?.description || 'food'}" within the 1/4th safe window (${windowDesc}). Escalated to city emergency dispatch & compost partner.`,
+      read: false,
+      created_at: new Date().toISOString(),
+    };
+    setNotifications(prev => [expiryNotif, ...prev]);
+    apiFetch('/notifications', { method: 'POST', body: JSON.stringify(expiryNotif) });
+
+    showToast(`1/4th safe window ended — offer escalated to dispatcher`, 'warning');
+  }, [donations, showToast]);
+
+  // Demo helper: fast-forward timer to test timeout without waiting full duration
+  const fastForwardOfferTimer = useCallback((donationId, secondsRemaining = 5) => {
+    const newExpiresAt = new Date(Date.now() + secondsRemaining * 1000).toISOString();
+    setDonations(prev => prev.map(d => {
+      if (d.id === donationId) {
+        return { ...d, offer_expires_at: newExpiresAt };
+      }
+      return d;
+    }));
+    showToast(`Fast-forwarded to ${secondsRemaining}s remaining (Demo)`, 'fast_forward');
+  }, [showToast]);
+
   // Create Donation flow (immediately displayed on Shelter, Rider, and Admin dashboards)
   const createDonation = useCallback((donationData) => {
     const now = new Date();
     const readyAt = donationData.ready_at ? new Date(donationData.ready_at) : now;
-    const safeHours = donationData.safe_hours ?? 4;
+    const safeHours = Number(donationData.safe_hours ?? 4);
     const expiresAt = new Date(readyAt.getTime() + safeHours * 3600000);
+
+    // 1/4th of max safe time of food for matching & acceptance window
+    const offerWindowHours = donationData.offer_window_hours ?? (safeHours / 4);
+    const offerWindowMs = offerWindowHours * 3600000;
+    const offerExpiresAt = donationData.offer_expires_at
+      ? new Date(donationData.offer_expires_at)
+      : new Date(now.getTime() + offerWindowMs);
 
     const peopleFed = Number(donationData.est_meals || donationData.qty_kg || 50);
     const newId = Math.max(0, ...donations.map(d => d.id || 0)) + 1;
@@ -218,7 +371,10 @@ export function AppProvider({ children }) {
       ...donationData,
       qty_kg: donationData.qty_kg || peopleFed,
       est_meals: peopleFed,
+      safe_hours: safeHours,
       expires_at: expiresAt.toISOString(),
+      offer_window_hours: offerWindowHours,
+      offer_expires_at: offerExpiresAt.toISOString(),
       status: 'offered', // Instantly available to shelters and riders!
       matched_recipient_id: targetShelter.id,
       driver_id: 1,
@@ -241,21 +397,26 @@ export function AppProvider({ children }) {
       return next;
     });
 
-    // Notify shelter
+    const windowLabel = offerWindowHours >= 1 ? `${offerWindowHours}h` : `${Math.round(offerWindowHours * 60)}m`;
+
+    // Notify shelter with expiration time attached
     addNotification({
       role: 'recipient',
+      donation_id: newId,
+      expires_at: offerExpiresAt.toISOString(),
       title: `New Food Offer (${targetShelter.name})`,
-      body: `${newDonation.description} (feeds ${peopleFed} people) offered by ${newDonation.donor_name}. Ready for acceptance!`,
+      body: `${newDonation.description} (feeds ${peopleFed} people) offered by ${newDonation.donor_name}. Safe for ${safeHours}h • Acceptance window: ${windowLabel}.`,
     });
 
     // Notify driver
     addNotification({
       role: 'driver',
+      donation_id: newId,
       title: 'Rescue Mission Available ⚡',
       body: `Pickup ${newDonation.description} (feeds ${peopleFed} people) for ${targetShelter.name}.`,
     });
 
-    showToast(`Surplus posted! Matched with ${targetShelter.name} (Feeds ${peopleFed} people)`, 'volunteer_activism');
+    showToast(`Surplus posted! Broadcasted to shelters (Acceptance window: ${windowLabel})`, 'volunteer_activism');
 
     // Post to MongoDB in background
     apiFetch('/donations', { method: 'POST', body: JSON.stringify(newDonation) })
@@ -276,36 +437,72 @@ export function AppProvider({ children }) {
 
   // Recipient accepts offer
   const acceptOffer = useCallback((donationId, recipientId) => {
-    const updatePayload = { status: 'matched', matched_recipient_id: recipientId, driver_id: 1 };
+    const don = donations.find(d => d.id === donationId);
+    if (!don) return false;
 
-    setDonations(prev => prev.map(d => {
-      if (d.id === donationId) {
-        return { ...d, ...updatePayload };
-      }
-      return d;
-    }));
+    // Check if offer has expired (1/4th safe window elapsed)
+    if (don.status === 'escalated' || don.status === 'expired') {
+      showToast('This offer has expired and can no longer be accepted.', 'error');
+      return false;
+    }
+    if (don.offer_expires_at && Date.now() > new Date(don.offer_expires_at).getTime()) {
+      expireOffer(donationId, 'Offer window elapsed (1/4th safe time expired before acceptance)');
+      showToast('Offer window has ended (1/4th safe time elapsed). Offer expired.', 'error');
+      return false;
+    }
+
+    const updatePayload = {
+      status: 'matched',
+      matched_recipient_id: recipientId,
+      driver_id: 1,
+      matched_at: new Date().toISOString(),
+    };
+
+    setDonations(prev => {
+      const next = prev.map(d => {
+        if (d.id === donationId) {
+          return { ...d, ...updatePayload };
+        }
+        return d;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY + '_donations', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+
+    // Remove active offer notification for recipient since it has been accepted
+    setNotifications(prev => {
+      const filtered = prev.filter(n => !(n.role === 'recipient' && n.donation_id === donationId));
+      try {
+        localStorage.setItem(STORAGE_KEY + '_notifications', JSON.stringify(filtered));
+      } catch (e) {}
+      return filtered;
+    });
 
     apiFetch(`/donations/${donationId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
 
-    const don = donations.find(d => d.id === donationId);
-    const recip = recipients.find(r => r.id === recipientId);
+    const recip = recipients.find(r => r.id === recipientId) || recipients[0];
 
     // Notify Driver
     addNotification({
       role: 'driver',
+      donation_id: donationId,
       title: 'Rescue Mission Assigned! ⚡',
       body: `Pickup ${don?.qty_kg || ''} kg from ${don?.donor_name || 'Donor'} to ${recip?.name || 'Shelter'}. Route ready.`,
     });
 
-    // Notify Donor
+    // Notify Donor: Show donor the notification that acceptor accepted the food!
     addNotification({
       role: 'donor',
-      title: 'Offer Accepted! 🛵',
-      body: `${recip?.name || 'Shelter'} accepted your donation! Volunteer rider dispatched for pickup.`,
+      donation_id: donationId,
+      title: 'Offer Accepted! 🎉',
+      body: `${recip?.name || 'Shelter'} accepted your ${don?.description || 'food'} donation! Volunteer rider dispatched for pickup.`,
     });
 
-    showToast(`Accepted offer! Volunteer rider assigned for pickup.`, 'check_circle');
-  }, [donations, recipients, addNotification, showToast]);
+    showToast(`${recip?.name || 'Shelter'} accepted your offer! Volunteer rider assigned.`, 'check_circle');
+    return true;
+  }, [donations, recipients, addNotification, showToast, expireOffer]);
 
   // Recipient declines offer
   const declineOffer = useCallback((donationId, recipientId, reason = 'Capacity full') => {
@@ -466,6 +663,38 @@ export function AppProvider({ children }) {
     showToast('Database reset to clean initial state', 'restart_alt');
   }, [login, showToast]);
 
+  // Auto-expire offers whose 1/4th safe window has elapsed without acceptance
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = Date.now();
+      donations.forEach(d => {
+        if (d.status === 'offered' && d.offer_expires_at) {
+          if (now >= new Date(d.offer_expires_at).getTime()) {
+            expireOffer(d.id, '1/4th safe time window ended with no shelter acceptance');
+          }
+        }
+      });
+
+      // Clean up expired recipient notifications
+      setNotifications(prev => {
+        const filtered = prev.filter(n => {
+          if (n.role === 'recipient' && n.expires_at && now >= new Date(n.expires_at).getTime()) {
+            return false;
+          }
+          return true;
+        });
+        if (filtered.length !== prev.length) {
+          try {
+            localStorage.setItem(STORAGE_KEY + '_notifications', JSON.stringify(filtered));
+          } catch (e) {}
+          return filtered;
+        }
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [donations, expireOffer]);
+
   // Dynamic calculated stats based on current state
   const dynamicImpactStats = {
     ...IMPACT_STATS,
@@ -487,6 +716,8 @@ export function AppProvider({ children }) {
     createDonation,
     acceptOffer,
     declineOffer,
+    expireOffer,
+    fastForwardOfferTimer,
     driverPickup,
     driverDeliver,
     recipients,
@@ -505,6 +736,7 @@ export function AppProvider({ children }) {
     resetDemoData,
     matchDonation,
     dbStatus,
+    refreshData: syncFromCloud,
   };
 
   return (

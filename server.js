@@ -114,6 +114,10 @@ const DonationSchema = new mongoose.Schema({
     enum: ['posted', 'offered', 'matched', 'picked_up', 'delivered', 'expired', 'escalated'],
     default: 'posted'
   },
+  safe_hours: Number,
+  offer_window_hours: Number,
+  offer_expires_at: String,
+  escalated_reason: String,
   matched_recipient_id: Number,
   driver_id: Number,
   match_score: Number,
@@ -129,9 +133,11 @@ const DonationSchema = new mongoose.Schema({
 
 const NotificationSchema = new mongoose.Schema({
   id: { type: Number, unique: true, index: true },
+  donation_id: Number,
   role: String,
   title: String,
   body: String,
+  expires_at: String,
   read: { type: Boolean, default: false },
   created_at: { type: String, default: () => new Date().toISOString() },
 }, { timestamps: true });
@@ -188,6 +194,9 @@ app.post('/api/donations', async (req, res) => {
     const finalId = req.body.id || nextId;
     const peopleFed = req.body.est_meals || req.body.qty_kg || 50;
     const otp = req.body.delivery_otp || String(Math.floor(1000 + Math.random() * 9000));
+    const safeHours = Number(req.body.safe_hours || 4);
+    const offerWindowHours = req.body.offer_window_hours || (safeHours / 4);
+    const offerExpiresAt = req.body.offer_expires_at || new Date(Date.now() + offerWindowHours * 3600000).toISOString();
 
     // Find best matching recipient from registered shelters
     const recipient = await RecipientModel.findOne({ accepting: true }).sort({ tier: 1 });
@@ -199,6 +208,9 @@ app.post('/api/donations', async (req, res) => {
       id: finalId,
       qty_kg: req.body.qty_kg || peopleFed,
       est_meals: peopleFed,
+      safe_hours: safeHours,
+      offer_window_hours: offerWindowHours,
+      offer_expires_at: offerExpiresAt,
       status: req.body.status || 'offered',
       matched_recipient_id: req.body.matched_recipient_id || recipient?.id || 1,
       driver_id: req.body.driver_id || driver?.id || 1,
@@ -222,15 +234,18 @@ app.post('/api/donations', async (req, res) => {
     await NotificationModel.create([
       {
         id: Date.now(),
+        donation_id: finalId,
         role: 'recipient',
+        expires_at: offerExpiresAt,
         title: `New Food Offer (${recipient?.name || 'Shelter'})`,
-        body: `${newDonation.description} (feeds ${peopleFed} people) offered by ${newDonation.donor_name}. Verification OTP: ${otp}`,
+        body: `${newDonation.description} (feeds ${peopleFed} people) offered by ${newDonation.donor_name}. Safe for ${safeHours}h • Acceptance window: ${offerWindowHours >= 1 ? `${offerWindowHours}h` : `${Math.round(offerWindowHours * 60)}m`}.`,
       },
       {
         id: Date.now() + 1,
+        donation_id: finalId,
         role: 'donor',
         title: `Matched with ${recipient?.name || 'Shelter'}`,
-        body: `Your surplus food can feed ${peopleFed} people at Tier ${recipient?.tier || 1} shelter. Awaiting intake acceptance.`,
+        body: `Your surplus food can feed ${peopleFed} people. Awaiting intake acceptance within the 1/4th safe window (${offerWindowHours >= 1 ? `${offerWindowHours}h` : `${Math.round(offerWindowHours * 60)}m`}).`,
       }
     ]);
 
@@ -240,7 +255,7 @@ app.post('/api/donations', async (req, res) => {
   }
 });
 
-// UPDATE DONATION (Accept, Pick Up, Deliver)
+// UPDATE DONATION (Accept, Pick Up, Deliver, Escalate)
 app.patch('/api/donations/:id', async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -251,20 +266,36 @@ app.patch('/api/donations/:id', async (req, res) => {
     const updates = { ...req.body };
 
     if (updates.status === 'matched') {
-      // Recipient accepted
-      const recip = await RecipientModel.findOne({ id: donation.matched_recipient_id });
+      // Recipient accepted - remove active offer notification from shelter
+      await NotificationModel.deleteMany({ role: 'recipient', donation_id: donation.id });
+
+      const recip = await RecipientModel.findOne({ id: updates.matched_recipient_id || donation.matched_recipient_id });
       await NotificationModel.create([
         {
           id: Date.now(),
+          donation_id: donation.id,
           role: 'driver',
           title: 'Rescue Mission Assigned! ⚡',
           body: `Pickup ${donation.qty_kg} kg from ${donation.donor_name} to ${recip?.name || 'Shelter'}. Route ready.`,
         },
         {
           id: Date.now() + 1,
+          donation_id: donation.id,
           role: 'donor',
           title: 'Offer Accepted by Shelter! 🛵',
           body: `${recip?.name || 'Shelter'} accepted your donation! Volunteer rider dispatched for pickup.`,
+        }
+      ]);
+    } else if (updates.status === 'escalated' || updates.status === 'expired') {
+      // Offer expired/escalated without acceptance - remove from shelter queue
+      await NotificationModel.deleteMany({ role: 'recipient', donation_id: donation.id });
+      await NotificationModel.create([
+        {
+          id: Date.now(),
+          donation_id: donation.id,
+          role: 'donor',
+          title: 'No Shelter Accepted — Escalated ⚠️',
+          body: `No shelter accepted "${donation.description}" within the 1/4th safe window (${donation.offer_window_hours || 1}h). Escalated to dispatcher / compost partner.`,
         }
       ]);
     } else if (updates.status === 'picked_up') {
@@ -499,6 +530,6 @@ if (MONGODB_URI) {
   console.warn('⚠️ MONGODB_URI not found in environment.');
 }
 
-app.listen(PORT, () => {
-  console.log(`🌐 Surplus-to-Shelter Backend API listening on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🌐 Surplus-to-Shelter Backend API listening on http://0.0.0.0:${PORT}`);
 });

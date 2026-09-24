@@ -16,9 +16,30 @@ export default function NotificationsPage() {
   };
 
   const ICON_MAP = {
+    'Offer Accepted': 'celebration',
+    'Accepted': 'celebration',
     'Match Found': 'volunteer_activism',
     'Delivery Complete': 'check_circle',
     'Driver Assigned': 'two_wheeler',
+    'Rescue Mission': 'two_wheeler',
+    'Escalated': 'alarm_off',
+    'New Food Offer': 'soup_kitchen',
+    'Incoming': 'soup_kitchen',
+  };
+
+  const handleNotificationClick = (n) => {
+    markNotificationRead(n.id);
+    if (n.donation_id) {
+      if (n.role === 'donor') {
+        if (n.title.includes('Accepted')) {
+          navigate(`/donor/match/${n.donation_id}`);
+        } else {
+          navigate(`/donor/match/${n.donation_id}`);
+        }
+      } else if (n.role === 'recipient') {
+        navigate('/recipient/offers');
+      }
+    }
   };
 
   return (
@@ -34,11 +55,11 @@ export default function NotificationsPage() {
           )}
           {notifications.map(n => {
             const iconKey = Object.keys(ICON_MAP).find(k => n.title.includes(k));
-            const icon = ICON_MAP[iconKey] ?? 'info';
+            const icon = iconKey ? ICON_MAP[iconKey] : 'notifications';
             return (
               <div
                 key={n.id}
-                onClick={() => markNotificationRead(n.id)}
+                onClick={() => handleNotificationClick(n)}
                 style={{
                   padding: '14px 14px',
                   borderRadius: 16,

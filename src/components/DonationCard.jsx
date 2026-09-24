@@ -36,6 +36,8 @@ export function DonationCard({ donation, recipients, drivers, onClick }) {
     if (onClick) { onClick(donation); return; }
     if (donation.status === 'matched' || donation.status === 'picked_up') {
       navigate(`/donor/track/${donation.id}`);
+    } else if (donation.status === 'offered' || donation.status === 'escalated') {
+      navigate(`/donor/match/${donation.id}`);
     }
   };
 

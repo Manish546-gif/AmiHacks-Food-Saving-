@@ -11,8 +11,16 @@ export default function RecipientHome() {
   const { user, recipients, donations, acceptOffer, declineOffer, showToast } = useApp();
   const [accepting, setAccepting] = useState(true);
   
-  // Find live offer from AppContext (status === 'offered' means awaiting acceptance)
-  const liveDonationOffer = donations.find(d => d.status === 'offered');
+  // Find live offer from AppContext (status === 'offered' and 1/4th safe window active)
+  const liveDonationOffer = donations.find(d => {
+    if (d.status !== 'offered') return false;
+    const safeH = Number(d.safe_hours || 4);
+    const winH = d.offer_window_hours || (safeH / 4);
+    const expiresAt = d.offer_expires_at || (d.created_at ? new Date(new Date(d.created_at).getTime() + winH * 3600000).toISOString() : null);
+    if (expiresAt && new Date(expiresAt).getTime() <= Date.now()) return false;
+    return true;
+  });
+
   const currentOffer = liveDonationOffer ? {
     id: liveDonationOffer.id,
     donation_id: liveDonationOffer.id,
@@ -20,7 +28,7 @@ export default function RecipientHome() {
     score: liveDonationOffer.match_score || 0.91,
     breakdown: { proximity: 0.88, capacityFit: 0.92, priorityTier: 1.0, timeSlack: 0.85, needToday: 0.90, fairness: 0.80 },
     explanation: liveDonationOffer.match_explanation || ['Tier 1 priority', 'Pure Veg ✓ match', '2.1 km away', 'Capacity: 28 kg free'],
-    expires_at: liveDonationOffer.expires_at || new Date(Date.now() + 28000).toISOString(),
+    expires_at: liveDonationOffer.offer_expires_at || liveDonationOffer.expires_at || new Date(Date.now() + 28000).toISOString(),
   } : null;
 
   const [offer, setOffer] = useState(currentOffer);
@@ -39,9 +47,11 @@ export default function RecipientHome() {
         score: liveDonationOffer.match_score || 0.91,
         breakdown: { proximity: 0.88, capacityFit: 0.92, priorityTier: 1.0, timeSlack: 0.85, needToday: 0.90, fairness: 0.80 },
         explanation: liveDonationOffer.match_explanation || ['Tier 1 priority', 'Pure Veg ✓ match', '2.1 km away', 'Capacity: 28 kg free'],
-        expires_at: liveDonationOffer.expires_at || new Date(Date.now() + 28000).toISOString(),
+        expires_at: liveDonationOffer.offer_expires_at || liveDonationOffer.expires_at || new Date(Date.now() + 28000).toISOString(),
       });
       setOfferResponse(null);
+    } else {
+      setOffer(null);
     }
   }, [liveDonationOffer]);
 

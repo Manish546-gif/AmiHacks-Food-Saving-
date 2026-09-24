@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-// Countdown hook: returns { hh, mm, ss, totalSeconds, isExpired, pct }
-export function useCountdown(expiresAt) {
+// Countdown hook: returns { hh, mm, ss, totalSeconds, isExpired, pct, formatted, formattedFull }
+export function useCountdown(expiresAt, totalWindowSeconds) {
   const calc = useCallback(() => {
     const now = Date.now();
-    const end = new Date(expiresAt).getTime();
+    const end = expiresAt ? new Date(expiresAt).getTime() : now;
     const diff = Math.max(0, end - now);
     const totalSeconds = Math.floor(diff / 1000);
     const hh = Math.floor(totalSeconds / 3600);
@@ -24,17 +24,18 @@ export function useCountdown(expiresAt) {
     return () => clearInterval(intervalRef.current);
   }, [calc]);
 
-  // pct of time remaining relative to 4-hour window
-  const WINDOW_HOURS = 4;
-  const maxSeconds = WINDOW_HOURS * 3600;
-  const pct = Math.min(100, (state.totalSeconds / maxSeconds) * 100);
+  const maxSeconds = totalWindowSeconds || (4 * 3600);
+  const pct = Math.max(0, Math.min(100, (state.totalSeconds / maxSeconds) * 100));
 
-  return { ...state, pct };
+  const formatted = formatCountdown(state.totalSeconds);
+  const formattedFull = formatCountdownFull(state.totalSeconds);
+
+  return { ...state, pct, formatted, formattedFull };
 }
 
-// Format countdown as "2h 15m" or "45m 30s" or "< 1m"
+// Format countdown as "2h 15m" or "45m 30s" or "30s"
 export function formatCountdown(totalSeconds) {
-  if (totalSeconds <= 0) return 'Expired';
+  if (totalSeconds <= 0) return '00:00';
   const hh = Math.floor(totalSeconds / 3600);
   const mm = Math.floor((totalSeconds % 3600) / 60);
   const ss = totalSeconds % 60;
@@ -43,9 +44,27 @@ export function formatCountdown(totalSeconds) {
   return `${ss}s`;
 }
 
-// Ring color based on time remaining
-export function getRingColor(totalSeconds) {
-  if (totalSeconds > 7200) return 'green';   // > 2 hours
-  if (totalSeconds > 3600) return 'amber';   // 1-2 hours
-  return 'red';                               // < 1 hour
+// Format full countdown as "01:24:30" or "45:30"
+export function formatCountdownFull(totalSeconds) {
+  if (totalSeconds <= 0) return '00:00';
+  const hh = Math.floor(totalSeconds / 3600);
+  const mm = Math.floor((totalSeconds % 3600) / 60);
+  const ss = totalSeconds % 60;
+  if (hh > 0) {
+    return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+  }
+  return `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
 }
+
+// Ring color based on percentage or time remaining
+export function getRingColor(totalSeconds, pct = null) {
+  if (pct !== null) {
+    if (pct > 50) return 'green';
+    if (pct > 20) return 'amber';
+    return 'red';
+  }
+  if (totalSeconds > 7200) return 'green';   // > 2 hours
+  if (totalSeconds > 1800) return 'amber';   // 30m - 2h
+  return 'red';                              // < 30m
+}
+
