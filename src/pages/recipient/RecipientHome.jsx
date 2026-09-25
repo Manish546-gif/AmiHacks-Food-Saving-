@@ -59,7 +59,7 @@ export default function RecipientHome() {
   }, [liveDonationOffer]);
 
   const activeIntake = donations.find(d =>
-    ['matched', 'picked_up'].includes(d.status) &&
+    ['shelter_accepted', 'matched', 'picked_up'].includes(d.status) &&
     (d.matched_recipient_id === myRecipient?.id || !d.matched_recipient_id)
   );
   const activeIntakeDonor = donorDirectory.find(d => d.id === activeIntake?.donor_id) || donorDirectory[0];
@@ -197,17 +197,19 @@ export default function RecipientHome() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--tertiary)' }}>
-                  two_wheeler
+                  {activeIntake.status === 'shelter_accepted' ? 'schedule' : 'two_wheeler'}
                 </span>
                 <span className="text-label-md" style={{ fontWeight: 800, color: 'var(--tertiary)' }}>
-                  {hi ? 'भोजन रास्ते में है' : 'Incoming Food in Transit'}
+                  {activeIntake.status === 'shelter_accepted'
+                    ? (hi ? 'राइडर की प्रतीक्षा में...' : 'Shelter Accepted • Awaiting Rider')
+                    : (hi ? 'भोजन रास्ते में है' : 'Incoming Food in Transit')}
                 </span>
               </div>
               <span style={{
                 fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 999,
                 background: 'rgba(0,110,22,0.1)', color: 'var(--tertiary)', textTransform: 'uppercase'
               }}>
-                {activeIntake.status === 'picked_up' ? 'Picked Up' : 'Rider Assigned'}
+                {activeIntake.status === 'picked_up' ? 'Picked Up' : activeIntake.status === 'matched' ? 'Rider Assigned' : 'Awaiting Rider'}
               </span>
             </div>
 
@@ -363,9 +365,9 @@ export default function RecipientHome() {
         {offerResponse === 'accepted' && (
           <div style={{ margin: '0 16px 16px', padding: 20, borderRadius: 20, background: 'rgba(0,110,22,0.06)', border: '1px solid rgba(0,110,22,0.15)', textAlign: 'center' }} className="animate-fade-in-up">
             <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--tertiary)', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-            <h3 className="text-headline-sm" style={{ color: 'var(--tertiary)', margin: '8px 0 4px' }}>{hi ? 'स्वीकार किया!' : 'Accepted!'}</h3>
+            <h3 className="text-headline-sm" style={{ color: 'var(--tertiary)', margin: '8px 0 4px' }}>{hi ? 'स्वीकार किया गया!' : 'Intake Accepted!'}</h3>
             <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: 0 }}>
-              {hi ? 'राहुल कुमार जल्द पहुँचेंगे।' : 'Rider Rahul Kumar is on the way. ETA: ~12 min'}
+              {hi ? 'पास के वॉलंटियर राइडर्स को अलर्ट भेजा गया है। राइडर के स्वीकार करते ही विवरण यहाँ दिखेगा।' : 'Alerting nearby volunteer riders in Kota for pickup. Rider details will appear once accepted.'}
             </p>
           </div>
         )}

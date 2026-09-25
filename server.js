@@ -221,7 +221,7 @@ app.post('/api/donations', async (req, res) => {
       offer_expires_at: offerExpiresAt,
       status: req.body.status || 'offered',
       matched_recipient_id: req.body.matched_recipient_id || recipient?.id || 1,
-      driver_id: req.body.driver_id || driver?.id || 1,
+      driver_id: req.body.driver_id || null,
       match_score: req.body.match_score || 0.94,
       match_explanation: req.body.match_explanation || [
         `Tier ${recipient?.tier || 1} Priority Shelter (${recipient?.name || 'Asha Nilayam'})`,

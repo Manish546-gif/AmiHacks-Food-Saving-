@@ -377,7 +377,7 @@ export function AppProvider({ children }) {
       offer_expires_at: offerExpiresAt.toISOString(),
       status: 'offered', // Instantly available to shelters and riders!
       matched_recipient_id: targetShelter.id,
-      driver_id: 1,
+      driver_id: null,
       match_score: 0.94,
       match_explanation: [
         `Tier 1 Priority Shelter (${targetShelter.name})`,
@@ -390,7 +390,7 @@ export function AppProvider({ children }) {
 
     // Update state immediately so current tab and all screens see it instantly
     setDonations(prev => {
-      const next = [newDonation, ...prev.filter(d => d.id !== newId)];
+      const next = [newDonation, ...prev.filter(d => Number(d.id) !== Number(newId))];
       try {
         localStorage.setItem(STORAGE_KEY + '_donations', JSON.stringify(next));
       } catch (e) {}
@@ -437,7 +437,8 @@ export function AppProvider({ children }) {
 
   // Recipient accepts offer
   const acceptOffer = useCallback((donationId, recipientId) => {
-    const don = donations.find(d => d.id === donationId);
+    const targetId = Number(donationId);
+    const don = donations.find(d => Number(d.id) === targetId);
     if (!don) return false;
 
     // Check if offer has expired (1/4th safe window elapsed)
@@ -446,21 +447,21 @@ export function AppProvider({ children }) {
       return false;
     }
     if (don.offer_expires_at && Date.now() > new Date(don.offer_expires_at).getTime()) {
-      expireOffer(donationId, 'Offer window elapsed (1/4th safe time expired before acceptance)');
+      expireOffer(targetId, 'Offer window elapsed (1/4th safe time expired before acceptance)');
       showToast('Offer window has ended (1/4th safe time elapsed). Offer expired.', 'error');
       return false;
     }
 
     const updatePayload = {
       status: 'shelter_accepted',
-      matched_recipient_id: recipientId,
+      matched_recipient_id: Number(recipientId),
       driver_id: null,
       shelter_accepted_at: new Date().toISOString(),
     };
 
     setDonations(prev => {
       const next = prev.map(d => {
-        if (d.id === donationId) {
+        if (Number(d.id) === targetId) {
           return { ...d, ...updatePayload };
         }
         return d;
@@ -473,21 +474,21 @@ export function AppProvider({ children }) {
 
     // Remove active offer notification for recipient since it has been accepted
     setNotifications(prev => {
-      const filtered = prev.filter(n => !(n.role === 'recipient' && n.donation_id === donationId));
+      const filtered = prev.filter(n => !(n.role === 'recipient' && Number(n.donation_id) === targetId));
       try {
         localStorage.setItem(STORAGE_KEY + '_notifications', JSON.stringify(filtered));
       } catch (e) {}
       return filtered;
     });
 
-    apiFetch(`/donations/${donationId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
+    apiFetch(`/donations/${targetId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
 
-    const recip = recipients.find(r => r.id === recipientId) || recipients[0];
+    const recip = recipients.find(r => Number(r.id) === Number(recipientId)) || recipients[0];
 
     // Notify Driver: New rescue mission broadcast available to accept
     addNotification({
       role: 'driver',
-      donation_id: donationId,
+      donation_id: targetId,
       title: 'New Rescue Mission Available! ⚡',
       body: `${recip?.name || 'Shelter'} accepted ${don?.qty_kg || ''} kg from ${don?.donor_name || 'Donor'}. Tap to accept mission.`,
     });
@@ -495,7 +496,7 @@ export function AppProvider({ children }) {
     // Notify Donor: Shelter accepted! Now finding volunteer rider.
     addNotification({
       role: 'donor',
-      donation_id: donationId,
+      donation_id: targetId,
       title: 'Offer Accepted! 🎉',
       body: `${recip?.name || 'Shelter'} accepted your ${don?.description || 'food'} donation! Alerting nearby volunteer riders for pickup.`,
     });
@@ -503,7 +504,7 @@ export function AppProvider({ children }) {
     // Notify Recipient: Intake confirmed
     addNotification({
       role: 'recipient',
-      donation_id: donationId,
+      donation_id: targetId,
       title: 'Intake Confirmed! 🍽️',
       body: `You accepted food from ${don?.donor_name || 'Donor'}. Alerting nearby volunteer riders for pickup.`,
     });
@@ -514,20 +515,21 @@ export function AppProvider({ children }) {
 
   // Driver accepts rescue mission
   const driverAcceptMission = useCallback((donationId, driverId = 1) => {
-    const don = donations.find(d => d.id === donationId);
+    const targetId = Number(donationId);
+    const don = donations.find(d => Number(d.id) === targetId);
     if (!don) return false;
 
-    const assignedDriver = drivers.find(d => d.id === driverId) || drivers[0];
+    const assignedDriver = drivers.find(d => Number(d.id) === Number(driverId)) || drivers[0];
     const updatePayload = {
       status: 'matched',
-      driver_id: driverId,
+      driver_id: Number(driverId),
       driver_accepted_at: new Date().toISOString(),
       matched_at: new Date().toISOString(),
     };
 
     setDonations(prev => {
       const next = prev.map(d => {
-        if (d.id === donationId) {
+        if (Number(d.id) === targetId) {
           return { ...d, ...updatePayload };
         }
         return d;
@@ -538,14 +540,12 @@ export function AppProvider({ children }) {
       return next;
     });
 
-    apiFetch(`/donations/${donationId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
-
-    const recip = recipients.find(r => r.id === don.matched_recipient_id) || recipients[0];
+    apiFetch(`/donations/${targetId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
 
     // Notify Donor: Rider is assigned!
     addNotification({
       role: 'donor',
-      donation_id: donationId,
+      donation_id: targetId,
       title: 'Volunteer Rider Assigned! 🛵',
       body: `${assignedDriver?.name || 'Volunteer rider'} accepted the pickup from your kitchen. Arriving in ~12 mins.`,
     });
@@ -553,37 +553,44 @@ export function AppProvider({ children }) {
     // Notify Shelter: Rider is assigned!
     addNotification({
       role: 'recipient',
-      donation_id: donationId,
+      donation_id: targetId,
       title: 'Rider Heading for Pickup! 🛵',
       body: `${assignedDriver?.name || 'Volunteer rider'} accepted mission and is heading to ${don.donor_name || 'Donor'} for pickup.`,
     });
 
     showToast(`Rescue mission accepted! Heading to ${don?.donor_name || 'kitchen'} for pickup.`, 'two_wheeler');
     return true;
-  }, [donations, drivers, recipients, addNotification, showToast]);
+  }, [donations, drivers, addNotification, showToast]);
 
   // Recipient declines offer
   const declineOffer = useCallback((donationId, recipientId, reason = 'Capacity full') => {
-    const nextRecip = recipients.find(r => r.id !== recipientId && r.accepting) || recipients[1];
+    const targetId = Number(donationId);
+    const nextRecip = recipients.find(r => Number(r.id) !== Number(recipientId) && r.accepting) || recipients[1];
     const updatePayload = {
       status: 'offered',
-      matched_recipient_id: nextRecip.id,
-      driver_id: 1,
+      matched_recipient_id: nextRecip?.id || null,
+      driver_id: null,
     };
 
-    setDonations(prev => prev.map(d => {
-      if (d.id === donationId) {
-        return { ...d, ...updatePayload };
-      }
-      return d;
-    }));
+    setDonations(prev => {
+      const next = prev.map(d => {
+        if (Number(d.id) === targetId) {
+          return { ...d, ...updatePayload };
+        }
+        return d;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY + '_donations', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
 
-    apiFetch(`/donations/${donationId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
+    apiFetch(`/donations/${targetId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
 
     addNotification({
       role: 'admin',
       title: 'Offer Cascaded',
-      body: `Shelter declined (#${donationId}): ${reason}. Rerouted to next available recipient.`,
+      body: `Shelter declined (#${targetId}): ${reason}. Rerouted to next available recipient.`,
     });
 
     showToast(`Declined. Automatically rerouted to next shelter.`, 'arrow_forward');
@@ -591,27 +598,40 @@ export function AppProvider({ children }) {
 
   // Driver picks up
   const driverPickup = useCallback((donationId, notes = '') => {
-    const updatePayload = { status: 'picked_up', picked_up_at: new Date().toISOString(), pickup_notes: notes };
+    const targetId = Number(donationId);
+    const updatePayload = {
+      status: 'picked_up',
+      picked_up_at: new Date().toISOString(),
+      pickup_notes: notes
+    };
 
-    setDonations(prev => prev.map(d => {
-      if (d.id === donationId) {
-        return { ...d, ...updatePayload };
-      }
-      return d;
-    }));
+    setDonations(prev => {
+      const next = prev.map(d => {
+        if (Number(d.id) === targetId) {
+          return { ...d, ...updatePayload };
+        }
+        return d;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY + '_donations', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
 
-    apiFetch(`/donations/${donationId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
+    apiFetch(`/donations/${targetId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
 
-    const don = donations.find(d => d.id === donationId);
+    const don = donations.find(d => Number(d.id) === targetId);
     addNotification({
       role: 'donor',
+      donation_id: targetId,
       title: 'Food Picked Up! 🛵',
       body: `Rider collected ${don?.description || 'food'}. En route to shelter.`,
     });
     addNotification({
       role: 'recipient',
+      donation_id: targetId,
       title: 'Rider In Transit! 📦',
-      body: `Food has been picked up from donor. Arriving in ~15 mins.`,
+      body: `Food has been picked up from ${don?.donor_name || 'donor'}. Arriving at gate shortly.`,
     });
 
     showToast('Pickup confirmed! Navigation to shelter active.', 'local_shipping');
@@ -619,7 +639,8 @@ export function AppProvider({ children }) {
 
   // Driver delivers food
   const driverDeliver = useCallback((donationId, otp = '8492') => {
-    const don = donations.find(d => d.id === donationId);
+    const targetId = Number(donationId);
+    const don = donations.find(d => Number(d.id) === targetId);
     const qty = don?.qty_kg || 10;
     const recipId = don?.matched_recipient_id || 1;
 
@@ -627,35 +648,52 @@ export function AppProvider({ children }) {
       status: 'delivered',
       delivered_at: new Date().toISOString(),
       delivery_otp_verified: true,
+      delivery_otp: otp || don?.delivery_otp || '8492',
     };
 
-    setDonations(prev => prev.map(d => {
-      if (d.id === donationId) {
-        return { ...d, ...updatePayload };
-      }
-      return d;
-    }));
+    setDonations(prev => {
+      const next = prev.map(d => {
+        if (Number(d.id) === targetId) {
+          return { ...d, ...updatePayload };
+        }
+        return d;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY + '_donations', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
 
-    apiFetch(`/donations/${donationId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
+    apiFetch(`/donations/${targetId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
 
     // Update shelter received metrics
-    setRecipients(prev => prev.map(r => {
-      if (r.id === recipId) {
-        const updated = {
-          ...r,
-          meals_received: (r.meals_received || 0) + (don?.est_meals || Math.round(qty * 2)),
-          capacity_used_kg: Math.min(r.capacity_kg, (r.capacity_used_kg || 0) + qty),
-          need_today_kg: Math.max(0, (r.need_today_kg || 0) - qty),
-        };
-        apiFetch(`/recipients/${recipId}`, { method: 'PATCH', body: JSON.stringify(updated) });
-        return updated;
-      }
-      return r;
-    }));
+    setRecipients(prev => {
+      const nextRecips = prev.map(r => {
+        if (Number(r.id) === Number(recipId)) {
+          return {
+            ...r,
+            meals_received: (r.meals_received || 0) + (don?.est_meals || Math.round(qty * 2)),
+            capacity_used_kg: Math.min(r.capacity_kg, (r.capacity_used_kg || 0) + qty),
+            need_today_kg: Math.max(0, (r.need_today_kg || 0) - qty),
+          };
+        }
+        return r;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY + '_recipients', JSON.stringify(nextRecips));
+      } catch (e) {}
+      return nextRecips;
+    });
+
+    apiFetch(`/recipients/${recipId}`, { method: 'PATCH', body: JSON.stringify({
+      meals_received: (don?.est_meals || Math.round(qty * 2)),
+      capacity_used_kg: qty,
+    }) });
 
     // Notify Donor with receipt
     addNotification({
       role: 'donor',
+      donation_id: targetId,
       title: 'Delivery Complete! 80G Receipt Ready 📜',
       body: `${don?.description || 'Donation'} delivered safely. ${don?.est_meals || 20} meals served. Impact verified!`,
     });
@@ -663,11 +701,13 @@ export function AppProvider({ children }) {
     // Notify Recipient
     addNotification({
       role: 'recipient',
+      donation_id: targetId,
       title: 'Intake Verified & Logged',
       body: `${qty} kg food received in good condition. Added to daily shelter audit.`,
     });
 
     showToast('Delivered successfully! Meals served 🎉', 'celebration');
+    return true;
   }, [donations, addNotification, showToast]);
 
   // Update shelter capacity / acceptance toggle

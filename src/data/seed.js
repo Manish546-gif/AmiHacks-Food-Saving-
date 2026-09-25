@@ -192,8 +192,8 @@ export const DONATIONS = [
     dietary_tags: ['veg'], ready_at: '2026-09-24T17:00:00+05:30',
     expires_at: '2026-09-24T20:45:00+05:30',
     needs_cold_chain: false, packaging: 'Sealed containers',
-    hygiene_checklist_done: true, status: 'matched',
-    matched_recipient_id: 1, driver_id: 1,
+    hygiene_checklist_done: true, status: 'offered',
+    matched_recipient_id: 1, driver_id: null,
     photo_url: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&q=80',
     created_at: '2026-09-24T16:30:00+05:30'
   },

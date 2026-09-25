@@ -73,10 +73,11 @@ export default function MatchResult() {
     );
   }
 
-  const matchedRecipient = recipients.find(r => r.id === donation.matched_recipient_id) || recipients[0] || RECIPIENTS[0];
-  const assignedDriver = drivers.find(d => d.id === donation.driver_id) || drivers[0] || DRIVERS[0];
+  const matchedRecipient = recipients.find(r => Number(r.id) === Number(donation.matched_recipient_id)) || recipients[0] || RECIPIENTS[0];
+  const hasAssignedDriver = !!donation.driver_id && currentStatus !== 'shelter_accepted';
+  const assignedDriver = hasAssignedDriver ? (drivers.find(d => Number(d.id) === Number(donation.driver_id)) || drivers[0] || DRIVERS[0]) : null;
   const donorDirectory = donors?.length ? donors : DONORS;
-  const matchedDonor = donorDirectory.find(d => d.id === donation.donor_id) || donorDirectory[0];
+  const matchedDonor = donorDirectory.find(d => Number(d.id) === Number(donation.donor_id)) || donorDirectory[0];
 
   const windowLabel = offerWindowHours >= 1 ? `${offerWindowHours}h` : `${Math.round(offerWindowHours * 60)}m`;
 
@@ -324,13 +325,13 @@ export default function MatchResult() {
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
                 padding: '4px 12px', borderRadius: 999, background: 'white',
-                color: donation.driver_id ? 'var(--tertiary)' : 'var(--primary-dark)', fontSize: 11, fontWeight: 800, marginTop: 10,
+                color: hasAssignedDriver ? 'var(--tertiary)' : 'var(--primary-dark)', fontSize: 11, fontWeight: 800, marginTop: 10,
                 boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
               }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
-                  {donation.driver_id ? 'volunteer_activism' : 'schedule'}
+                  {hasAssignedDriver ? 'volunteer_activism' : 'schedule'}
                 </span>
-                {donation.driver_id
+                {hasAssignedDriver
                   ? 'Intake verified • Volunteer rider assigned & en route'
                   : 'Intake verified • Alerting nearby volunteer riders to accept mission'}
               </div>
@@ -415,7 +416,7 @@ export default function MatchResult() {
             </div>
 
             {/* Rider Stage */}
-            {donation.driver_id && currentStatus !== 'shelter_accepted' ? (
+            {hasAssignedDriver && assignedDriver ? (
               <div className="card animate-fade-in-up delay-2" style={{ padding: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--primary-fixed)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
