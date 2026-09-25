@@ -17,7 +17,7 @@ const INTAKE_STEPS = [
 export default function RecipientTracking() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { donations, donors, recipients, drivers, driverPickup, driverDeliver, showToast } = useApp();
+  const { donations, donors, recipients, drivers, driverAcceptMission, driverPickup, driverDeliver, showToast } = useApp();
 
   const targetId = parseInt(id, 10);
   const donation = donations.find(d => d.id === targetId) || donations[0];
@@ -28,13 +28,15 @@ export default function RecipientTracking() {
   const driver = driverDirectory.find(d => d.id === donation?.driver_id) || driverDirectory[0];
   const donor = donorDirectory.find(d => d.id === donation?.donor_id) || { name: donation?.donor_name || 'Verified Donor Kitchen', address: 'Talwandi, Kota' };
 
-  const currentStatus = donation?.status || 'matched';
+  const currentStatus = donation?.status || 'shelter_accepted';
+  const hasDriver = !!donation?.driver_id && currentStatus !== 'shelter_accepted';
   const isDelivered = currentStatus === 'delivered';
   const isPickedUp = currentStatus === 'picked_up' || isDelivered;
 
   // Determine active step index
   let activeStepIndex = 0;
-  if (currentStatus === 'matched') activeStepIndex = 1; // Rider dispatched
+  if (!hasDriver) activeStepIndex = 0; // Offer Accepted, waiting for rider
+  else if (currentStatus === 'matched') activeStepIndex = 1; // Rider dispatched
   else if (currentStatus === 'picked_up') activeStepIndex = 3; // Food picked up & arriving
   else if (currentStatus === 'delivered') activeStepIndex = 4; // Completed
 
@@ -141,11 +143,11 @@ export default function RecipientTracking() {
               display: 'flex', alignItems: 'center', gap: 6,
               whiteSpace: 'nowrap',
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 20, color: '#fc8019', animation: isDelivered ? 'none' : 'bounce 1s infinite' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 20, color: hasDriver ? '#fc8019' : 'var(--primary)', animation: isDelivered ? 'none' : 'bounce 1s infinite' }}>
                 two_wheeler
               </span>
               <span style={{ fontSize: 12, fontWeight: 800, color: '#0f172a' }}>
-                {isDelivered ? 'Arrived! ✅' : `${etaMinutes}m ETA`}
+                {isDelivered ? 'Arrived! ✅' : hasDriver ? `${etaMinutes}m ETA` : 'Awaiting Rider'}
               </span>
             </div>
           </div>
@@ -161,7 +163,7 @@ export default function RecipientTracking() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'white' }}>
               <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#ff9a3d' }}>schedule</span>
               <span style={{ fontSize: 12, fontWeight: 700 }}>
-                {isDelivered ? 'Intake Complete ✓' : `Estimated Arrival: ~${etaMinutes} mins`}
+                {isDelivered ? 'Intake Complete ✓' : hasDriver ? `Estimated Arrival: ~${etaMinutes} mins` : 'Alerting nearby volunteer riders…'}
               </span>
             </div>
             <CountdownBadge expiresAt={expiryTime} />
@@ -231,72 +233,122 @@ export default function RecipientTracking() {
             </p>
           </div>
 
-          {/* Volunteer Rider Profile Card */}
-          <div style={{
-            background: 'var(--surface-container-lowest)', borderRadius: 20, padding: 16,
-            boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', gap: 12
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="text-label-sm" style={{ color: 'var(--on-surface-variant)', fontWeight: 800, textTransform: 'uppercase' }}>
-                Assigned Volunteer Rider
-              </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--tertiary)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>verified</span>
-                Verified Volunteer
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{
-                width: 52, height: 52, borderRadius: 16,
-                background: 'linear-gradient(135deg, var(--primary-fixed), #ff9a3d)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: 'white', flexShrink: 0
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 28 }}>two_wheeler</span>
+          {/* Volunteer Rider Profile or Pending Card */}
+          {hasDriver ? (
+            <div style={{
+              background: 'var(--surface-container-lowest)', borderRadius: 20, padding: 16,
+              boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', gap: 12
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="text-label-sm" style={{ color: 'var(--on-surface-variant)', fontWeight: 800, textTransform: 'uppercase' }}>
+                  Assigned Volunteer Rider
+                </span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--tertiary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 14 }}>verified</span>
+                  Verified Volunteer
+                </span>
               </div>
 
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <h4 className="text-headline-sm" style={{ margin: 0, fontSize: 16 }}>{driver?.name || 'Rahul Kumar'}</h4>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: '#f59e0b' }}>
-                    ★ {driver?.rating || '4.9'}
-                  </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{
+                  width: 52, height: 52, borderRadius: 16,
+                  background: 'linear-gradient(135deg, var(--primary-fixed), #ff9a3d)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'white', flexShrink: 0
+                }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 28 }}>two_wheeler</span>
                 </div>
-                <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '2px 0 0' }}>
-                  {driver?.vehicle || 'Hero Electric (RJ-20-EV-1042)'}
-                </p>
-              </div>
 
-              {/* Quick Contacts */}
-              <div style={{ display: 'flex', gap: 8 }}>
-                <a
-                  href={`tel:${driver?.phone || '+919876211111'}`}
-                  style={{
-                    width: 42, height: 42, borderRadius: 12,
-                    background: 'rgba(0,110,22,0.1)', color: 'var(--tertiary)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    textDecoration: 'none'
-                  }}
-                  title="Call Driver"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>call</span>
-                </a>
-                <a
-                  href={`sms:${driver?.phone || '+919876211111'}`}
-                  style={{
-                    width: 42, height: 42, borderRadius: 12,
-                    background: 'rgba(252,128,25,0.1)', color: 'var(--primary)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    textDecoration: 'none'
-                  }}
-                  title="Message Driver"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chat</span>
-                </a>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <h4 className="text-headline-sm" style={{ margin: 0, fontSize: 16 }}>{driver?.name || 'Rahul Kumar'}</h4>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#f59e0b' }}>
+                      ★ {driver?.rating || '4.9'}
+                    </span>
+                  </div>
+                  <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '2px 0 0' }}>
+                    {driver?.vehicle || 'Hero Electric (RJ-20-EV-1042)'}
+                  </p>
+                </div>
+
+                {/* Quick Contacts */}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <a
+                    href={`tel:${driver?.phone || '+919876211111'}`}
+                    style={{
+                      width: 42, height: 42, borderRadius: 12,
+                      background: 'rgba(0,110,22,0.1)', color: 'var(--tertiary)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      textDecoration: 'none'
+                    }}
+                    title="Call Driver"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>call</span>
+                  </a>
+                  <a
+                    href={`sms:${driver?.phone || '+919876211111'}`}
+                    style={{
+                      width: 42, height: 42, borderRadius: 12,
+                      background: 'rgba(252,128,25,0.1)', color: 'var(--primary)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      textDecoration: 'none'
+                    }}
+                    title="Message Driver"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chat</span>
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(252,128,25,0.06), rgba(0,110,22,0.04))',
+              borderRadius: 20, padding: 18, border: '1.5px dashed rgba(252,128,25,0.35)',
+              display: 'flex', flexDirection: 'column', gap: 12
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 24, color: 'var(--primary)', animation: 'pulse 1.5s infinite' }}>
+                    two_wheeler
+                  </span>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: 14 }}>Awaiting Volunteer Rider Acceptance…</div>
+                    <div style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>Alert active in 4 nearby volunteer rider feeds</div>
+                  </div>
+                </div>
+                <span style={{
+                  fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 999,
+                  background: 'rgba(252,128,25,0.12)', color: 'var(--primary-dark)'
+                }}>
+                  BROADCASTING
+                </span>
+              </div>
+
+              <p style={{ fontSize: 12, color: 'var(--on-surface-variant)', margin: 0, lineHeight: 1.4 }}>
+                Your shelter intake is registered! The mission is open in volunteer rider task feeds. Once a rider accepts the mission, their live GPS and contact details will appear here.
+              </p>
+
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: 10 }}>
+                <button
+                  onClick={() => driverAcceptMission(donation.id, 1)}
+                  className="btn-primary"
+                  style={{ flex: 1, height: 42, fontSize: 13, gap: 6 }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>bolt</span>
+                  <span>Simulate Rider Accept</span>
+                </button>
+                <button
+                  onClick={() => navigate('/driver/tasks')}
+                  style={{
+                    height: 42, padding: '0 12px', borderRadius: 12, border: '1px solid var(--outline-variant)',
+                    background: 'white', color: 'var(--on-surface)', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+                  }}
+                >
+                  Rider View →
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Rescue Timeline */}
           <div style={{

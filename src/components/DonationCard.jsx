@@ -3,13 +3,14 @@ import { CountdownBadge } from './CountdownRing';
 import { useNavigate } from 'react-router-dom';
 
 const STATUS_CONFIG = {
-  posted:     { label: 'Posted', color: 'var(--on-surface-variant)', bg: 'var(--surface-container)', icon: 'upload' },
-  offered:    { label: 'Matching…', color: 'var(--tertiary)', bg: 'rgba(0,110,22,0.1)', icon: 'radar' },
-  matched:    { label: 'Matched', color: 'var(--primary-dark)', bg: 'rgba(252,128,25,0.12)', icon: 'volunteer_activism' },
-  picked_up:  { label: 'Picked Up', color: '#c88000', bg: 'rgba(245,166,35,0.12)', icon: 'two_wheeler' },
-  delivered:  { label: 'Delivered ✓', color: 'var(--tertiary)', bg: 'rgba(0,110,22,0.1)', icon: 'check_circle' },
-  expired:    { label: 'Expired', color: 'var(--on-surface-variant)', bg: 'var(--surface-container)', icon: 'cancel' },
-  escalated:  { label: 'Escalated', color: 'var(--urgent)', bg: 'rgba(226,55,68,0.1)', icon: 'warning' },
+  posted:           { label: 'Posted', color: 'var(--on-surface-variant)', bg: 'var(--surface-container)', icon: 'upload' },
+  offered:          { label: 'Matching…', color: 'var(--tertiary)', bg: 'rgba(0,110,22,0.1)', icon: 'radar' },
+  shelter_accepted: { label: 'Shelter Accepted', color: '#0284c7', bg: 'rgba(2,132,199,0.12)', icon: 'volunteer_activism' },
+  matched:          { label: 'Matched', color: 'var(--primary-dark)', bg: 'rgba(252,128,25,0.12)', icon: 'volunteer_activism' },
+  picked_up:        { label: 'Picked Up', color: '#c88000', bg: 'rgba(245,166,35,0.12)', icon: 'two_wheeler' },
+  delivered:        { label: 'Delivered ✓', color: 'var(--tertiary)', bg: 'rgba(0,110,22,0.1)', icon: 'check_circle' },
+  expired:          { label: 'Expired', color: 'var(--on-surface-variant)', bg: 'var(--surface-container)', icon: 'cancel' },
+  escalated:        { label: 'Escalated', color: 'var(--urgent)', bg: 'rgba(226,55,68,0.1)', icon: 'warning' },
 };
 
 export function VegDot({ tags = [] }) {
@@ -43,6 +44,12 @@ export function DonationCard({ donation, recipients, drivers, onClick }) {
     if (onClick) { onClick(donation); return; }
     if (donation.status === 'matched' || donation.status === 'picked_up' || donation.status === 'delivered') {
       navigate(trackPath);
+    } else if (donation.status === 'shelter_accepted') {
+      if (user?.role === 'recipient') {
+        navigate(`/recipient/track/${donation.id}`);
+      } else {
+        navigate(`/donor/match/${donation.id}`);
+      }
     } else if (donation.status === 'offered' || donation.status === 'escalated') {
       if (user?.role === 'recipient') {
         navigate('/recipient/offers');
@@ -117,7 +124,7 @@ export function DonationCard({ donation, recipients, drivers, onClick }) {
       </div>
 
       {/* Action bar */}
-      {(donation.status === 'matched' || donation.status === 'offered') && (
+      {(donation.status === 'matched' || donation.status === 'offered' || donation.status === 'shelter_accepted') && (
         <div style={{
           padding: '8px 16px',
           background: 'var(--surface-container-low)',
@@ -134,6 +141,12 @@ export function DonationCard({ donation, recipients, drivers, onClick }) {
                 </span>
               </>
             )}
+            {!driver && donation.status === 'shelter_accepted' && (
+              <span className="text-label-md" style={{ color: '#0284c7', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>volunteer_activism</span>
+                Shelter accepted • Awaiting volunteer rider…
+              </span>
+            )}
             {!driver && donation.status === 'offered' && (
               <span className="text-label-md" style={{ color: 'var(--on-surface-variant)' }}>
                 Finding nearest recipient…
@@ -147,6 +160,19 @@ export function DonationCard({ donation, recipients, drivers, onClick }) {
               onClick={e => { e.stopPropagation(); navigate(trackPath); }}
             >
               Track Live →
+            </button>
+          )}
+          {donation.status === 'shelter_accepted' && (
+            <button
+              className="btn-outline"
+              style={{ height: 32, fontSize: 12, padding: '0 12px', borderColor: '#0284c7', color: '#0284c7' }}
+              onClick={e => {
+                e.stopPropagation();
+                if (user?.role === 'recipient') navigate(`/recipient/track/${donation.id}`);
+                else navigate(`/donor/match/${donation.id}`);
+              }}
+            >
+              View Status →
             </button>
           )}
         </div>

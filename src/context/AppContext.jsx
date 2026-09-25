@@ -452,10 +452,10 @@ export function AppProvider({ children }) {
     }
 
     const updatePayload = {
-      status: 'matched',
+      status: 'shelter_accepted',
       matched_recipient_id: recipientId,
-      driver_id: 1,
-      matched_at: new Date().toISOString(),
+      driver_id: null,
+      shelter_accepted_at: new Date().toISOString(),
     };
 
     setDonations(prev => {
@@ -484,25 +484,83 @@ export function AppProvider({ children }) {
 
     const recip = recipients.find(r => r.id === recipientId) || recipients[0];
 
-    // Notify Driver
+    // Notify Driver: New rescue mission broadcast available to accept
     addNotification({
       role: 'driver',
       donation_id: donationId,
-      title: 'Rescue Mission Assigned! ⚡',
-      body: `Pickup ${don?.qty_kg || ''} kg from ${don?.donor_name || 'Donor'} to ${recip?.name || 'Shelter'}. Route ready.`,
+      title: 'New Rescue Mission Available! ⚡',
+      body: `${recip?.name || 'Shelter'} accepted ${don?.qty_kg || ''} kg from ${don?.donor_name || 'Donor'}. Tap to accept mission.`,
     });
 
-    // Notify Donor: Show donor the notification that acceptor accepted the food!
+    // Notify Donor: Shelter accepted! Now finding volunteer rider.
     addNotification({
       role: 'donor',
       donation_id: donationId,
       title: 'Offer Accepted! 🎉',
-      body: `${recip?.name || 'Shelter'} accepted your ${don?.description || 'food'} donation! Volunteer rider dispatched for pickup.`,
+      body: `${recip?.name || 'Shelter'} accepted your ${don?.description || 'food'} donation! Alerting nearby volunteer riders for pickup.`,
     });
 
-    showToast(`${recip?.name || 'Shelter'} accepted your offer! Volunteer rider assigned.`, 'check_circle');
+    // Notify Recipient: Intake confirmed
+    addNotification({
+      role: 'recipient',
+      donation_id: donationId,
+      title: 'Intake Confirmed! 🍽️',
+      body: `You accepted food from ${don?.donor_name || 'Donor'}. Alerting nearby volunteer riders for pickup.`,
+    });
+
+    showToast(`${recip?.name || 'Shelter'} accepted! Alerting nearby volunteer riders...`, 'check_circle');
     return true;
   }, [donations, recipients, addNotification, showToast, expireOffer]);
+
+  // Driver accepts rescue mission
+  const driverAcceptMission = useCallback((donationId, driverId = 1) => {
+    const don = donations.find(d => d.id === donationId);
+    if (!don) return false;
+
+    const assignedDriver = drivers.find(d => d.id === driverId) || drivers[0];
+    const updatePayload = {
+      status: 'matched',
+      driver_id: driverId,
+      driver_accepted_at: new Date().toISOString(),
+      matched_at: new Date().toISOString(),
+    };
+
+    setDonations(prev => {
+      const next = prev.map(d => {
+        if (d.id === donationId) {
+          return { ...d, ...updatePayload };
+        }
+        return d;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY + '_donations', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+
+    apiFetch(`/donations/${donationId}`, { method: 'PATCH', body: JSON.stringify(updatePayload) });
+
+    const recip = recipients.find(r => r.id === don.matched_recipient_id) || recipients[0];
+
+    // Notify Donor: Rider is assigned!
+    addNotification({
+      role: 'donor',
+      donation_id: donationId,
+      title: 'Volunteer Rider Assigned! 🛵',
+      body: `${assignedDriver?.name || 'Volunteer rider'} accepted the pickup from your kitchen. Arriving in ~12 mins.`,
+    });
+
+    // Notify Shelter: Rider is assigned!
+    addNotification({
+      role: 'recipient',
+      donation_id: donationId,
+      title: 'Rider Heading for Pickup! 🛵',
+      body: `${assignedDriver?.name || 'Volunteer rider'} accepted mission and is heading to ${don.donor_name || 'Donor'} for pickup.`,
+    });
+
+    showToast(`Rescue mission accepted! Heading to ${don?.donor_name || 'kitchen'} for pickup.`, 'two_wheeler');
+    return true;
+  }, [donations, drivers, recipients, addNotification, showToast]);
 
   // Recipient declines offer
   const declineOffer = useCallback((donationId, recipientId, reason = 'Capacity full') => {
@@ -718,6 +776,7 @@ export function AppProvider({ children }) {
     declineOffer,
     expireOffer,
     fastForwardOfferTimer,
+    driverAcceptMission,
     driverPickup,
     driverDeliver,
     recipients,

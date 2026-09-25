@@ -10,7 +10,7 @@ import MapView from '../../components/MapView';
 export default function MatchResult() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { donations, donors, recipients, drivers, acceptOffer, expireOffer, fastForwardOfferTimer, showToast } = useApp();
+  const { donations, donors, recipients, drivers, acceptOffer, expireOffer, fastForwardOfferTimer, driverAcceptMission, showToast } = useApp();
   const [showWhyModal, setShowWhyModal] = useState(false);
   const [matchScoreData, setMatchScoreData] = useState(null);
   const confettiFired = useRef(false);
@@ -19,7 +19,8 @@ export default function MatchResult() {
 
   // Determine current phase based on donation status
   const currentStatus = donation?.status || 'offered';
-  const phase = currentStatus === 'matched' ? 'matched'
+  const isAccepted = currentStatus === 'matched' || currentStatus === 'shelter_accepted' || currentStatus === 'picked_up' || currentStatus === 'delivered';
+  const phase = isAccepted ? 'matched'
     : (currentStatus === 'escalated' || currentStatus === 'expired') ? 'escalated'
     : 'matching';
 
@@ -323,11 +324,15 @@ export default function MatchResult() {
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
                 padding: '4px 12px', borderRadius: 999, background: 'white',
-                color: 'var(--tertiary)', fontSize: 11, fontWeight: 800, marginTop: 10,
+                color: donation.driver_id ? 'var(--tertiary)' : 'var(--primary-dark)', fontSize: 11, fontWeight: 800, marginTop: 10,
                 boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>volunteer_activism</span>
-                Intake verified within safe window • Volunteer rider dispatched
+                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
+                  {donation.driver_id ? 'volunteer_activism' : 'schedule'}
+                </span>
+                {donation.driver_id
+                  ? 'Intake verified • Volunteer rider assigned & en route'
+                  : 'Intake verified • Alerting nearby volunteer riders to accept mission'}
               </div>
             </div>
 
@@ -409,8 +414,8 @@ export default function MatchResult() {
               </button>
             </div>
 
-            {/* Driver card */}
-            {assignedDriver && (
+            {/* Rider Stage */}
+            {donation.driver_id && currentStatus !== 'shelter_accepted' ? (
               <div className="card animate-fade-in-up delay-2" style={{ padding: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--primary-fixed)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -419,7 +424,7 @@ export default function MatchResult() {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <h4 className="text-label-lg" style={{ margin: 0, fontWeight: 700 }}>{assignedDriver.name}</h4>
-                      <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 999, background: 'rgba(0,110,22,0.1)', color: 'var(--tertiary)', fontWeight: 700 }}>Dispatched</span>
+                      <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 999, background: 'rgba(0,110,22,0.1)', color: 'var(--tertiary)', fontWeight: 700 }}>Assigned ✓</span>
                     </div>
                     <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '2px 0 0' }}>{assignedDriver.vehicle} • ⭐ {assignedDriver.rating}</p>
                   </div>
@@ -427,6 +432,55 @@ export default function MatchResult() {
                     <span className="text-label-lg" style={{ color: 'var(--primary-dark)', fontWeight: 700 }}>~12 min</span>
                     <span className="text-body-sm" style={{ color: 'var(--on-surface-variant)', display: 'block', fontSize: 11 }}>ETA</span>
                   </div>
+                </div>
+              </div>
+            ) : (
+              <div className="card animate-fade-in-up delay-2" style={{
+                padding: 18, background: 'linear-gradient(135deg, rgba(252,128,25,0.06), rgba(0,110,22,0.04))',
+                border: '1.5px dashed rgba(252,128,25,0.35)', display: 'flex', flexDirection: 'column', gap: 12
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 22, color: 'var(--primary)', animation: 'pulse 1.5s infinite' }}>
+                      two_wheeler
+                    </span>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: 14 }}>Awaiting Volunteer Rider Acceptance…</div>
+                      <div style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>Broadcast active to 4 nearby rescue riders in Kota</div>
+                    </div>
+                  </div>
+                  <span style={{
+                    padding: '2px 8px', borderRadius: 999,
+                    background: 'rgba(252,128,25,0.12)', color: 'var(--primary-dark)',
+                    fontSize: 10, fontWeight: 800
+                  }}>
+                    AWAITING RIDER
+                  </span>
+                </div>
+
+                <p style={{ fontSize: 12, color: 'var(--on-surface-variant)', margin: 0, lineHeight: 1.4 }}>
+                  Shelter has confirmed intake! The mission is open in rider task feeds. Once a volunteer rider accepts the mission, their live location and contact details will appear here.
+                </p>
+
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: 10 }}>
+                  <button
+                    onClick={() => driverAcceptMission(donation.id, 1)}
+                    className="btn-primary"
+                    style={{ flex: 1, height: 42, fontSize: 13, gap: 6 }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 18 }}>bolt</span>
+                    <span>Simulate Rider Accept</span>
+                  </button>
+
+                  <button
+                    onClick={() => navigate('/driver/tasks')}
+                    style={{
+                      height: 42, padding: '0 12px', borderRadius: 12, border: '1px solid var(--outline-variant)',
+                      background: 'white', color: 'var(--on-surface)', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+                    }}
+                  >
+                    Go to Rider View →
+                  </button>
                 </div>
               </div>
             )}

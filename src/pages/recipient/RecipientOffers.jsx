@@ -202,8 +202,8 @@ export default function RecipientOffers() {
     return true;
   });
 
-  // Past offers: matched, picked_up, or delivered
-  const pastOffers = donations.filter(d => ['matched', 'picked_up', 'delivered'].includes(d.status) && (d.matched_recipient_id === 1 || !d.matched_recipient_id));
+  // Past / Accepted offers: shelter_accepted, matched, picked_up, or delivered
+  const pastOffers = donations.filter(d => ['shelter_accepted', 'matched', 'picked_up', 'delivered'].includes(d.status) && (d.matched_recipient_id === 1 || !d.matched_recipient_id));
 
   const handleManualRefresh = async () => {
     setRefreshing(true);

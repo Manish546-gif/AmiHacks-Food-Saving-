@@ -6,14 +6,20 @@ import MapView from '../../components/MapView';
 import { RECIPIENTS, DONORS, DRIVERS } from '../../data/seed';
 
 export default function DriverHome() {
-  const { user, donations, donors, recipients, drivers, driverPickup, driverDeliver, showToast } = useApp();
+  const { user, donations, donors, recipients, drivers, driverAcceptMission, driverPickup, driverDeliver, showToast } = useApp();
   const [online, setOnline] = useState(true);
 
-  // Live active job from AppContext — only real matched/picked_up donations
-  const activeDonation = donations.find(d => ['matched', 'picked_up'].includes(d.status)) || null;
   const donorDirectory = donors?.length ? donors : DONORS;
   const recipientDirectory = recipients?.length ? recipients : RECIPIENTS;
   const driverDirectory = drivers?.length ? drivers : DRIVERS;
+
+  // Pending missions awaiting driver acceptance (shelter confirmed!)
+  const pendingMission = donations.find(d => d.status === 'shelter_accepted' && !d.driver_id) || null;
+  const pendingDonor = donorDirectory.find(d => d.id === pendingMission?.donor_id) || donorDirectory[0];
+  const pendingShelter = recipientDirectory.find(r => r.id === pendingMission?.matched_recipient_id) || recipientDirectory[0];
+
+  // Live active job from AppContext — only real matched/picked_up donations
+  const activeDonation = donations.find(d => ['matched', 'picked_up'].includes(d.status) && (d.driver_id === (user?.id || 1) || !d.driver_id)) || null;
   const activeDonor = donorDirectory.find(d => d.id === activeDonation?.donor_id) || donorDirectory[0];
   const activeShelter = recipientDirectory.find(r => r.id === activeDonation?.matched_recipient_id) || recipientDirectory[0];
   const activeRider = driverDirectory.find(d => d.id === activeDonation?.driver_id) || driverDirectory[0];
@@ -113,6 +119,60 @@ export default function DriverHome() {
             </div>
           </button>
         </div>
+
+        {/* Incoming Mission Alert Banner */}
+        {online && pendingMission && (
+          <div style={{
+            margin: '0 16px 16px', borderRadius: 20, padding: 18,
+            background: 'linear-gradient(135deg, rgba(0,110,22,0.1), rgba(88,182,84,0.08))',
+            border: '2px solid rgba(0,110,22,0.3)', boxShadow: '0 4px 16px rgba(0,110,22,0.15)',
+            display: 'flex', flexDirection: 'column', gap: 12
+          }} className="animate-fade-in-up">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 22, color: 'var(--tertiary)', animation: 'pulse 1.2s infinite' }}>
+                  notification_important
+                </span>
+                <span style={{ fontWeight: 800, fontSize: 13, color: 'var(--tertiary)', textTransform: 'uppercase' }}>
+                  New Rescue Mission Available!
+                </span>
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 999, background: 'white', color: 'var(--tertiary)' }}>
+                SHELTER READY
+              </span>
+            </div>
+
+            <div>
+              <h3 className="text-headline-sm" style={{ margin: '0 0 2px' }}>{pendingMission.description}</h3>
+              <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: 0 }}>
+                {pendingMission.qty_kg} kg • Feeds {pendingMission.est_meals || Math.round((pendingMission.qty_kg || 0) * 2)} people
+              </p>
+            </div>
+
+            <div style={{ background: 'white', padding: '10px 12px', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--primary)' }}>storefront</span>
+                <span>Pickup: <strong>{pendingDonor?.name || pendingMission.donor_name}</strong></span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--tertiary)' }}>volunteer_activism</span>
+                <span>Dropoff: <strong>{pendingShelter?.name || 'Shelter'}</strong></span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                driverAcceptMission(pendingMission.id, user?.id || 1);
+                showToast(`Mission accepted! Heading to ${pendingDonor?.name || 'kitchen'} for pickup.`, 'two_wheeler');
+              }}
+              className="btn-primary"
+              style={{ width: '100%', height: 46, fontSize: 14, gap: 6 }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>check_circle</span>
+              <span>Accept Rescue Mission</span>
+            </button>
+          </div>
+        )}
 
         {/* Stats bar */}
         <div style={{ margin: '0 16px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>

@@ -8,24 +8,23 @@ import MapView from '../../components/MapView';
 
 const TIMELINE_STEPS = [
   { id: 'posted', label: 'Posted', icon: 'upload', sub: 'Donation submitted' },
-  { id: 'offered', label: 'Matched', icon: 'volunteer_activism', sub: 'Shelter confirmed' },
-  { id: 'matched', label: 'Assigned', icon: 'two_wheeler', sub: 'Rider assigned' },
+  { id: 'shelter_accepted', label: 'Shelter Accepted', icon: 'volunteer_activism', sub: 'Recipient confirmed food' },
+  { id: 'matched', label: 'Rider Assigned', icon: 'two_wheeler', sub: 'Volunteer rider dispatched' },
   { id: 'picked_up', label: 'Picked Up', icon: 'restaurant_menu', sub: 'Food collected' },
   { id: 'delivered', label: 'Delivered', icon: 'check_circle', sub: 'Delivery confirmed' },
 ];
 
-const STATUS_ORDER = ['posted', 'offered', 'matched', 'picked_up', 'delivered'];
-
 export default function LiveTracking() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { donations, donors, recipients, drivers } = useApp();
+  const { donations, donors, recipients, drivers, driverAcceptMission } = useApp();
   const donation = donations.find(d => d.id === parseInt(id)) ?? donations[0];
   const donorDirectory = donors?.length ? donors : DONORS;
   const recipientDirectory = recipients?.length ? recipients : RECIPIENTS;
   const driverDirectory = drivers?.length ? drivers : DRIVERS;
   const recipient = recipientDirectory.find(r => r.id === donation?.matched_recipient_id) ?? recipientDirectory[0];
-  const driver = driverDirectory.find(d => d.id === donation?.driver_id) ?? driverDirectory[0];
+  const hasDriver = !!donation?.driver_id && donation?.status !== 'shelter_accepted';
+  const driver = hasDriver ? (driverDirectory.find(d => d.id === donation?.driver_id) ?? driverDirectory[0]) : null;
   const donorEntity = donorDirectory.find(d => d.id === donation?.donor_id) ?? donorDirectory[0];
 
   const currentStatus = donation?.status || 'posted';
@@ -42,7 +41,14 @@ export default function LiveTracking() {
     currentStatus === 'picked_up' ? 0.65 :
     currentStatus === 'matched' ? 0.25 : 0.05;
 
-  const activeIdx = STATUS_ORDER.indexOf(currentStatus);
+  const getActiveStepIndex = (status) => {
+    if (status === 'delivered') return 4;
+    if (status === 'picked_up') return 3;
+    if (status === 'matched') return 2;
+    if (status === 'shelter_accepted') return 1;
+    return 0;
+  };
+  const activeIdx = getActiveStepIndex(currentStatus);
 
   // Real coordinates from seed data
   const pickupLat = donorEntity?.lat ?? 25.2138;
@@ -68,7 +74,7 @@ export default function LiveTracking() {
             riderLng={donation?.rider_lng}
             waypoints={donation?.route_waypoints || []}
             progress={driverProgress}
-            showRoute
+            showRoute={hasDriver}
           />
 
           {/* Glass overlay pill */}
@@ -80,9 +86,14 @@ export default function LiveTracking() {
             boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
             whiteSpace: 'nowrap',
           }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#2563eb', fontVariationSettings: "'FILL' 1" }}>two_wheeler</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 16, color: hasDriver ? '#2563eb' : '#0284c7', fontVariationSettings: "'FILL' 1" }}>
+              {hasDriver ? 'two_wheeler' : 'hourglass_top'}
+            </span>
             <span className="text-label-md" style={{ color: 'var(--on-surface)' }}>
-              {driver?.name} • {currentStatus === 'delivered' ? 'Delivered! 🎉' : `ETA: ~${Math.round((1 - driverProgress) * 15)} min`}
+              {hasDriver
+                ? `${driver?.name} • ${currentStatus === 'delivered' ? 'Delivered! 🎉' : `ETA: ~${Math.round((1 - driverProgress) * 15)} min`}`
+                : 'Awaiting Volunteer Rider acceptance…'
+              }
             </span>
             <CountdownBadge expiresAt={donation?.expires_at ?? new Date(Date.now() + 7200000).toISOString()} />
           </div>
@@ -157,29 +168,69 @@ export default function LiveTracking() {
           </div>
 
           {/* Driver card */}
-          <div className="card" style={{ padding: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--primary-fixed)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 26, color: 'var(--on-primary-fixed)', fontVariationSettings: "'FILL' 1" }}>two_wheeler</span>
+          {hasDriver ? (
+            <div className="card" style={{ padding: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--primary-fixed)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 26, color: 'var(--on-primary-fixed)', fontVariationSettings: "'FILL' 1" }}>two_wheeler</span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h4 className="text-label-lg" style={{ margin: '0 0 1px', fontWeight: 700 }}>{driver?.name}</h4>
+                  <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: 0 }}>
+                    {driver?.vehicle} • ⭐ {driver?.rating}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--surface-container-low)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    aria-label="Call driver">
+                    <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--tertiary)' }}>call</span>
+                  </button>
+                  <button style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--surface-container-low)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    aria-label="Message driver">
+                    <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--primary-dark)' }}>chat</span>
+                  </button>
+                </div>
               </div>
-              <div style={{ flex: 1 }}>
-                <h4 className="text-label-lg" style={{ margin: '0 0 1px', fontWeight: 700 }}>{driver?.name}</h4>
-                <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: 0 }}>
-                  {driver?.vehicle} • ⭐ {driver?.rating}
-                </p>
+            </div>
+          ) : (
+            <div className="card" style={{ padding: 18, border: '1.5px dashed var(--primary)', background: 'rgba(252,128,25,0.03)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{
+                  width: 46, height: 46, borderRadius: '50%',
+                  background: 'rgba(252,128,25,0.12)', color: 'var(--primary)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  animation: 'pulse 2s infinite'
+                }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 24, fontVariationSettings: "'FILL' 1" }}>two_wheeler</span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h4 className="text-label-lg" style={{ margin: '0 0 2px', fontWeight: 700, color: 'var(--on-surface)' }}>
+                    Awaiting Volunteer Rider Acceptance
+                  </h4>
+                  <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: 0 }}>
+                    Nearby volunteer riders in Kota have been alerted to accept this rescue trip.
+                  </p>
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--surface-container-low)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  aria-label="Call driver">
-                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--tertiary)' }}>call</span>
+              <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+                <button
+                  className="btn-primary"
+                  style={{ flex: 1, height: 40, fontSize: 13, gap: 6 }}
+                  onClick={() => driverAcceptMission && driverAcceptMission(donation.id, 1)}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
+                  Simulate Rider Accept
                 </button>
-                <button style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--surface-container-low)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  aria-label="Message driver">
-                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--primary-dark)' }}>chat</span>
+                <button
+                  className="btn-secondary"
+                  style={{ height: 40, fontSize: 13, padding: '0 12px' }}
+                  onClick={() => navigate('/driver/tasks')}
+                >
+                  View as Rider →
                 </button>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
 

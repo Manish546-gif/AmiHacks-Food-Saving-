@@ -273,7 +273,7 @@ app.patch('/api/donations/:id', async (req, res) => {
     // Handle state transitions
     const updates = { ...req.body };
 
-    if (updates.status === 'matched') {
+    if (updates.status === 'shelter_accepted') {
       // Recipient accepted - remove active offer notification from shelter
       await NotificationModel.deleteMany({ role: 'recipient', donation_id: donation.id });
 
@@ -283,15 +283,35 @@ app.patch('/api/donations/:id', async (req, res) => {
           id: Date.now(),
           donation_id: donation.id,
           role: 'driver',
-          title: 'Rescue Mission Assigned! ⚡',
-          body: `Pickup ${donation.qty_kg} kg from ${donation.donor_name} to ${recip?.name || 'Shelter'}. Route ready.`,
+          title: 'New Rescue Mission Available! ⚡',
+          body: `${recip?.name || 'Shelter'} accepted ${donation.qty_kg} kg from ${donation.donor_name}. Tap to accept mission.`,
         },
         {
           id: Date.now() + 1,
           donation_id: donation.id,
           role: 'donor',
-          title: 'Offer Accepted by Shelter! 🛵',
-          body: `${recip?.name || 'Shelter'} accepted your donation! Volunteer rider dispatched for pickup.`,
+          title: 'Offer Accepted by Shelter! 🎉',
+          body: `${recip?.name || 'Shelter'} accepted your donation! Alerting nearby volunteer riders for pickup.`,
+        }
+      ]);
+    } else if (updates.status === 'matched') {
+      // Driver accepted mission
+      const recip = await RecipientModel.findOne({ id: updates.matched_recipient_id || donation.matched_recipient_id });
+      const driver = await DriverModel.findOne({ id: updates.driver_id || donation.driver_id || 1 });
+      await NotificationModel.create([
+        {
+          id: Date.now(),
+          donation_id: donation.id,
+          role: 'donor',
+          title: 'Volunteer Rider Assigned! 🛵',
+          body: `${driver?.name || 'Volunteer rider'} accepted the pickup from your kitchen. En route in ~12 mins.`,
+        },
+        {
+          id: Date.now() + 1,
+          donation_id: donation.id,
+          role: 'recipient',
+          title: 'Rider Heading for Pickup! 🛵',
+          body: `${driver?.name || 'Volunteer rider'} accepted and is heading to ${donation.donor_name} for pickup.`,
         }
       ]);
     } else if (updates.status === 'escalated' || updates.status === 'expired') {

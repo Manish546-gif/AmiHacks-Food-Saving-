@@ -5,13 +5,13 @@ import MapView from '../../components/MapView';
 import { DONORS, RECIPIENTS, DRIVERS } from '../../data/seed';
 
 export default function DriverTasks() {
-  const { donations, donors, recipients, drivers, driverPickup, driverDeliver, showToast } = useApp();
+  const { donations, donors, recipients, drivers, driverAcceptMission, driverPickup, driverDeliver, showToast } = useApp();
   const [tab, setTab] = useState('active');
   const [otpInput, setOtpInput] = useState('');
   const [showOtpModal, setShowOtpModal] = useState(null);
 
-  const activeTasks = donations.filter(d => ['matched', 'picked_up'].includes(d.status) && (d.driver_id === 1 || !d.driver_id));
-  const availableTasks = donations.filter(d => d.status === 'posted');
+  const activeTasks = donations.filter(d => ['matched', 'picked_up'].includes(d.status) && (d.driver_id === 1));
+  const availableTasks = donations.filter(d => (d.status === 'shelter_accepted' || d.status === 'posted') && !d.driver_id);
   const donorDirectory = donors?.length ? donors : DONORS;
   const recipientDirectory = recipients?.length ? recipients : RECIPIENTS;
   const driverDirectory = drivers?.length ? drivers : DRIVERS;
@@ -210,40 +210,81 @@ export default function DriverTasks() {
               })
             )
           ) : (
-            availableTasks.map(task => (
-              <div
-                key={task.id}
-                style={{
-                  background: 'var(--surface-container-lowest)', borderRadius: 18, padding: 16,
-                  boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', gap: 10
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <h4 className="text-headline-sm" style={{ margin: 0, fontSize: 16 }}>{task.description}</h4>
-                    <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>
-                      From {task.donor_name} • Feeds {task.est_meals || Math.round((task.qty_kg || 0) * 2)} people
-                    </div>
-                  </div>
-                  <span style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(252,128,25,0.1)', color: 'var(--primary-dark)', fontSize: 11, fontWeight: 700 }}>
-                    ~2.2 km away
-                  </span>
-                </div>
-
-                <button
-                  onClick={() => {
-                    driverPickup(task.id, 'Self-accepted volunteer pickup');
-                    showToast('Assigned to your route! Head to donor location.', 'rocket_launch');
-                    setTab('active');
-                  }}
-                  className="btn-primary"
-                  style={{ width: '100%' }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>volunteer_activism</span>
-                  <span>Volunteer for this Rescue</span>
-                </button>
+            availableTasks.length === 0 ? (
+              <div style={{
+                background: 'var(--surface-container-lowest)', borderRadius: 20, padding: 36,
+                textAlign: 'center', boxShadow: 'var(--shadow-card)',
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--primary)' }}>hourglass_empty</span>
+                <h3 className="text-headline-sm" style={{ margin: '12px 0 6px' }}>No Pending Rescue Missions</h3>
+                <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: 0 }}>
+                  All current surplus offers have either been claimed or are waiting for shelter confirmation. New alerts will appear here in real time.
+                </p>
               </div>
-            ))
+            ) : (
+              availableTasks.map(task => {
+                const isShelterAccepted = task.status === 'shelter_accepted';
+                const shelter = recipientDirectory.find(r => r.id === task.matched_recipient_id) || recipientDirectory[0];
+
+                return (
+                  <div
+                    key={task.id}
+                    style={{
+                      background: 'var(--surface-container-lowest)', borderRadius: 18, padding: 16,
+                      boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', gap: 12,
+                      border: isShelterAccepted ? '2px solid rgba(0,110,22,0.3)' : '1px solid var(--surface-container)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                          <span style={{
+                            fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 999,
+                            background: isShelterAccepted ? 'rgba(0,110,22,0.12)' : 'rgba(252,128,25,0.12)',
+                            color: isShelterAccepted ? 'var(--tertiary)' : 'var(--primary-dark)',
+                            textTransform: 'uppercase'
+                          }}>
+                            {isShelterAccepted ? '⚡ Shelter Accepted • Ready for Pickup' : 'Open Pool'}
+                          </span>
+                        </div>
+                        <h4 className="text-headline-sm" style={{ margin: 0, fontSize: 16 }}>{task.description}</h4>
+                        <div className="text-body-sm" style={{ color: 'var(--on-surface-variant)', marginTop: 2 }}>
+                          {task.qty_kg} kg • Feeds {task.est_meals || Math.round((task.qty_kg || 0) * 2)} people
+                        </div>
+                      </div>
+                      <span style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(252,128,25,0.1)', color: 'var(--primary-dark)', fontSize: 11, fontWeight: 700 }}>
+                        ~2.2 km
+                      </span>
+                    </div>
+
+                    {/* Route brief */}
+                    <div style={{ background: 'var(--surface-container-low)', padding: '10px 12px', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--primary)' }}>storefront</span>
+                        <span>Pickup: <strong>{task.donor_name}</strong></span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--tertiary)' }}>volunteer_activism</span>
+                        <span>Dropoff: <strong>{shelter?.name || 'Shelter'}</strong></span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        driverAcceptMission(task.id, 1);
+                        showToast(`Mission accepted! Heading to ${task.donor_name}.`, 'two_wheeler');
+                        setTab('active');
+                      }}
+                      className="btn-primary"
+                      style={{ width: '100%', height: 46, fontSize: 13, gap: 6 }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>check_circle</span>
+                      <span>Accept Rescue Mission</span>
+                    </button>
+                  </div>
+                );
+              })
+            )
           )}
         </div>
 
