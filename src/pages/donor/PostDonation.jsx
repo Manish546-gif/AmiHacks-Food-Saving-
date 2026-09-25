@@ -68,15 +68,23 @@ function parseText(text) {
   };
 }
 
+import { useVerification } from '../../hooks/useVerification';
+
 export default function PostDonation() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { createDonation, showToast } = useApp();
+  const { createDonation, showToast, user, donors } = useApp();
   const repeatDonation = location.state?.repeat;
+
+  const currentDonor = donors?.find(d => Number(d.id) === Number(user?.id ?? 1));
+  const { verCase, state: verState, canDonate, submit: submitVerification } = useVerification(user?.id ? `user-${user.id}` : 'user-1', 'donor');
+
+  const isVerified = (verState === 'verified' || canDonate) || (currentDonor?.verified === true && currentDonor?.verification_status !== 'pending_review' && currentDonor?.verification_status !== 'needs_changes');
 
   const [step, setStep] = useState('parse'); // parse | confirm | matching
   const [aiText, setAiText] = useState(repeatDonation?.description ?? '');
   const [parsed, setParsed] = useState(null);
+  const [showUnverifiedModal, setShowUnverifiedModal] = useState(false);
   const [form, setForm] = useState({
     item: '', category: 'cooked', qty_kg: '', est_meals: '',
     dietary_tags: ['veg'], safe_hours: 4, ready_at: '',
@@ -143,9 +151,15 @@ export default function PostDonation() {
     rec.start();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.declaration) { showToast('Please accept the food safety declaration', 'warning'); return; }
     if (!form.est_meals || parseInt(form.est_meals) <= 0) { showToast('Please enter how many people this can feed', 'warning'); return; }
+
+    if (!isVerified) {
+      setShowUnverifiedModal(true);
+      showToast('District Desk verification required to broadcast food donations', 'warning');
+      return;
+    }
 
     setMatching(true);
     const donation = createDonation({
@@ -166,6 +180,31 @@ export default function PostDonation() {
     setTimeout(() => {
       navigate(`/donor/match/${donation.id}`);
     }, 1200);
+  };
+
+  const handleInstantApproveDemo = async () => {
+    await submitVerification(true);
+    showToast('Simulation: Verified by District Operations Desk! Publishing donation...', 'verified');
+    setShowUnverifiedModal(false);
+    setTimeout(() => {
+      setMatching(true);
+      const donation = createDonation({
+        description: form.item,
+        category: form.category,
+        qty_kg: parseFloat(form.qty_kg),
+        est_meals: parseInt(form.est_meals) || Math.round(parseFloat(form.qty_kg) * 2),
+        dietary_tags: form.dietary_tags,
+        safe_hours: form.safe_hours,
+        ready_at: form.ready_at || new Date().toISOString(),
+        needs_cold_chain: form.needs_cold_chain,
+        packaging: form.packaging,
+        hygiene_checklist_done: form.hygiene_done,
+        photo_url: null,
+      });
+      setTimeout(() => {
+        navigate(`/donor/match/${donation.id}`);
+      }, 1000);
+    }, 400);
   };
 
   const expiryBadgeColor = () => {
@@ -229,6 +268,106 @@ export default function PostDonation() {
             <span>{String(Math.floor(form.safe_hours)).padStart(2,'0')}:00:00</span>
           </div>
         </div>
+
+        {/* Verification Status & Compliance Gate Banner */}
+        {!isVerified && (
+          <div style={{ margin: '0 16px 14px' }}>
+            {verState === 'needs_changes' ? (
+              <div style={{
+                background: 'rgba(245,166,35,0.08)', border: '1.5px solid rgba(245,166,35,0.4)',
+                borderRadius: 16, padding: '14px 16px', display: 'flex', gap: 12
+              }}>
+                <span className="material-symbols-outlined" style={{ color: '#c88000', fontSize: 24, flexShrink: 0, marginTop: 2 }}>warning</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: 13, color: '#c88000', textTransform: 'uppercase' }}>
+                    Verification Changes Requested by District Desk
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--on-surface-variant)', marginTop: 4, lineHeight: 1.4 }}>
+                    {verCase?.decision_reason || 'Please update your FSSAI certificate or kitchen hygiene details to unlock donation privileges.'}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                    <button
+                      className="btn-primary"
+                      style={{ height: 32, fontSize: 12, padding: '0 12px' }}
+                      onClick={() => navigate('/verification')}
+                    >
+                      Update Dossier →
+                    </button>
+                    <button
+                      className="btn-outline"
+                      style={{ height: 32, fontSize: 12, padding: '0 10px' }}
+                      onClick={handleInstantApproveDemo}
+                    >
+                      Instant Approve (Demo)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (verState === 'submitted' || verState === 'under_review') ? (
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(2,132,199,0.08), rgba(59,130,246,0.04))',
+                border: '1.5px solid rgba(2,132,199,0.3)', borderRadius: 16, padding: '14px 16px', display: 'flex', gap: 12
+              }}>
+                <span className="material-symbols-outlined" style={{ color: '#0284c7', fontSize: 24, flexShrink: 0, marginTop: 2, animation: 'pulse 1.5s infinite' }}>hourglass_top</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: 13, color: '#0284c7', textTransform: 'uppercase' }}>
+                    Dossier Under Review at District Verification Desk
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--on-surface-variant)', marginTop: 4, lineHeight: 1.4 }}>
+                    Your FSSAI credentials have been submitted for admin compliance verification (turnaround SLA &lt; 4h). Food donations will be broadcasted once approved.
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                    <button
+                      className="btn-outline"
+                      style={{ height: 32, fontSize: 12, padding: '0 10px', borderColor: '#0284c7', color: '#0284c7' }}
+                      onClick={() => navigate('/verification')}
+                    >
+                      Track Dossier Status →
+                    </button>
+                    <button
+                      className="btn-primary"
+                      style={{ height: 32, fontSize: 12, padding: '0 12px' }}
+                      onClick={handleInstantApproveDemo}
+                    >
+                      Approve as Admin (Demo)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{
+                background: 'rgba(226,55,68,0.08)', border: '1.5px solid rgba(226,55,68,0.3)',
+                borderRadius: 16, padding: '14px 16px', display: 'flex', gap: 12
+              }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--urgent)', fontSize: 24, flexShrink: 0, marginTop: 2 }}>verified_user</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--urgent)', textTransform: 'uppercase' }}>
+                    Legal Verification Required to Post Food
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--on-surface-variant)', marginTop: 4, lineHeight: 1.4 }}>
+                    Under FSSAI guidelines, food businesses must complete District Desk verification before broadcasting surplus food to shelters.
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                    <button
+                      className="btn-primary"
+                      style={{ height: 32, fontSize: 12, padding: '0 12px' }}
+                      onClick={() => navigate('/verification')}
+                    >
+                      Submit Verification Dossier →
+                    </button>
+                    <button
+                      className="btn-outline"
+                      style={{ height: 32, fontSize: 12, padding: '0 10px' }}
+                      onClick={handleInstantApproveDemo}
+                    >
+                      Instant Approve (Demo)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* AI Parser */}
@@ -463,6 +602,60 @@ export default function PostDonation() {
             </div>
           )}
         </div>
+        {/* Unverified Gating Modal */}
+        {showUnverifiedModal && (
+          <div style={{
+            position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15,23,42,0.65)',
+            backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16
+          }}>
+            <div className="card animate-fade-in-up" style={{
+              maxWidth: 440, width: '100%', padding: 24, borderRadius: 24,
+              boxShadow: '0 20px 50px rgba(0,0,0,0.3)', background: 'white'
+            }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: '50%', background: 'rgba(226,55,68,0.1)',
+                color: 'var(--urgent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px'
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 32 }}>verified_user</span>
+              </div>
+
+              <h3 className="text-headline-sm" style={{ textAlign: 'center', margin: '0 0 8px' }}>
+                District Verification Required
+              </h3>
+
+              <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', textAlign: 'center', margin: '0 0 20px', lineHeight: 1.5 }}>
+                Under FSSAI guidelines & surplus safety protocols, your kitchen's registration and hygiene credentials must be verified by the District Operations Desk before food donations can be broadcasted to shelters.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <button
+                  className="btn-primary"
+                  style={{ width: '100%', height: 48 }}
+                  onClick={() => navigate('/verification')}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>assignment</span>
+                  Open Verification Portal
+                </button>
+
+                <button
+                  className="btn-outline"
+                  style={{ width: '100%', height: 44 }}
+                  onClick={handleInstantApproveDemo}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>verified</span>
+                  Instant Admin Approval (Demo Override)
+                </button>
+
+                <button
+                  style={{ border: 'none', background: 'none', color: 'var(--on-surface-variant)', fontSize: 13, fontWeight: 600, padding: 8, cursor: 'pointer' }}
+                  onClick={() => setShowUnverifiedModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
