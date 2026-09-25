@@ -79,7 +79,7 @@ export default function LiveTracking() {
 
           {/* Glass overlay pill */}
           <div style={{
-            position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 1000,
+            position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 40,
             background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)',
             borderRadius: 999, padding: '8px 16px',
             display: 'flex', alignItems: 'center', gap: 8,

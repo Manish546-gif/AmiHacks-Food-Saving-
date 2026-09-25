@@ -637,6 +637,26 @@ body {
   }
 }
 
+.map-view {
+  position: relative;
+  z-index: 1;
+}
+
+.leaflet-container,
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control-container {
+  z-index: 1 !important;
+}
+
+.leaflet-popup,
+.gm-style-iw,
+.gm-style-iw-c,
+.gm-style-iw-d {
+  z-index: 20 !important;
+}
+
 .janseva-map-marker {
   background: transparent !important;
   border: 0 !important;

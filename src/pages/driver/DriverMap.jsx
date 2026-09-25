@@ -74,7 +74,7 @@ export default function DriverMap() {
       <main style={{ flex: 1, paddingTop: 64, paddingBottom: 96, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
         {/* Filter chips */}
         <div style={{
-          position: 'absolute', top: 76, left: 0, right: 0, zIndex: 400,
+          position: 'absolute', top: 76, left: 0, right: 0, zIndex: 40,
           display: 'flex', gap: 6, padding: '0 16px',
           overflowX: 'auto', scrollbarWidth: 'none',
         }}>
@@ -120,7 +120,7 @@ export default function DriverMap() {
           position: 'absolute',
           bottom: selectedPin ? 190 : 16,
           left: 16,
-          zIndex: 400,
+          zIndex: 30,
           background: 'rgba(255,255,255,0.95)',
           backdropFilter: 'blur(12px)',
           borderRadius: 14, padding: '8px 12px',
@@ -143,7 +143,7 @@ export default function DriverMap() {
         {/* Active mission pulse badge */}
         {activeDonation && (
           <div style={{
-            position: 'absolute', top: 116, right: 16, zIndex: 400,
+            position: 'absolute', top: 116, right: 16, zIndex: 35,
             background: 'rgba(252,128,25,0.95)', backdropFilter: 'blur(8px)',
             borderRadius: 12, padding: '6px 12px',
             display: 'flex', alignItems: 'center', gap: 6,
@@ -157,7 +157,7 @@ export default function DriverMap() {
         {/* Selected Pin Bottom Sheet */}
         {selectedPin && (
           <div style={{
-            position: 'absolute', bottom: 12, left: 16, right: 16, zIndex: 500,
+            position: 'absolute', bottom: 12, left: 16, right: 16, zIndex: 80,
             background: 'var(--surface-container-lowest)', borderRadius: 20, padding: 16,
             boxShadow: '0 -4px 24px rgba(0,0,0,0.15)',
             border: '1px solid var(--surface-container)',

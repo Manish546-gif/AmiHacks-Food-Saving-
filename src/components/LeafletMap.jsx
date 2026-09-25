@@ -280,7 +280,7 @@ export default function LeafletMap({
   return (
     <div
       className={`map-view map-view--leaflet ${className}`}
-      style={{ position: 'relative', height, borderRadius: 'inherit', overflow: 'hidden', background: '#e2e8f0', ...styleProp }}
+      style={{ position: 'relative', zIndex: 1, height, borderRadius: 'inherit', overflow: 'hidden', background: '#e2e8f0', ...styleProp }}
       role="region"
       aria-label={ariaLabel}
     >

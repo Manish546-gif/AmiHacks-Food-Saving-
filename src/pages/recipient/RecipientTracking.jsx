@@ -135,7 +135,7 @@ export default function RecipientTracking() {
             bottom: 52,
             left: '50%',
             transform: 'translateX(-50%)',
-            zIndex: 1000,
+            zIndex: 35,
           }}>
             <div style={{
               background: 'white', borderRadius: 999, padding: '6px 12px',
@@ -154,7 +154,7 @@ export default function RecipientTracking() {
 
           {/* Bottom stats overlay */}
           <div style={{
-            position: 'absolute', bottom: 10, left: 16, right: 16, zIndex: 1000,
+            position: 'absolute', bottom: 10, left: 16, right: 16, zIndex: 45,
             background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(10px)',
             borderRadius: 14, padding: '8px 14px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
