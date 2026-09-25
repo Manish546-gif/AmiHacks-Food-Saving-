@@ -1,4 +1,4 @@
-# Surplus-to-Shelter
+# Surplus to Shelter
 
 > **Saving food. Feeding communities. Reducing waste.**
 
