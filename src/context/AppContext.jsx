@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
-import { DONATIONS, RECIPIENTS, DRIVERS, DONORS, IMPACT_STATS, matchDonation } from '../data/seed';
+import { matchDonation } from '../data/seed';
 
 const AppContext = createContext(null);
 
@@ -76,62 +76,54 @@ export function AppProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY + '_user');
-      return saved ? JSON.parse(saved) : { role: 'donor', phone: '+91 98760 11111', name: 'Royal Spice Kitchen', id: 1 };
+      return saved ? JSON.parse(saved) : null;
     } catch {
-      return { role: 'donor', phone: '+91 98760 11111', name: 'Royal Spice Kitchen', id: 1 };
+      return null;
     }
   });
 
   const [donations, setDonations] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY + '_donations');
-      return saved ? JSON.parse(saved) : DONATIONS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return DONATIONS;
+      return [];
     }
   });
 
   const [recipients, setRecipients] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY + '_recipients');
-      return saved ? JSON.parse(saved) : RECIPIENTS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return RECIPIENTS;
+      return [];
     }
   });
 
   const [drivers, setDrivers] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY + '_drivers');
-      return saved ? JSON.parse(saved) : DRIVERS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return DRIVERS;
+      return [];
     }
   });
 
   const [donors, setDonors] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY + '_donors');
-      return saved ? JSON.parse(saved) : DONORS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return DONORS;
+      return [];
     }
   });
 
   const [notifications, setNotifications] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY + '_notifications');
-      return saved ? JSON.parse(saved) : [
-        { id: 1, role: 'donor', title: 'Match Found!', body: 'Asha Nilayam accepted your Veg Biryani donation.', read: false, created_at: new Date(Date.now() - 300000).toISOString() },
-        { id: 2, role: 'donor', title: 'Delivery Complete', body: 'Dal Makhani delivered to Annapurna Rasoi. Receipt ready.', read: false, created_at: new Date(Date.now() - 3600000).toISOString() },
-        { id: 3, role: 'driver', title: 'New Rescue Task', body: 'Pickup ready at Royal Spice Kitchen, Talwandi.', read: false, created_at: new Date(Date.now() - 120000).toISOString() },
-        { id: 4, role: 'recipient', title: 'Incoming Food Offer', body: '18 kg Paneer Gravy & Dal Box offered to Asha Nilayam.', read: false, created_at: new Date(Date.now() - 60000).toISOString() },
-      ];
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return [
-        { id: 1, role: 'donor', title: 'Match Found!', body: 'Asha Nilayam accepted your Veg Biryani donation.', read: false, created_at: new Date(Date.now() - 300000).toISOString() },
-        { id: 2, role: 'donor', title: 'Delivery Complete', body: 'Dal Makhani delivered to Annapurna Rasoi. Receipt ready.', read: false, created_at: new Date(Date.now() - 3600000).toISOString() },
-      ];
+      return [];
     }
   });
 
@@ -836,14 +828,15 @@ export function AppProvider({ children }) {
     localStorage.removeItem(STORAGE_KEY + '_drivers');
     localStorage.removeItem(STORAGE_KEY + '_donors');
     localStorage.removeItem(STORAGE_KEY + '_notifications');
-    setDonations(DONATIONS);
-    setRecipients(RECIPIENTS);
-    setDrivers(DRIVERS);
-    setDonors(DONORS);
-    login('+91 98760 11111', 'donor');
+    setUser(null);
+    setDonations([]);
+    setRecipients([]);
+    setDrivers([]);
+    setDonors([]);
+    setNotifications([]);
     await apiFetch('/reset', { method: 'POST' });
-    showToast('Database reset to clean initial state', 'restart_alt');
-  }, [login, showToast]);
+    showToast('App reset to empty state', 'restart_alt');
+  }, [showToast]);
 
   // Auto-expire offers whose 1/4th safe window has elapsed without acceptance
   useEffect(() => {
@@ -879,9 +872,18 @@ export function AppProvider({ children }) {
 
   // Dynamic calculated stats based on current state
   const dynamicImpactStats = {
-    ...IMPACT_STATS,
-    meals_rescued: IMPACT_STATS.meals_rescued + donations.filter(d => d.status === 'delivered').reduce((acc, d) => acc + (d.est_meals || 20), 0) - 100,
-    kg_diverted: IMPACT_STATS.kg_diverted + donations.filter(d => d.status === 'delivered').reduce((acc, d) => acc + (d.qty_kg || 10), 0) - 50,
+    meals_rescued: donations.filter(d => d.status === 'delivered').reduce((acc, d) => acc + (d.est_meals || 0), 0),
+    kg_diverted: donations.filter(d => d.status === 'delivered').reduce((acc, d) => acc + (d.qty_kg || 0), 0),
+    co2e_avoided: 0,
+    children_fed: 0,
+    daily_meals: [0, 0, 0, 0, 0, 0, 0],
+    by_tier: [
+      { tier: 'Tier 1', meals: 0, pct: 0 },
+      { tier: 'Tier 2', meals: 0, pct: 0 },
+      { tier: 'Tier 3', meals: 0, pct: 0 },
+    ],
+    top_donors: [],
+    top_recipients: [],
     active_donors: donors.length,
     active_recipients: recipients.filter(r => r.accepting).length,
     active_drivers: drivers.filter(d => d.available).length,
