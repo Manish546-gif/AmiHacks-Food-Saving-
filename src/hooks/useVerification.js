@@ -3,6 +3,17 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const STORAGE_PREFIX = 'janseva_';
 
+const EMPTY_DRAFT = {
+  contact_name: '', designation: '', contact_phone: '', phone_verified: false,
+  org_name: '', org_type: '', org_reg_number: '', org_pan: '',
+  ngo_darpan_id: '', gstin: '',
+  fssai_number: '', fssai_expiry: '', has_cold_chain: false, has_hygiene_cert: false,
+  address: '', pin_lat: null, pin_lng: null, premises_photo_key: null,
+  consent_data_processing: false, consent_terms: false, food_handling_undertaking: false,
+  declaration_signed: false,
+  subject_type: 'donor', step: 0,
+};
+
 const DEFAULT_SEEDED_CASES = [
   {
     id: 'vc-001', subject_type: 'recipient', subject_id: 'r-1',
