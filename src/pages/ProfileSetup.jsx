@@ -202,7 +202,7 @@ export default function ProfileSetup() {
   const role = user?.role || 'donor';
   const details = ROLE_DETAILS[role] || ROLE_DETAILS.donor;
   const isEditing = user?.onboarding?.completed === true;
-  const nextLabel = role === 'donor' || role === 'recipient' ? 'Verification' : 'Workspace';
+  const nextLabel = role === 'admin' ? 'Workspace' : 'Verification';
 
   if (!user) return null;
 
@@ -293,7 +293,7 @@ export default function ProfileSetup() {
     }
 
     completeOnboarding(profile);
-    navigate(role === 'donor' || role === 'recipient' ? '/verification' : ROLE_HOME[role], { replace: true });
+    navigate(role === 'admin' ? ROLE_HOME[role] : '/verification', { replace: true });
   };
 
   const handleSignOut = () => {
@@ -411,7 +411,7 @@ export default function ProfileSetup() {
           </form>
 
           <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', textAlign: 'center', margin: 0, lineHeight: 1.5 }}>
-            {role === 'donor' || role === 'recipient' ? 'Next, we will take you through the verification desk.' : 'Next, you will enter your workspace.'}
+            {role === 'admin' ? 'Next, you will enter your operations desk.' : 'Next, we will take you through your role-specific verification desk.'}
           </p>
         </div>
       </main>

@@ -8,6 +8,11 @@ const EMPTY_DRAFT = {
   org_name: '', org_type: '', org_reg_number: '', org_pan: '',
   ngo_darpan_id: '', gstin: '',
   fssai_number: '', fssai_expiry: '', has_cold_chain: false, has_hygiene_cert: false,
+  // Rider / Driver specific draft fields
+  vehicle_type: 'two_wheeler', vehicle_number: '', dl_number: '',
+  emergency_contact_name: '', emergency_contact_phone: '', service_zone: 'Kota Central',
+  vehicle_capacity_kg: 50, has_insulated_bag: true, has_spill_proof_straps: true,
+  insurance_valid: true, rider_safety_undertaking: false,
   address: '', pin_lat: null, pin_lng: null, premises_photo_key: null,
   consent_data_processing: false, consent_terms: false, food_handling_undertaking: false,
   declaration_signed: false,
@@ -41,10 +46,10 @@ const DEFAULT_SEEDED_CASES = [
     submitted_at: new Date(Date.now() - 3600000 * 72).toISOString(),
     decided_at: new Date(Date.now() - 3600000 * 48).toISOString(),
     valid_until: new Date(Date.now() + 3600000 * 24 * 365).toISOString(),
-    org_name: 'Volunteer Rider', org_type: 'driver',
+    org_name: 'Rahul Kumar (Rescue Rider)', org_type: 'two_wheeler',
     contact_name: 'Rahul Kumar', contact_phone: '+91 98762 11111',
     address: 'Vigyan Nagar, Kota',
-    doc_count: 2, sla_hours_remaining: '0.0',
+    doc_count: 3, sla_hours_remaining: '0.0',
   },
   {
     id: 'vc-004', subject_type: 'recipient', subject_id: 'r-2',
@@ -184,10 +189,13 @@ export function useVerification(userId = 'user-1', subjectType = 'donor') {
         c.subject_id === userId ||
         c.subject_id === `user-${userId}` ||
         c.subject_id === `r-${userId}` ||
+        c.subject_id === `dr-${userId}` ||
+        c.subject_id === `driver-${userId}` ||
         c.subject_id === `recipient-${userId}` ||
         c.id === userId ||
         (subjectType === 'donor' && c.subject_type === 'donor') ||
-        (subjectType === 'recipient' && c.subject_type === 'recipient')
+        (subjectType === 'recipient' && c.subject_type === 'recipient') ||
+        (subjectType === 'driver' && c.subject_type === 'driver')
       );
       if (local) {
         setVerCase(local);
@@ -244,16 +252,24 @@ export function useVerification(userId = 'user-1', subjectType = 'donor') {
 
   // Upload document
   const uploadDocument = useCallback(async (docType, file, meta = {}) => {
+    const defaultIssuedBy = docType === 'driving_license'
+      ? 'State Transport Authority (RTO Rajasthan)'
+      : docType === 'vehicle_rc'
+      ? 'Ministry of Road Transport & Highways'
+      : docType === 'fssai'
+      ? 'FSSAI Regional Office'
+      : 'Govt of Rajasthan / Charity Commissioner';
+
     const docRecord = {
       id: `doc-${Date.now()}`,
       case_id: verCase?.id || `vc-${Date.now()}`,
       doc_type: docType,
       mime: file.type || 'application/pdf',
       size: file.size || 102400,
-      number_last4: meta.number ? meta.number.slice(-4) : '0452',
+      number_last4: meta.number ? meta.number.slice(-4) : '1234',
       number: meta.number || null,
       expiry_date: meta.expiry_date || new Date(Date.now() + 3600000 * 24 * 365).toISOString(),
-      issued_by: meta.issued_by || 'FSSAI Regional Office',
+      issued_by: meta.issued_by || defaultIssuedBy,
       state: 'auto_checked',
       uploaded_at: new Date().toISOString(),
     };
@@ -299,20 +315,22 @@ export function useVerification(userId = 'user-1', subjectType = 'donor') {
         id: verCase?.id || `vc-${Date.now().toString(36).toUpperCase()}`,
         subject_id: userId,
         subject_type: subjectType,
-        org_name: draft.org_name || (subjectType === 'donor' ? 'Royal Spice Kitchen' : 'Asha Nilayam Trust'),
-        org_type: draft.org_type || (subjectType === 'donor' ? 'restaurant' : 'old_age_home'),
+        org_name: draft.org_name || draft.contact_name || (subjectType === 'donor' ? 'Royal Spice Kitchen' : subjectType === 'driver' ? 'Rescue Volunteer Rider' : 'Asha Nilayam Trust'),
+        org_type: draft.org_type || draft.vehicle_type || (subjectType === 'donor' ? 'restaurant' : subjectType === 'driver' ? 'two_wheeler' : 'old_age_home'),
         contact_name: draft.contact_name || 'Manish Kumar',
         contact_phone: draft.contact_phone || '+91 98760 11111',
         address: draft.address || 'Talwandi, Kota, Rajasthan',
-        fssai_number: draft.fssai_number || '12023019000452',
+        fssai_number: subjectType === 'donor' ? (draft.fssai_number || '12023019000452') : undefined,
+        dl_number: subjectType === 'driver' ? (draft.dl_number || 'RJ20 20210012345') : undefined,
+        vehicle_number: subjectType === 'driver' ? (draft.vehicle_number || 'RJ-20-AB-1234') : undefined,
         risk_score: 'low',
         state: autoVerify ? 'verified' : 'submitted',
         level: autoVerify ? 2 : 0,
         submitted_at: now.toISOString(),
         decided_at: autoVerify ? now.toISOString() : null,
         valid_until: autoVerify ? new Date(now.getTime() + 3600000 * 24 * 365).toISOString() : null,
-        sla_hours_remaining: '48.0',
-        doc_count: documents.length || 2,
+        sla_hours_remaining: subjectType === 'driver' ? '2.0' : '48.0',
+        doc_count: documents.length || (subjectType === 'driver' ? 3 : 2),
       };
 
       setVerCase(updatedCase);
@@ -326,27 +344,18 @@ export function useVerification(userId = 'user-1', subjectType = 'donor') {
       addSystemNotification(
         'admin',
         'New Verification Dossier Submitted 📑',
-        `${updatedCase.org_name} (${updatedCase.org_type}) submitted KYC & FSSAI dossier. Pending approval to unlock food donations.`
+        `${updatedCase.org_name} (${updatedCase.org_type}) submitted ${subjectType === 'driver' ? 'Driving License & RC' : subjectType === 'donor' ? 'KYC & FSSAI' : 'NGO Darpan & Welfare'} credentials for approval.`
       );
 
       // 3. Notify Applicant
       addSystemNotification(
         subjectType,
         'Dossier Under Review ⏳',
-        'Your verification documents were submitted to the District Verification Desk. Turnaround SLA < 4 hours.'
+        `Your ${subjectType === 'driver' ? 'Rider verification' : 'verification'} documents were submitted to the Operations Desk. Turnaround SLA < 4 hours.`
       );
 
-      // 4. Update Donor / Recipient verified status in local storage
-      if (subjectType === 'donor') {
-        try {
-          const rawDonors = localStorage.getItem(STORAGE_PREFIX + 'donors');
-          if (rawDonors) {
-            const list = JSON.parse(rawDonors);
-            const nextDonors = list.map(d => d.id === 1 ? { ...d, verified: autoVerify, verification_status: autoVerify ? 'approved' : 'pending_review' } : d);
-            localStorage.setItem(STORAGE_PREFIX + 'donors', JSON.stringify(nextDonors));
-          }
-        } catch (err) {}
-      }
+      // 4. Update Donor / Recipient / Driver verified status in local storage
+      syncOrgStorage(subjectType, updatedCase.org_name, autoVerify, autoVerify ? 'approved' : 'pending_review');
 
       // 5. Try Cloud API in background
       try {
@@ -393,13 +402,14 @@ export function useVerification(userId = 'user-1', subjectType = 'donor') {
   const state = verCase?.state ?? 'not_started';
   const canReceive = level >= 2 && state === 'verified';
   const canDonate = level >= 1 && state === 'verified';
+  const canDeliver = level >= 1 && state === 'verified';
 
   return {
     verCase, documents, checks, draft, setDraft,
     loading, saving, submitting, error,
     refresh, saveDraft, uploadDocument, removeDocument, submit,
     withdrawConsent, fileAppeal,
-    level, state, canReceive, canDonate,
+    level, state, canReceive, canDonate, canDeliver,
   };
 }
 
@@ -422,7 +432,6 @@ export function useAdminVerification() {
       if (r.ok) {
         const data = await r.json();
         if (data.cases && data.cases.length) {
-          // Merge local and remote
           const remoteIds = new Set(data.cases.map(c => c.id));
           const localOnly = cases.filter(c => !remoteIds.has(c.id));
           cases = [...data.cases, ...localOnly];
@@ -451,16 +460,45 @@ export function useAdminVerification() {
     setSelectedCase(id);
     const allCases = getLocalCases();
     const found = allCases.find(c => c.id === id);
-    const mockDetail = {
-      case: found,
-      documents: [
+
+    let mockDocs = [];
+    let mockChecks = [];
+
+    if (found?.subject_type === 'driver') {
+      mockDocs = [
+        { id: 'doc-1', doc_type: 'driving_license', file_key: 'demo/dl.pdf', number_last4: '2345', issued_by: 'RTO Kota Rajasthan', expiry_date: new Date(Date.now() + 3600000 * 24 * 730).toISOString(), state: 'approved', uploaded_at: new Date(Date.now() - 3600000 * 2).toISOString() },
+        { id: 'doc-2', doc_type: 'vehicle_rc', file_key: 'demo/rc.jpg', number_last4: '1234', issued_by: 'MoRTH Vahan Registry', expiry_date: null, state: 'approved', uploaded_at: new Date(Date.now() - 3600000 * 2).toISOString() },
+        { id: 'doc-3', doc_type: 'id_proof', file_key: 'demo/aadhaar.pdf', number_last4: '8890', issued_by: 'UIDAI', expiry_date: null, state: 'approved', uploaded_at: new Date(Date.now() - 3600000 * 2).toISOString() },
+      ];
+      mockChecks = [
+        { id: 'chk-1', check_type: 'dl_validity', provider: 'sarathi_api', result: 'pass', detail_json: { valid: true, lmv_mcwg: true } },
+        { id: 'chk-2', check_type: 'vahan_rc_match', provider: 'vahan_ocr', result: 'pass', detail_json: { match_score: 0.98, active_insurance: true } },
+        { id: 'chk-3', check_type: 'road_safety_undertaking', provider: 'internal', result: 'pass', detail_json: { signed: true } },
+      ];
+    } else if (found?.subject_type === 'donor') {
+      mockDocs = [
         { id: 'doc-1', doc_type: 'fssai', file_key: 'demo/fssai.pdf', number_last4: '0452', issued_by: 'FSSAI Kota Regional Office', expiry_date: new Date(Date.now() + 3600000 * 24 * 180).toISOString(), state: 'approved', uploaded_at: new Date(Date.now() - 3600000 * 4).toISOString() },
         { id: 'doc-2', doc_type: 'pan', file_key: 'demo/pan.jpg', number_last4: 'P456', issued_by: 'Income Tax Dept', expiry_date: null, state: 'approved', uploaded_at: new Date(Date.now() - 3600000 * 4).toISOString() },
-      ],
-      checks: [
+      ];
+      mockChecks = [
         { id: 'chk-1', check_type: 'fssai_format', provider: 'internal', result: 'pass', detail_json: { digits: 14, valid: true } },
         { id: 'chk-2', check_type: 'name_match', provider: 'ocr', result: 'pass', detail_json: { match_score: 0.96 } },
-      ],
+      ];
+    } else {
+      mockDocs = [
+        { id: 'doc-1', doc_type: 'ngo_darpan', file_key: 'demo/darpan.pdf', number_last4: '9410', issued_by: 'NITI Aayog NGO Darpan', expiry_date: null, state: 'approved', uploaded_at: new Date(Date.now() - 3600000 * 6).toISOString() },
+        { id: 'doc-2', doc_type: 'registration_cert', file_key: 'demo/12a.pdf', number_last4: '0481', issued_by: 'Govt of Rajasthan / Charity Commissioner', expiry_date: null, state: 'approved', uploaded_at: new Date(Date.now() - 3600000 * 6).toISOString() },
+      ];
+      mockChecks = [
+        { id: 'chk-1', check_type: 'darpan_id_validity', provider: 'niti_aayog', result: 'pass', detail_json: { status: 'active', verified: true } },
+        { id: 'chk-2', check_type: 'capacity_ratio', provider: 'internal', result: 'pass', detail_json: { headcount: 65, storage_ok: true } },
+      ];
+    }
+
+    const mockDetail = {
+      case: found,
+      documents: mockDocs,
+      checks: mockChecks,
       reviews: []
     };
 
