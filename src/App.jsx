@@ -47,6 +47,7 @@ class ErrorBoundary extends Component {
 
 // Donor Pages
 import RoleSelect from './pages/RoleSelect';
+import ProfileSetup from './pages/ProfileSetup';
 import DonorHome from './pages/donor/DonorHome';
 import PostDonation from './pages/donor/PostDonation';
 import MatchResult from './pages/donor/MatchResult';
@@ -182,11 +183,36 @@ function PWAInstallBanner() {
 }
 
 
-// Protected route
-function Protected({ allowedRoles, redirectTo = '/' }) {
+const ROLE_HOME = {
+  donor: '/donor',
+  recipient: '/recipient',
+  driver: '/driver',
+  admin: '/admin',
+};
+
+function Authenticated() {
   const { user } = useApp();
   if (!user) return <Navigate to="/" replace />;
-  if (allowedRoles && !allowedRoles.includes(user.role)) return <Navigate to={redirectTo} replace />;
+  return <Outlet />;
+}
+
+function ProfileAwareVerification() {
+  const { user } = useApp();
+  if (user?.onboarding?.completed === false) return <Navigate to="/onboarding/profile" replace />;
+  return <VerificationPage />;
+}
+
+function ProfileAwareImpact() {
+  const { user } = useApp();
+  if (user?.onboarding?.completed === false) return <Navigate to="/onboarding/profile" replace />;
+  return <ImpactDashboard />;
+}
+
+function Protected({ allowedRoles, redirectTo = '/', requireProfile = true }) {
+  const { user } = useApp();
+  if (!user) return <Navigate to="/" replace />;
+  if (requireProfile && user.onboarding?.completed === false) return <Navigate to="/onboarding/profile" replace />;
+  if (allowedRoles && !allowedRoles.includes(user.role)) return <Navigate to={ROLE_HOME[user.role] || redirectTo} replace />;
   return <Outlet />;
 }
 
@@ -196,16 +222,19 @@ function AppInner() {
   return (
     <>
       <Routes>
-        {/* Onboarding */}
         <Route path="/" element={<RoleSelect />} />
 
-        {/* Shared */}
-        <Route path="/impact" element={<ImpactDashboard />} />
-        <Route path="/notifications" element={<NotificationsPage />} />
-        <Route path="/verification" element={<VerificationPage />} />
-        <Route path="/recipient/verification" element={<VerificationPage />} />
-        <Route path="/donor/verification" element={<VerificationPage />} />
-        <Route path="/admin/verification" element={<AdminQueue />} />
+        <Route element={<Authenticated />}>
+          <Route path="/onboarding/profile" element={<ProfileSetup />} />
+        </Route>
+
+        <Route path="/impact" element={<ProfileAwareImpact />} />
+        <Route element={<Protected />}>
+          <Route path="/notifications" element={<NotificationsPage />} />
+        </Route>
+        <Route path="/verification" element={<ProfileAwareVerification />} />
+        <Route path="/recipient/verification" element={<ProfileAwareVerification />} />
+        <Route path="/donor/verification" element={<ProfileAwareVerification />} />
 
         {/* Donor */}
         <Route element={<Protected allowedRoles={['donor']} />}>
@@ -241,6 +270,7 @@ function AppInner() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/queue" element={<AdminQueue />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/verification" element={<AdminQueue />} />
           <Route path="/official" element={<ImpactDashboard />} />
         </Route>
 

@@ -30,8 +30,7 @@ export default function RoleSelect() {
     setLoading(true);
     setTimeout(() => {
       login(phone, selectedRole);
-      const routes = { donor: '/donor', recipient: '/recipient', driver: '/driver', admin: '/admin' };
-      navigate(routes[selectedRole] ?? '/donor');
+      navigate('/onboarding/profile');
       setLoading(false);
     }, 800);
   };
@@ -108,7 +107,7 @@ export default function RoleSelect() {
               {lang === 'en' ? 'Select your role' : 'अपनी भूमिका चुनें'}
             </h2>
             <span className="text-label-sm" style={{ background: 'rgba(152,72,0,0.1)', color: 'var(--primary-dark)', padding: '2px 8px', borderRadius: 999, textTransform: 'uppercase' }}>
-              Step 1 of 2
+              Step 1 of 3
             </span>
           </div>
           <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '4px 0 12px' }}>

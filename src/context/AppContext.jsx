@@ -69,6 +69,119 @@ async function apiFetch(endpoint, options = {}) {
   return null;
 }
 
+const ONBOARDING_VERSION = 1;
+
+function upsertById(records, record) {
+  const recordId = Number(record.id);
+  const exists = records.some(item => Number(item.id) === recordId);
+  if (!exists) return [record, ...records];
+  return records.map(item => Number(item.id) === recordId ? { ...item, ...record } : item);
+}
+
+function getProfileNumber(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+function getProfileCoordinates(profile, fallback) {
+  const latitude = Number(profile.latitude);
+  const longitude = Number(profile.longitude);
+  return {
+    lat: Number.isFinite(latitude) && latitude !== 0 ? latitude : fallback.lat,
+    lng: Number.isFinite(longitude) && longitude !== 0 ? longitude : fallback.lng,
+  };
+}
+
+function createRoleRecord(user, profile) {
+  const recordId = user.id || 1;
+  const phone = profile.phone || user.phone;
+
+  if (user.role === 'donor') {
+    const coordinates = getProfileCoordinates(profile, { lat: 25.2138, lng: 75.8648 });
+    return {
+      id: recordId,
+      name: profile.name || user.name,
+      type: profile.business_type || 'restaurant',
+      lat: coordinates.lat,
+      lng: coordinates.lng,
+      address: profile.address || '',
+      contact: phone,
+      fssai_no: '',
+      verified: false,
+      verification_status: 'not_started',
+      hygiene_rating: 0,
+      image: null,
+    };
+  }
+
+  if (user.role === 'recipient') {
+    const coordinates = getProfileCoordinates(profile, { lat: 25.2065, lng: 75.8580 });
+    return {
+      id: recordId,
+      name: profile.name || user.name,
+      type: profile.institution_type || 'ngo',
+      tier: 1,
+      lat: coordinates.lat,
+      lng: coordinates.lng,
+      address: profile.address || '',
+      contact_person: profile.contact_person || '',
+      contact: phone,
+      registration_id: profile.registration_id || '',
+      verified: false,
+      verification_status: 'not_started',
+      headcount: getProfileNumber(profile.beneficiary_count, 1),
+      meal_times: profile.meal_times || [],
+      dietary_rules: profile.dietary_rules || [],
+      accepted_categories: ['cooked', 'produce', 'packaged'],
+      capacity_kg: getProfileNumber(profile.capacity_kg, 1),
+      capacity_used_kg: 0,
+      open_from: '08:00',
+      open_to: '21:00',
+      has_kitchen: Boolean(profile.has_kitchen),
+      has_refrigeration: Boolean(profile.has_refrigeration),
+      need_today_kg: 0,
+      accepting: false,
+      language: profile.language || 'hi',
+      meals_received: 0,
+      image: null,
+    };
+  }
+
+  if (user.role === 'driver') {
+    const coordinates = getProfileCoordinates(profile, { lat: 25.2100, lng: 75.8620 });
+    return {
+      id: recordId,
+      name: profile.name || user.name,
+      lat: coordinates.lat,
+      lng: coordinates.lng,
+      vehicle_capacity_kg: getProfileNumber(profile.vehicle_capacity_kg, 1),
+      has_cooler: Boolean(profile.has_cooler),
+      available: true,
+      rating: 5,
+      phone,
+      vehicle: profile.vehicle || '',
+    };
+  }
+
+  return null;
+}
+
+function preserveExistingProfileFields(record, records, user) {
+  if (user.onboarding?.completed !== true) return record;
+  const existing = records.find(item => Number(item.id) === Number(record.id));
+  if (!existing) return record;
+  const fields = {
+    donor: ['fssai_no', 'verified', 'verification_status', 'hygiene_rating', 'image'],
+    recipient: ['tier', 'verified', 'verification_status', 'capacity_used_kg', 'need_today_kg', 'accepting', 'meals_received', 'accepted_categories', 'image'],
+    driver: ['available', 'rating'],
+  }[user.role] || [];
+  const nextRecord = { ...record };
+  fields.forEach(field => {
+    if (existing[field] !== undefined) nextRecord[field] = existing[field];
+  });
+  return nextRecord;
+}
+
 export function AppProvider({ children }) {
   const [dbStatus, setDbStatus] = useState({ connected: false, provider: 'Connecting to Cloud...' });
 
@@ -301,9 +414,50 @@ export function AppProvider({ children }) {
       admin: { role: 'admin', name: 'Kota Central Dispatcher', phone: phone || '+91 98763 00000', id: 99 },
     };
     const prof = roleProfiles[role] || { role, name: 'User', phone, id: 1 };
-    setUser(prof);
+    setUser({
+      ...prof,
+      onboarding: { version: ONBOARDING_VERSION, completed: false, profile: null },
+    });
     showToast(`Logged in as ${prof.name} (${role.toUpperCase()})`, 'verified_user');
   }, [showToast]);
+
+  const completeOnboarding = useCallback((profile) => {
+    const savedProfile = { ...(profile || {}) };
+    setUser(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        name: savedProfile.name || prev.name,
+        phone: savedProfile.phone || prev.phone,
+        onboarding: {
+          version: ONBOARDING_VERSION,
+          completed: true,
+          profile: savedProfile,
+        },
+      };
+    });
+
+    if (user) {
+      const record = createRoleRecord(user, savedProfile);
+      if (record && user.role === 'donor') {
+        const recordToSave = preserveExistingProfileFields(record, donors, user);
+        setDonors(prev => upsertById(prev, preserveExistingProfileFields(record, prev, user)));
+        apiFetch(`/donors/${record.id}`, { method: 'PATCH', body: JSON.stringify(recordToSave) });
+      }
+      if (record && user.role === 'recipient') {
+        const recordToSave = preserveExistingProfileFields(record, recipients, user);
+        setRecipients(prev => upsertById(prev, preserveExistingProfileFields(record, prev, user)));
+        apiFetch(`/recipients/${record.id}`, { method: 'PATCH', body: JSON.stringify(recordToSave) });
+      }
+      if (record && user.role === 'driver') {
+        const recordToSave = preserveExistingProfileFields(record, drivers, user);
+        setDrivers(prev => upsertById(prev, preserveExistingProfileFields(record, prev, user)));
+        apiFetch(`/drivers/${record.id}`, { method: 'PATCH', body: JSON.stringify(recordToSave) });
+      }
+    }
+
+    showToast('Profile saved. Your setup is ready to continue.', 'check_circle');
+  }, [user, showToast, donors, recipients, drivers]);
 
   const switchRole = useCallback((newRole) => {
     login(null, newRole);
@@ -894,6 +1048,7 @@ export function AppProvider({ children }) {
   const value = {
     user,
     login,
+    completeOnboarding,
     logout,
     switchRole,
     donations,
