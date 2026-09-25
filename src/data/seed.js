@@ -5,37 +5,43 @@ export const DONORS = [
   {
     id: 1, name: 'Royal Spice Kitchen', type: 'restaurant',
     lat: 25.2138, lng: 75.8648, address: 'Talwandi, Kota, Rajasthan',
-    contact: '+91 98760 11111', fssai_no: 'FSSAI2023001', verified: true,
+    contact: '+91 98760 11111', fssai_no: 'FSSAI2023001', verified: false,
+    verification_status: 'needs_changes',
     hygiene_rating: 4.5, image: 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=200&q=80'
   },
   {
     id: 2, name: 'Shree Krishna Caterers', type: 'caterer',
     lat: 25.1850, lng: 75.8401, address: 'Vigyan Nagar, Kota, Rajasthan',
     contact: '+91 98760 22222', fssai_no: 'FSSAI2023002', verified: true,
+    verification_status: 'approved',
     hygiene_rating: 4.2, image: null
   },
   {
     id: 3, name: 'Allen Coaching Institute Mess', type: 'hostel_mess',
     lat: 25.1952, lng: 75.8481, address: 'Mahaveer Nagar, Kota, Rajasthan',
     contact: '+91 98760 33333', fssai_no: 'FSSAI2023003', verified: true,
+    verification_status: 'approved',
     hygiene_rating: 4.8, image: null
   },
   {
     id: 4, name: 'New Anaj Mandi Fresh Grocer', type: 'grocer',
     lat: 25.1760, lng: 75.8310, address: 'Nayapura, Kota, Rajasthan',
     contact: '+91 98760 44444', fssai_no: 'FSSAI2023004', verified: true,
+    verification_status: 'approved',
     hygiene_rating: 3.9, image: null
   },
   {
     id: 5, name: 'Rajputana Hotel & Banquet', type: 'restaurant',
     lat: 25.2280, lng: 75.8712, address: 'Station Road, Kota, Rajasthan',
     contact: '+91 98760 55555', fssai_no: 'FSSAI2023005', verified: true,
+    verification_status: 'approved',
     hygiene_rating: 4.6, image: null
   },
   {
     id: 6, name: 'IIT-JEE Campus Dining Hall', type: 'campus_dining',
     lat: 25.2010, lng: 75.8543, address: 'Jhalawar Road, Kota, Rajasthan',
     contact: '+91 98760 66666', fssai_no: 'FSSAI2023006', verified: true,
+    verification_status: 'approved',
     hygiene_rating: 4.7, image: null
   },
 ];
@@ -45,7 +51,8 @@ export const RECIPIENTS = [
     id: 1, name: 'Asha Nilayam Old Age Home', type: 'old_age_home', tier: 1,
     lat: 25.2065, lng: 75.8580, address: 'Behind Bus Stand, Kota',
     contact_person: 'Sister Mary Thomas', contact: '+91 98761 11111',
-    registration_id: 'RAJ-OAH-2019-042', verified: true,
+    registration_id: 'RAJ-OAH-2019-042', verified: false,
+    verification_status: 'under_review',
     headcount: 65, meal_times: ['12:30', '19:30'],
     dietary_rules: ['veg_only', 'soft_food'],
     accepted_categories: ['cooked', 'dairy', 'produce'],
@@ -60,7 +67,8 @@ export const RECIPIENTS = [
     id: 2, name: 'Shishu Grih Child Care Home', type: 'cci', tier: 1,
     lat: 25.1920, lng: 75.8452, address: 'Dadabari, Kota',
     contact_person: 'Sunita Devi', contact: '+91 98761 22222',
-    registration_id: 'RAJ-CCI-2018-017', verified: true,
+    registration_id: 'RAJ-CCI-2018-017', verified: false,
+    verification_status: 'submitted',
     headcount: 42, meal_times: ['12:00', '19:00'],
     dietary_rules: ['veg_only'],
     accepted_categories: ['cooked', 'bakery', 'produce', 'dairy'],

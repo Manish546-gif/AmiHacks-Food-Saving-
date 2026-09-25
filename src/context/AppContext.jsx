@@ -217,7 +217,7 @@ export function AppProvider({ children }) {
     };
   }, [syncFromCloud]);
 
-  // Instant cross-tab sync via storage events
+  // Instant cross-tab sync via storage events and verification sync
   useEffect(() => {
     const handleStorage = (e) => {
       if (e.key === STORAGE_KEY + '_donations' && e.newValue) {
@@ -232,9 +232,53 @@ export function AppProvider({ children }) {
           if (Array.isArray(parsed)) setNotifications(parsed);
         } catch (err) {}
       }
+      if ((e.key === STORAGE_KEY + '_donors' || e.key === 'janseva_donors') && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) setDonors(parsed);
+        } catch (err) {}
+      }
+      if ((e.key === STORAGE_KEY + '_recipients' || e.key === 'janseva_recipients') && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) setRecipients(parsed);
+        } catch (err) {}
+      }
     };
+
+    const handleVerificationSync = (e) => {
+      try {
+        const cases = e?.detail || JSON.parse(localStorage.getItem('janseva_verification_cases') || '[]');
+        if (Array.isArray(cases)) {
+          setDonors(prev => prev.map(d => {
+            const match = cases.find(c => c.subject_type === 'donor' && (c.subject_id === `user-${d.id}` || c.subject_id === String(d.id) || d.id === 1));
+            if (match) {
+              const isApp = match.state === 'verified';
+              return { ...d, verified: isApp, verification_status: isApp ? 'approved' : match.state };
+            }
+            return d;
+          }));
+          setRecipients(prev => prev.map(r => {
+            const match = cases.find(c => c.subject_type === 'recipient' && (c.subject_id === `r-${r.id}` || c.subject_id === `recipient-${r.id}` || c.subject_id === String(r.id) || r.id === 1));
+            if (match) {
+              const isApp = match.state === 'verified';
+              return { ...r, verified: isApp, verification_status: isApp ? 'approved' : match.state };
+            }
+            return r;
+          }));
+        }
+      } catch (err) {}
+    };
+
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    window.addEventListener('janseva_verification_sync', handleVerificationSync);
+    // Initial evaluation
+    handleVerificationSync();
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('janseva_verification_sync', handleVerificationSync);
+    };
   }, []);
 
   // Sync to localStorage as continuous backup
@@ -346,8 +390,41 @@ export function AppProvider({ children }) {
     showToast(`Fast-forwarded to ${secondsRemaining}s remaining (Demo)`, 'fast_forward');
   }, [showToast]);
 
+  // Verification status check helpers
+  const isDonorVerified = useCallback((donorId) => {
+    const dId = donorId || user?.id || 1;
+    const current = donors.find(d => Number(d.id) === Number(dId));
+    try {
+      const cases = JSON.parse(localStorage.getItem('janseva_verification_cases') || '[]');
+      const match = cases.find(c => c.subject_type === 'donor' && (c.subject_id === `user-${dId}` || c.subject_id === String(dId) || dId === 1));
+      if (match) {
+        return match.state === 'verified';
+      }
+    } catch (e) {}
+    return current?.verified === true && current?.verification_status !== 'needs_changes' && current?.verification_status !== 'pending_review';
+  }, [donors, user]);
+
+  const isRecipientVerified = useCallback((recipientId) => {
+    const rId = recipientId || 1;
+    const current = recipients.find(r => Number(r.id) === Number(rId));
+    try {
+      const cases = JSON.parse(localStorage.getItem('janseva_verification_cases') || '[]');
+      const match = cases.find(c => c.subject_type === 'recipient' && (c.subject_id === `r-${rId}` || c.subject_id === `recipient-${rId}` || c.subject_id === String(rId) || rId === 1));
+      if (match) {
+        return match.state === 'verified';
+      }
+    } catch (e) {}
+    return current?.verified === true && current?.verification_status !== 'needs_changes' && current?.verification_status !== 'under_review' && current?.verification_status !== 'submitted' && current?.verification_status !== 'pending_review';
+  }, [recipients]);
+
   // Create Donation flow (immediately displayed on Shelter, Rider, and Admin dashboards)
   const createDonation = useCallback((donationData) => {
+    const donorId = user?.id ?? 1;
+    if (!isDonorVerified(donorId)) {
+      showToast('Admin verification required before broadcasting surplus food.', 'warning');
+      return null;
+    }
+
     const now = new Date();
     const readyAt = donationData.ready_at ? new Date(donationData.ready_at) : now;
     const safeHours = Number(donationData.safe_hours ?? 4);
@@ -366,7 +443,7 @@ export function AppProvider({ children }) {
 
     const newDonation = {
       id: newId,
-      donor_id: user?.id ?? 1,
+      donor_id: donorId,
       donor_name: user?.name ?? 'Royal Spice Kitchen',
       ...donationData,
       qty_kg: donationData.qty_kg || peopleFed,
@@ -433,13 +510,20 @@ export function AppProvider({ children }) {
       });
 
     return newDonation;
-  }, [donations, recipients, user, showToast, addNotification]);
+  }, [donations, recipients, user, isDonorVerified, showToast, addNotification]);
 
   // Recipient accepts offer
   const acceptOffer = useCallback((donationId, recipientId) => {
     const targetId = Number(donationId);
     const don = donations.find(d => Number(d.id) === targetId);
     if (!don) return false;
+
+    // Check recipient verification
+    const recipId = Number(recipientId || 1);
+    if (!isRecipientVerified(recipId)) {
+      showToast('Shelter verification required by Admin before accepting food rescue.', 'warning');
+      return false;
+    }
 
     // Check if offer has expired (1/4th safe window elapsed)
     if (don.status === 'escalated' || don.status === 'expired') {
@@ -836,6 +920,8 @@ export function AppProvider({ children }) {
     matchDonation,
     dbStatus,
     refreshData: syncFromCloud,
+    isDonorVerified,
+    isRecipientVerified,
   };
 
   return (

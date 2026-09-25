@@ -1,18 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { useVerification, approveCaseInstantDemo } from '../../hooks/useVerification';
 import { TopBar, BottomNav, VerifiedBadge, TierBadge, CapacityGauge } from '../../components/Navigation';
 import { CountdownRing } from '../../components/CountdownRing';
 import MapView from '../../components/MapView';
 import { DONORS } from '../../data/seed';
 
-
 // No static fake data — all offers come from MongoDB via AppContext
 export default function RecipientHome() {
   const navigate = useNavigate();
-  const { recipients, donors, donations, acceptOffer, declineOffer, showToast } = useApp();
+  const { recipients, donors, donations, acceptOffer, declineOffer, showToast, isRecipientVerified } = useApp();
   const [accepting, setAccepting] = useState(true);
+  const [showUnverifiedModal, setShowUnverifiedModal] = useState(false);
   
+  const myRecipient = recipients[0]; // Asha Nilayam (demo)
+  const donorDirectory = donors?.length ? donors : DONORS;
+
+  const { verCase, state: verState, canReceive, refresh: refreshVerification } = useVerification(myRecipient?.id ? `r-${myRecipient.id}` : 'r-1', 'recipient');
+
+  const isVerified = (verState === 'verified' || canReceive) || (isRecipientVerified ? isRecipientVerified(myRecipient?.id) : false) || (myRecipient?.verified === true && myRecipient?.verification_status !== 'under_review' && myRecipient?.verification_status !== 'submitted' && myRecipient?.verification_status !== 'needs_changes');
+
   // Find live offer from AppContext (status === 'offered' and 1/4th safe window active)
   const liveDonationOffer = donations.find(d => {
     if (d.status !== 'offered') return false;
@@ -37,9 +45,6 @@ export default function RecipientHome() {
   const [offerResponse, setOfferResponse] = useState(null); // 'accepted' | 'declined' | null
   const [needKg, setNeedKg] = useState('');
   const [lang, setLang] = useState('hi');
-
-  const myRecipient = recipients[0]; // Asha Nilayam (demo)
-  const donorDirectory = donors?.length ? donors : DONORS;
 
   useEffect(() => {
     if (liveDonationOffer) {
@@ -66,11 +71,32 @@ export default function RecipientHome() {
 
   const handleAccept = () => {
     const targetId = offer?.donation_id || liveDonationOffer?.id || 1;
-    acceptOffer(targetId, myRecipient.id);
-    setOfferResponse('accepted');
-    setOffer(null);
-    showToast('Accepted! Opening live intake tracking...', 'two_wheeler');
-    navigate(`/recipient/track/${targetId}`);
+    if (!isVerified) {
+      setShowUnverifiedModal(true);
+      showToast('Institutional verification approval required before accepting surplus food', 'warning');
+      return;
+    }
+    const success = acceptOffer(targetId, myRecipient.id);
+    if (success !== false) {
+      setOfferResponse('accepted');
+      setOffer(null);
+      showToast('Accepted! Opening live intake tracking...', 'two_wheeler');
+      navigate(`/recipient/track/${targetId}`);
+    }
+  };
+
+  const handleInstantApproveDemo = () => {
+    approveCaseInstantDemo('vc-001');
+    showToast('Simulation: Verified by District Operations Desk! Unlocking food intake...', 'verified');
+    setShowUnverifiedModal(false);
+    refreshVerification();
+    setTimeout(() => {
+      const targetId = offer?.donation_id || liveDonationOffer?.id || 1;
+      acceptOffer(targetId, myRecipient.id);
+      setOfferResponse('accepted');
+      setOffer(null);
+      navigate(`/recipient/track/${targetId}`);
+    }, 400);
   };
 
   const handleDecline = () => {
@@ -103,6 +129,84 @@ export default function RecipientHome() {
       />
 
       <main style={{ flex: 1, paddingTop: 64, paddingBottom: 96, overflowY: 'auto' }}>
+        {/* Verification Compliance Gating Banner */}
+        {!isVerified && (
+          <div style={{
+            margin: '12px 16px 4px', padding: '14px 16px', borderRadius: 16,
+            background: verState === 'needs_changes' ? 'rgba(183,18,42,0.08)' : 'rgba(252,128,25,0.08)',
+            border: verState === 'needs_changes' ? '1.5px solid rgba(183,18,42,0.3)' : '1.5px solid rgba(252,128,25,0.3)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+              <span className="material-symbols-outlined" style={{
+                color: verState === 'needs_changes' ? 'var(--urgent)' : 'var(--primary)',
+                fontSize: 22, flexShrink: 0, marginTop: 1
+              }}>
+                {verState === 'needs_changes' ? 'report_problem' : 'pending_actions'}
+              </span>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                  <span className="text-label-md" style={{
+                    fontWeight: 800,
+                    color: verState === 'needs_changes' ? 'var(--urgent)' : 'var(--primary-dark)'
+                  }}>
+                    {verState === 'needs_changes' ? '⚠️ Verification Action Required' : '⏳ Shelter Verification Pending Admin Approval'}
+                  </span>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999,
+                    background: verState === 'needs_changes' ? 'rgba(183,18,42,0.15)' : 'rgba(252,128,25,0.15)',
+                    color: verState === 'needs_changes' ? 'var(--urgent)' : 'var(--primary-dark)',
+                    textTransform: 'uppercase'
+                  }}>
+                    {verState === 'needs_changes' ? 'Action Needed' : verState === 'under_review' ? 'Under Review' : 'Pending Approval'}
+                  </span>
+                </div>
+                <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '4px 0 10px', lineHeight: 1.4 }}>
+                  {verState === 'needs_changes'
+                    ? (verCase?.decision_reason || 'District Operations Desk requested document updates before food intake authorization.')
+                    : 'Asha Nilayam verification dossier is under review by City Dispatch Admin. Surplus food intake unlocks immediately upon admin approval.'}
+                </p>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => navigate('/verification')}
+                    style={{
+                      padding: '6px 12px', borderRadius: 10, border: 'none',
+                      background: 'var(--primary-dark)', color: 'white',
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>badge</span>
+                    <span>Verification Portal</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/admin/verification')}
+                    style={{
+                      padding: '6px 12px', borderRadius: 10,
+                      border: '1px solid var(--outline-variant)', background: 'var(--surface-container-lowest)',
+                      color: 'var(--on-surface)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 4
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>admin_panel_settings</span>
+                    <span>Admin Review Desk</span>
+                  </button>
+                  <button
+                    onClick={handleInstantApproveDemo}
+                    style={{
+                      padding: '6px 12px', borderRadius: 10, border: 'none',
+                      background: 'rgba(0,110,22,0.12)', color: 'var(--tertiary)',
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>bolt</span>
+                    <span>Demo: Instant Admin Approve</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Institution header */}
         <div style={{
           margin: '12px 16px',
@@ -409,6 +513,108 @@ export default function RecipientHome() {
           ))}
         </div>
       </main>
+
+      {/* Unverified Modal */}
+      {showUnverifiedModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1000,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+        }}>
+          <div style={{
+            background: 'var(--surface-container-lowest)',
+            borderRadius: 24, padding: 24, maxWidth: 440, width: '100%',
+            boxShadow: 'var(--shadow-elevated)', animation: 'scaleUp 200ms ease'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: 14,
+                background: verState === 'needs_changes' ? 'rgba(183,18,42,0.1)' : 'rgba(252,128,25,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: verState === 'needs_changes' ? 'var(--urgent)' : 'var(--primary)'
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 28 }}>
+                  {verState === 'needs_changes' ? 'security_update_warning' : 'admin_panel_settings'}
+                </span>
+              </div>
+              <div>
+                <h3 className="text-headline-sm" style={{ margin: 0 }}>
+                  {verState === 'needs_changes' ? 'Verification Action Required' : 'Shelter Verification Required'}
+                </h3>
+                <span className="text-body-sm" style={{ color: 'var(--on-surface-variant)' }}>
+                  State Safety & NGO Compliance
+                </span>
+              </div>
+            </div>
+
+            <p className="text-body-md" style={{ color: 'var(--on-surface-variant)', lineHeight: 1.5, margin: '0 0 16px' }}>
+              {verState === 'needs_changes'
+                ? `The District Operations Desk requires changes on Asha Nilayam's compliance dossier: "${verCase?.decision_reason || 'Document revision required'}". Please update your files in the portal.`
+                : 'To ensure beneficiary food safety, institutional shelters must have an approved registration, hygiene clearance, and NGO Darpan verification before accepting surplus meals.'}
+            </p>
+
+            <div style={{ background: 'var(--surface-container-low)', borderRadius: 14, padding: 12, marginBottom: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span className="text-label-sm" style={{ color: 'var(--on-surface-variant)' }}>Current Stage</span>
+                <span className="text-label-sm" style={{ fontWeight: 800, color: 'var(--primary-dark)', textTransform: 'capitalize' }}>
+                  {verState?.replace('_', ' ') || 'Pending Review'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span className="text-label-sm" style={{ color: 'var(--on-surface-variant)' }}>SLA Time</span>
+                <span className="text-label-sm" style={{ fontWeight: 700, color: 'var(--on-surface)' }}>Within 4 Hours</span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button
+                onClick={() => { setShowUnverifiedModal(false); navigate('/verification'); }}
+                className="btn-primary"
+                style={{ height: 48, fontSize: 14, justifyContent: 'center' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>badge</span>
+                <span>Open Verification Portal</span>
+              </button>
+
+              <button
+                onClick={() => { setShowUnverifiedModal(false); navigate('/admin/verification'); }}
+                style={{
+                  height: 48, borderRadius: 14, border: '1px solid var(--outline-variant)',
+                  background: 'var(--surface-container-lowest)', color: 'var(--on-surface)',
+                  fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>admin_panel_settings</span>
+                <span>Review in Admin Desk</span>
+              </button>
+
+              <button
+                onClick={handleInstantApproveDemo}
+                style={{
+                  height: 44, borderRadius: 14, border: 'none',
+                  background: 'rgba(0,110,22,0.12)', color: 'var(--tertiary)',
+                  fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>bolt</span>
+                <span>⚡ Instant Admin Approval (Demo Override)</span>
+              </button>
+
+              <button
+                onClick={() => setShowUnverifiedModal(false)}
+                style={{
+                  height: 38, border: 'none', background: 'transparent',
+                  color: 'var(--on-surface-variant)', fontSize: 13, fontWeight: 600, cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </div>

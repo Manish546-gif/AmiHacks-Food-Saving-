@@ -76,6 +76,58 @@ function saveLocalCases(cases) {
   } catch (e) {}
 }
 
+export function syncOrgStorage(type, orgName, isApproved, status) {
+  const plural = type === 'donor' ? 'donors' : type === 'recipient' ? 'recipients' : 'drivers';
+  const keys = [
+    STORAGE_PREFIX + plural,
+    'surplus_to_shelter_state_v1_' + plural
+  ];
+  keys.forEach(key => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const list = JSON.parse(raw);
+        const next = list.map(item =>
+          (item.name === orgName || item.id === 1 || item.id === '1')
+            ? { ...item, verified: isApproved, verification_status: status }
+            : item
+        );
+        localStorage.setItem(key, JSON.stringify(next));
+      }
+    } catch (e) {}
+  });
+  window.dispatchEvent(new Event('storage'));
+}
+
+export function approveCaseInstantDemo(caseId = 'vc-001') {
+  const cases = getLocalCases();
+  const target = cases.find(c => c.id === caseId || c.subject_id === caseId || (caseId === 'donor' && c.subject_type === 'donor') || (caseId === 'recipient' && c.subject_type === 'recipient'));
+  if (!target) return false;
+
+  const updatedCases = cases.map(c => {
+    if (c.id === target.id) {
+      return {
+        ...c,
+        state: 'verified',
+        level: c.org_type === 'cci' ? 3 : 2,
+        decision_reason: 'Approved by District Verification Operations Desk (Instant Demo)',
+        decided_at: new Date().toISOString(),
+        valid_until: new Date(Date.now() + 3600000 * 24 * 365).toISOString(),
+      };
+    }
+    return c;
+  });
+
+  saveLocalCases(updatedCases);
+  syncOrgStorage(target.subject_type, target.org_name, true, 'approved');
+  addSystemNotification(
+    target.subject_type,
+    'Verification Approved! 🎉',
+    `Congratulations! ${target.org_name} has been verified by the District Operations Desk. Food rescue & donation privileges are now active!`
+  );
+  return true;
+}
+
 function addSystemNotification(role, title, body, donationId = null) {
   try {
     const raw = localStorage.getItem(STORAGE_PREFIX + 'notifications');
@@ -91,6 +143,7 @@ function addSystemNotification(role, title, body, donationId = null) {
     };
     const updated = [newNotif, ...list];
     localStorage.setItem(STORAGE_PREFIX + 'notifications', JSON.stringify(updated));
+    localStorage.setItem('surplus_to_shelter_state_v1_notifications', JSON.stringify(updated));
     window.dispatchEvent(new Event('storage'));
   } catch (e) {}
 }
@@ -127,7 +180,15 @@ export function useVerification(userId = 'user-1', subjectType = 'donor') {
 
     if (!cloudFound) {
       const allCases = getLocalCases();
-      const local = allCases.find(c => c.subject_id === userId || c.subject_id === `user-${userId}` || (subjectType === 'donor' && c.subject_type === 'donor') || (subjectType === 'recipient' && c.subject_type === 'recipient'));
+      const local = allCases.find(c =>
+        c.subject_id === userId ||
+        c.subject_id === `user-${userId}` ||
+        c.subject_id === `r-${userId}` ||
+        c.subject_id === `recipient-${userId}` ||
+        c.id === userId ||
+        (subjectType === 'donor' && c.subject_type === 'donor') ||
+        (subjectType === 'recipient' && c.subject_type === 'recipient')
+      );
       if (local) {
         setVerCase(local);
         setDraft(prev => ({ ...prev, ...local }));
@@ -442,25 +503,7 @@ export function useAdminVerification() {
 
       // Update donor/recipient verified status in AppContext storage
       if (targetCase) {
-        if (targetCase.subject_type === 'donor') {
-          try {
-            const rawDonors = localStorage.getItem(STORAGE_PREFIX + 'donors');
-            if (rawDonors) {
-              const list = JSON.parse(rawDonors);
-              const nextDonors = list.map(d => (d.name === targetCase.org_name || d.id === 1) ? { ...d, verified: isApproved, verification_status: isApproved ? 'approved' : 'needs_changes' } : d);
-              localStorage.setItem(STORAGE_PREFIX + 'donors', JSON.stringify(nextDonors));
-            }
-          } catch (err) {}
-        } else if (targetCase.subject_type === 'recipient') {
-          try {
-            const rawRecips = localStorage.getItem(STORAGE_PREFIX + 'recipients');
-            if (rawRecips) {
-              const list = JSON.parse(rawRecips);
-              const nextRecips = list.map(r => (r.name === targetCase.org_name || r.id === 1) ? { ...r, verified: isApproved, verification_status: isApproved ? 'approved' : 'needs_changes' } : r);
-              localStorage.setItem(STORAGE_PREFIX + 'recipients', JSON.stringify(nextRecips));
-            }
-          } catch (err) {}
-        }
+        syncOrgStorage(targetCase.subject_type, targetCase.org_name, isApproved, isApproved ? 'approved' : nextState);
 
         // Notify applicant about decision
         addSystemNotification(

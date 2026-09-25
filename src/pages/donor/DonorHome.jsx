@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { useVerification, approveCaseInstantDemo } from '../../hooks/useVerification';
 import { TopBar, BottomNav } from '../../components/Navigation';
 import { DonationCard } from '../../components/DonationCard';
 import MapView from '../../components/MapView';
@@ -15,11 +16,21 @@ const FILTERS = [
 
 export default function DonorHome() {
   const navigate = useNavigate();
-  const { donations, recipients, drivers, donors, user } = useApp();
+  const { donations, recipients, drivers, donors, user, showToast, isDonorVerified } = useApp();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
 
+  const { verCase, state: verState, canDonate, refresh: refreshVerification } = useVerification(user?.id ? `user-${user.id}` : 'user-1', 'donor');
+  const currentDonor = donors?.find(d => Number(d.id) === Number(user?.id ?? 1));
+  const isVerified = (verState === 'verified' || canDonate) || (isDonorVerified ? isDonorVerified(user?.id) : false) || (currentDonor?.verified === true && currentDonor?.verification_status !== 'needs_changes' && currentDonor?.verification_status !== 'pending_review');
+
   const myDonations = donations.filter(d => d.donor_id === (user?.id ?? 1));
+
+  const handleInstantApproveDemo = () => {
+    approveCaseInstantDemo('vc-002');
+    showToast('Simulation: Verified by District Operations Desk! Food donation privileges active.', 'verified');
+    refreshVerification();
+  };
 
   const filteredDonations = myDonations.filter(d => {
     const statusMatch = filter === 'all' ? true
@@ -40,6 +51,84 @@ export default function DonorHome() {
       <TopBar title="Surplus Feed" subtitle="Surplus-to-Shelter" />
 
       <main style={{ flex: 1, paddingTop: 64, paddingBottom: 96, overflowY: 'auto' }}>
+        {/* Verification Compliance Gating Banner */}
+        {!isVerified && (
+          <div style={{
+            margin: '12px 16px 4px', padding: '14px 16px', borderRadius: 16,
+            background: verState === 'needs_changes' ? 'rgba(183,18,42,0.08)' : 'rgba(252,128,25,0.08)',
+            border: verState === 'needs_changes' ? '1.5px solid rgba(183,18,42,0.3)' : '1.5px solid rgba(252,128,25,0.3)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+              <span className="material-symbols-outlined" style={{
+                color: verState === 'needs_changes' ? 'var(--urgent)' : 'var(--primary)',
+                fontSize: 22, flexShrink: 0, marginTop: 1
+              }}>
+                {verState === 'needs_changes' ? 'report_problem' : 'pending_actions'}
+              </span>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                  <span className="text-label-md" style={{
+                    fontWeight: 800,
+                    color: verState === 'needs_changes' ? 'var(--urgent)' : 'var(--primary-dark)'
+                  }}>
+                    {verState === 'needs_changes' ? '⚠️ Kitchen Verification Action Required' : '⏳ Kitchen Verification Pending Admin Approval'}
+                  </span>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999,
+                    background: verState === 'needs_changes' ? 'rgba(183,18,42,0.15)' : 'rgba(252,128,25,0.15)',
+                    color: verState === 'needs_changes' ? 'var(--urgent)' : 'var(--primary-dark)',
+                    textTransform: 'uppercase'
+                  }}>
+                    {verState === 'needs_changes' ? 'Action Needed' : 'Pending Approval'}
+                  </span>
+                </div>
+                <p className="text-body-sm" style={{ color: 'var(--on-surface-variant)', margin: '4px 0 10px', lineHeight: 1.4 }}>
+                  {verState === 'needs_changes'
+                    ? (verCase?.decision_reason || 'District Operations Desk requested FSSAI renewal certificate before food broadcast authorization.')
+                    : 'Your kitchen verification dossier is currently awaiting review by the District Admin Operations Desk.'}
+                </p>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => navigate('/verification')}
+                    style={{
+                      padding: '6px 12px', borderRadius: 10, border: 'none',
+                      background: 'var(--primary-dark)', color: 'white',
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>badge</span>
+                    <span>Verification Portal</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/admin/verification')}
+                    style={{
+                      padding: '6px 12px', borderRadius: 10,
+                      border: '1px solid var(--outline-variant)', background: 'var(--surface-container-lowest)',
+                      color: 'var(--on-surface)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 4
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>admin_panel_settings</span>
+                    <span>Admin Review Desk</span>
+                  </button>
+                  <button
+                    onClick={handleInstantApproveDemo}
+                    style={{
+                      padding: '6px 12px', borderRadius: 10, border: 'none',
+                      background: 'rgba(0,110,22,0.12)', color: 'var(--tertiary)',
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>bolt</span>
+                    <span>Demo: Instant Admin Approve</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Location bar */}
         <div style={{ padding: '12px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
